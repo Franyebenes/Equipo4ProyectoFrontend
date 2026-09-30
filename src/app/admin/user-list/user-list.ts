@@ -24,4 +24,14 @@ export class UserList {
     }
     return this.usuarios.filter(u => u.roles.includes(this.filtroRol));
   }
+
+  eliminarUsuario(email: string) {
+    this.usuarios = this.usuarios.filter(u => u.email !== email);
+  }
+  toggleBloqueo(email: string) {
+  const usuario = this.usuarios.find(u => u.email === email);
+  if (usuario) {
+    usuario.status = usuario.status === 'BLOCKED' ? 'ACTIVE' : 'BLOCKED';
+  }
+}
 }

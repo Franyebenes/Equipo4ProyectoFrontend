@@ -26,9 +26,11 @@
         <td>{{ usuario.roles.join(', ') }}</td>
         <td>{{ usuario.status }}</td>
         <td>
-          <button>Bloquear</button>
+          <button (click)="toggleBloqueo(usuario.email)">
+  {{ usuario.status === 'BLOCKED' ? 'Desbloquear' : 'Bloquear' }}
+</button>
           <button>Editar</button>
-          <button>Eliminar</button>
+          <button (click)="eliminarUsuario(usuario.email)">Eliminar</button>
         </td>
       </tr>
     </tbody>
