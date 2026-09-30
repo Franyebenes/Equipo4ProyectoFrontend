@@ -27,12 +27,18 @@
         <td>{{ usuario.status }}</td>
         <td>
           <button (click)="toggleBloqueo(usuario.email)">
-  {{ usuario.status === 'BLOCKED' ? 'Desbloquear' : 'Bloquear' }}
-</button>
-          <button>Editar</button>
+            {{ usuario.status === 'BLOCKED' ? 'Desbloquear' : 'Bloquear' }}
+          </button>
+          <button (click)="editarUsuario(usuario)">Editar</button>
           <button (click)="eliminarUsuario(usuario.email)">Eliminar</button>
         </td>
       </tr>
     </tbody>
   </table>
+
+  <app-user-edit
+    [usuario]="usuarioEditando"
+    (guardar)="onGuardarEdicion($event)"
+    (cancelar)="onCancelarEdicion()">
+  </app-user-edit>
 </div>
