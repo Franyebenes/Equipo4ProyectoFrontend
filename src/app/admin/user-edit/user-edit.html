@@ -1,0 +1,22 @@
+<div class="user-edit-container" *ngIf="usuario">
+  <h3>Editar usuario</h3>
+
+  <label>Nombre:</label>
+  <input [(ngModel)]="usuario.nombre" type="text">
+
+  <label>Email:</label>
+  <input [(ngModel)]="usuario.email" type="email">
+
+  <label>Rol:</label>
+  <select [(ngModel)]="usuario.roles[0]">
+    <option value="ADMIN">Admin</option>
+    <option value="SELLER">Vendedor</option>
+    <option value="CUSTOMER">Cliente</option>
+    <option value="PREMIUM">Premium</option>
+  </select>
+
+  <div class="botones">
+    <button (click)="onGuardar()">Guardar</button>
+    <button (click)="onCancelar()">Cancelar</button>
+  </div>
+</div>
