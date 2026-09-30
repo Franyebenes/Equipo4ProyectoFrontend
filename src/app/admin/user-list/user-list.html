@@ -1,6 +1,14 @@
 <div class="user-list-container">
   <h2>Listado de Usuarios</h2>
 
+  <label>Filtrar por rol:</label>
+  <select [(ngModel)]="filtroRol">
+    <option value="TODOS">Todos</option>
+    <option value="ADMIN">Admin</option>
+    <option value="SELLER">Vendedor</option>
+    <option value="CUSTOMER">Cliente</option>
+  </select>
+
   <table>
     <thead>
       <tr>
@@ -12,7 +20,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let usuario of usuarios">
+      <tr *ngFor="let usuario of usuariosFiltrados">
         <td>{{ usuario.nombre }}</td>
         <td>{{ usuario.email }}</td>
         <td>{{ usuario.roles.join(', ') }}</td>
