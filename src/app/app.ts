@@ -1,12 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { UserList } from './admin/user-list/user-list';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, UserList],
   templateUrl: './app.html',
-  styleUrl: './app.css',
+  styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('esibuy-front');
+  protected title = 'esibuy-frontend';
 }

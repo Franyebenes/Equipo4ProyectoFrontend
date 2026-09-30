@@ -1,0 +1,38 @@
+<div class="user-list-container">
+  <h2>Listado de Usuarios</h2>
+
+  <label>Filtrar por rol:</label>
+  <select [(ngModel)]="filtroRol">
+    <option value="TODOS">Todos</option>
+    <option value="ADMIN">Admin</option>
+    <option value="SELLER">Vendedor</option>
+    <option value="CUSTOMER">Cliente</option>
+  </select>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let usuario of usuariosFiltrados">
+        <td>{{ usuario.nombre }}</td>
+        <td>{{ usuario.email }}</td>
+        <td>{{ usuario.roles.join(', ') }}</td>
+        <td>{{ usuario.status }}</td>
+        <td>
+          <button (click)="toggleBloqueo(usuario.email)">
+  {{ usuario.status === 'BLOCKED' ? 'Desbloquear' : 'Bloquear' }}
+</button>
+          <button>Editar</button>
+          <button (click)="eliminarUsuario(usuario.email)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
