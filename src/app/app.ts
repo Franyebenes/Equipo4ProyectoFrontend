@@ -1,12 +1,12 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { UserList } from './admin/user-list/user-list';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
+// Cáscara de la app: cabecera compartida y salida de rutas.
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, UserList],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App {
   menuAbierto = signal(false);
@@ -18,6 +18,4 @@ export class App {
   cerrarMenu(): void {
     this.menuAbierto.set(false);
   }
-
-  protected title = 'esibuy-frontend';
 }

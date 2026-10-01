@@ -55,7 +55,9 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "port": 43127,
-            "host": "0.0.0.0"
+            "host": "0.0.0.0",
+            "allowedHosts": true,
+            "liveReload": false
           },
           "configurations": {
             "production": {
