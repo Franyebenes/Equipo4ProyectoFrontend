@@ -1,1 +1,20 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+	--bg-main: #f4f5f7;
+	--bg-card: #ffffff;
+	--border-color: #e2e8f0;
+	--text-primary: #1e293b;
+	--text-secondary: #64748b;
+	--primary-color: #f95738;
+	--primary-hover: #e0482b;
+	--sidebar-bg: #1e1e24;
+	--sidebar-text: #94a3b8;
+	--error-color: #ef4444;
+	--radius: 8px;
+}
+
+body {
+	margin: 0;
+	background-color: var(--bg-main);
+	color: var(--text-primary);
+	min-height: 100vh;
+}

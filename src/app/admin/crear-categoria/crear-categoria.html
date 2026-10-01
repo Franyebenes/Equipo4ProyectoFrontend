@@ -1,0 +1,105 @@
+<!-- BARRA NAVEGACIÓN SUPERIOR (Administración) -->
+<header class="admin-navbar">
+    <div class="nav-brand">
+        <span class="logo-bold">ESI</span><span class="logo-light">Buy</span>
+        <span class="badge-role">Admin</span>
+    </div>
+    <div class="nav-search">
+        <i class="ph ph-magnifying-glass"></i>
+        <input type="text" placeholder="Buscar en el panel administrativo...">
+    </div>
+    <div class="nav-user-actions">
+        <button class="btn-icon" title="Notificaciones"><i class="ph ph-bell"></i></button>
+        <div class="user-profile">
+            <div class="avatar">A</div>
+            <div class="user-info">
+                <span class="user-name">Administrador</span>
+                <span class="user-email">admin@esibuy.es</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ESTRUCTURA PRINCIPAL -->
+<div class="admin-container">
+
+    <!-- MENÚ LATERAL (Sidebar) -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-section">
+            <span class="sidebar-title">GENERAL</span>
+            <ul>
+                <li><a href="#"><i class="ph ph-squares-four"></i> Dashboard</a></li>
+                <li><a href="#"><i class="ph ph-users"></i> Usuarios</a></li>
+                <li><a href="#"><i class="ph ph-storefront"></i> Vendedores</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-title">CATÁLOGO</span>
+            <ul>
+                <li class="active"><a href="#"><i class="ph ph-folder-plus"></i> Categorías</a></li>
+                <li><a href="#"><i class="ph ph-package"></i> Productos (Lectura)</a></li>
+                <li><a href="#"><i class="ph ph-warning-circle"></i> Incidencias</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-title">CONFIGURACIÓN</span>
+            <ul>
+                <li><a href="#"><i class="ph ph-gear"></i> Ajustes Sistema</a></li>
+                <li><a href="#"><i class="ph ph-sign-out"></i> Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- ÁREA DE TRABAJO -->
+    <main class="admin-content">
+        <div class="content-header">
+            <div>
+                <span class="breadcrumb">Catálogo / Categorías / Nueva</span>
+                <h1>Crear nueva categoría</h1>
+                <p class="subtitle">Añade una categoría al catálogo de ESIBuy para clasificar los productos del sistema.</p>
+            </div>
+        </div>
+
+        <!-- FORMULARIO -->
+        <div class="card-container">
+            <form (submit)="onSubmit(); $event.preventDefault();" class="admin-form" novalidate>
+                
+                <div class="form-group">
+                    <label for="nombreCategoria">Nombre de la categoría <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="nombreCategoria" 
+                        name="nombre" 
+                        maxlength="50" 
+                        placeholder="Ej: Electrónica, Libros, Moda..." 
+                        [(ngModel)]="nombreCategoria"
+                        [class.invalid]="isInvalid"
+                        (input)="onInput()"
+                        required
+                    >
+                    <span class="help-text">Máximo 50 caracteres. Debe ser un nombre único.</span>
+                    <div class="error-message">{{ errorMessage }}</div>
+                </div>
+
+                <!-- Mensajes de feedback -->
+                @if (successMessage) {
+                <div class="alert-box success">
+                    {{ successMessage }}
+                </div>
+                }
+                @if (errorMessage && !isInvalid) {
+                <div class="alert-box error">
+                    {{ errorMessage }}
+                </div>
+                }
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" (click)="resetForm()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btn-guardar">
+                        <i class="ph ph-plus-circle"></i> Guardar Categoría
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
