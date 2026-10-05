@@ -1,22 +1,48 @@
-<div class="user-edit-container" *ngIf="usuario">
-  <h3>Editar usuario</h3>
+@if (form; as f) {
+  <div class="overlay" (click)="onCancelar()">
+    <div class="modal card" role="dialog" aria-modal="true" aria-labelledby="titulo-editar" (click)="$event.stopPropagation()">
+      <p class="eyebrow">Editar usuario</p>
+      <h2 id="titulo-editar">{{ original?.nombre }} {{ original?.apellidos }}</h2>
 
-  <label>Nombre:</label>
-  <input [(ngModel)]="usuario.nombre" type="text">
+      <div class="grid formulario">
+        <label class="campo">
+          Email
+          <input type="email" [value]="original?.email" readonly>
+        </label>
+        <label class="campo">
+          Nombre *
+          <input type="text" [(ngModel)]="f.nombre">
+        </label>
+        <label class="campo">
+          Apellidos *
+          <input type="text" [(ngModel)]="f.apellidos">
+        </label>
+        <label class="campo">
+          DNI
+          <input type="text" [(ngModel)]="f.dni">
+        </label>
+        <label class="campo">
+          Teléfono
+          <input type="tel" [(ngModel)]="f.telefono" maxlength="9">
+        </label>
+        @if (esAdmin) {
+          <label class="campo">
+            Sede
+            <input type="text" [(ngModel)]="f.sede">
+          </label>
+        }
+      </div>
 
-  <label>Email:</label>
-  <input [(ngModel)]="usuario.email" type="email">
+      <p class="nota">El email no se puede modificar.</p>
 
-  <label>Rol:</label>
-  <select [(ngModel)]="usuario.roles[0]">
-    <option value="ADMIN">Admin</option>
-    <option value="SELLER">Vendedor</option>
-    <option value="CUSTOMER">Cliente</option>
-    <option value="PREMIUM">Premium</option>
-  </select>
+      @if (error) {
+        <div class="aviso aviso-error" role="alert">{{ error }}</div>
+      }
 
-  <div class="botones">
-    <button (click)="onGuardar()">Guardar</button>
-    <button (click)="onCancelar()">Cancelar</button>
+      <div class="botones">
+        <button type="button" class="btn btn-ghost" (click)="onCancelar()">Cancelar</button>
+        <button type="button" class="btn btn-coral" (click)="onGuardar()">Guardar cambios</button>
+      </div>
+    </div>
   </div>
-</div>
+}

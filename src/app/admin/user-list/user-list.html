@@ -1,44 +1,115 @@
-<div class="user-list-container">
-  <h2>Listado de Usuarios</h2>
+<section class="admin-page">
+  <div class="bar">
+    <nav class="admin-tabs" aria-label="Administración">
+      <a routerLink="/admin/usuarios" routerLinkActive="is-active">Usuarios</a>
+      <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active">Dar de alta administrador</a>
+      <a routerLink="/admin/crear-categoria" routerLinkActive="is-active">Crear categoría</a>
+    </nav>
 
-  <label>Filtrar por rol:</label>
-  <select [(ngModel)]="filtroRol">
-    <option value="TODOS">Todos</option>
-    <option value="ADMIN">Admin</option>
-    <option value="SELLER">Vendedor</option>
-    <option value="CUSTOMER">Cliente</option>
-  </select>
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">Panel de administración</p>
+        <h1>Usuarios</h1>
+        <p class="sub">{{ totalElementos() }} usuarios encontrados</p>
+      </div>
+      <a routerLink="/admin/administradores/nuevo" class="btn btn-coral">+ Nuevo administrador</a>
+    </header>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Email</th>
-        <th>Rol</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let usuario of usuariosFiltrados">
-        <td>{{ usuario.nombre }}</td>
-        <td>{{ usuario.email }}</td>
-        <td>{{ usuario.roles.join(', ') }}</td>
-        <td>{{ usuario.status }}</td>
-        <td>
-          <button (click)="toggleBloqueo(usuario.email)">
-            {{ usuario.status === 'BLOCKED' ? 'Desbloquear' : 'Bloquear' }}
-          </button>
-          <button (click)="editarUsuario(usuario)">Editar</button>
-          <button (click)="eliminarUsuario(usuario.email)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <div class="filtros">
+      <label class="campo">
+        Rol
+        <select [ngModel]="filtroRol" (ngModelChange)="filtroRol = $event; aplicarFiltros()">
+          <option value="">Todos los roles</option>
+          @for (r of roles; track r) {
+            <option [value]="r">{{ etiquetaRol[r] }}</option>
+          }
+        </select>
+      </label>
+      <label class="campo">
+        Estado
+        <select [ngModel]="filtroEstado" (ngModelChange)="filtroEstado = $event; aplicarFiltros()">
+          <option value="">Todos menos eliminados</option>
+          @for (e of estados; track e) {
+            <option [value]="e">{{ etiquetaEstado[e] }}</option>
+          }
+        </select>
+      </label>
+    </div>
 
-  <app-user-edit
-    [usuario]="usuarioEditando"
-    (guardar)="onGuardarEdicion($event)"
-    (cancelar)="onCancelarEdicion()">
-  </app-user-edit>
-</div>
+    @if (error()) {
+      <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+    }
+
+    <div class="card">
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th class="derecha">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (cargando()) {
+              <tr><td colspan="5" class="vacio">Cargando usuarios…</td></tr>
+            } @else {
+              @for (u of usuarios(); track u.id) {
+                <tr>
+                  <td>
+                    <div class="persona">
+                      <span class="avatar" aria-hidden="true">{{ inicial(u) }}</span>
+                      <div>
+                        <strong>{{ u.nombre }} {{ u.apellidos }}</strong>
+                        @if (u.nombreComercial) {
+                          <small>{{ u.nombreComercial }}</small>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ u.email }}</td>
+                  <td>
+                    @for (r of u.roles; track r) {
+                      <span class="chip">{{ etiquetaRol[r] }}</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="estado" [attr.data-estado]="u.estado">{{ etiquetaEstado[u.estado] }}</span>
+                  </td>
+                  <td>
+                    <div class="acciones">
+                      <button type="button" class="btn btn-ghost btn-sm" (click)="editar(u)">Editar</button>
+                      @if (u.estado !== 'ELIMINADO') {
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="toggleBloqueo(u)">
+                          {{ u.estado === 'BLOQUEADO' ? 'Desbloquear' : 'Bloquear' }}
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" (click)="eliminar(u)">Eliminar</button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="5" class="vacio">No hay usuarios con estos filtros.</td></tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPaginas() > 1) {
+        <div class="paginacion">
+          <button type="button" class="btn btn-ghost btn-sm" [disabled]="pagina() === 0" (click)="irAPagina(pagina() - 1)">Anterior</button>
+          <span>Página {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
+          <button type="button" class="btn btn-ghost btn-sm" [disabled]="pagina() + 1 >= totalPaginas()" (click)="irAPagina(pagina() + 1)">Siguiente</button>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<app-user-edit
+  [usuario]="usuarioEditando()"
+  (guardar)="guardarEdicion($event)"
+  (cancelar)="cancelarEdicion()" />

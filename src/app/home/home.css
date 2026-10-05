@@ -132,8 +132,6 @@
   gap: 1rem;
 }
 
-<<<<<<< HEAD
-=======
 .api-info {
   width: min(1120px, calc(100% - 2rem));
   margin: 0 auto;
@@ -193,7 +191,6 @@
   cursor: pointer;
 }
 
->>>>>>> origin/feature/registro
 .card {
   border-radius: var(--radius);
   padding: 1.35rem 1.3rem 1.2rem;
@@ -264,8 +261,6 @@
   font-weight: 600;
 }
 
-<<<<<<< HEAD
-=======
 .contact {
   display: flex;
   flex-wrap: wrap;
@@ -279,7 +274,6 @@
   color: inherit;
 }
 
->>>>>>> origin/feature/registro
 .help {
   display: inline-flex;
   align-items: center;

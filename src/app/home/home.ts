@@ -1,12 +1,7 @@
-<<<<<<< HEAD
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-=======
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HomeApiService } from './home-api.service';
 import { HomeInfo } from './home-info';
->>>>>>> origin/feature/registro
 
 // Página Home: el contenido se mueve aquí para poder enrutar login y registro.
 @Component({
@@ -14,10 +9,6 @@ import { HomeInfo } from './home-info';
   imports: [RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css',
-<<<<<<< HEAD
-})
-export class Home {}
-=======
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
@@ -47,4 +38,3 @@ export class Home {
     });
   }
 }
->>>>>>> origin/feature/registro
