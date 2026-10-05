@@ -1,4 +1,5 @@
 :root {
+  /* Colores de Home, login y registro */
   --paper: #fffdf9;
   --cream: #f4f0e9;
   --ink: #191a17;
@@ -15,6 +16,18 @@
   --ok: #3f6f48;
   --radius: 1.25rem;
   --shadow: 0 12px 40px rgb(25 26 23 / 8%);
+
+  /* Colores del panel de administración */
+  --bg-main: #f4f0e9;
+  --bg-card: #fffdfa;
+  --border-color: #e9e2d9;
+  --text-primary: #292b27;
+  --text-secondary: #777970;
+  --primary-color: #ed5834;
+  --primary-hover: #d94c2b;
+  --sidebar-bg: #202722;
+  --sidebar-text: #c0c5c0;
+  --error-color: #dc554d;
 }
 
 *,
@@ -55,7 +68,6 @@ img {
   display: block;
 }
 
-/* Piezas compartidas entre Home, login y registro (encapsulación de componentes). */
 .bar {
   width: min(1120px, calc(100% - 2rem));
   margin: 0 auto;
