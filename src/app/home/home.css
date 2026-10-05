@@ -132,6 +132,68 @@
   gap: 1rem;
 }
 
+<<<<<<< HEAD
+=======
+.api-info {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 0 0 3rem;
+}
+
+.api-info-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+}
+
+.api-info h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -0.03em;
+}
+
+.api-description {
+  max-width: 42rem;
+  color: var(--muted);
+}
+
+.api-version {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 0.75rem 1.5rem;
+  margin: 1.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.features li::marker {
+  color: var(--coral);
+}
+
+.api-error {
+  color: #8a321e;
+}
+
+.api-error p {
+  margin-top: 0;
+}
+
+.api-error button {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+>>>>>>> origin/feature/registro
 .card {
   border-radius: var(--radius);
   padding: 1.35rem 1.3rem 1.2rem;
@@ -202,6 +264,22 @@
   font-weight: 600;
 }
 
+<<<<<<< HEAD
+=======
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  padding: 0 1rem 1rem;
+  font-size: 0.82rem;
+}
+
+.contact a {
+  color: inherit;
+}
+
+>>>>>>> origin/feature/registro
 .help {
   display: inline-flex;
   align-items: center;

@@ -132,6 +132,34 @@
       </article>
     </div>
   </section>
+<<<<<<< HEAD
+=======
+
+  <section class="api-info" aria-labelledby="about-heading">
+    @if (loading()) {
+      <p role="status">Cargando información de ESIBuy…</p>
+    } @else if (error()) {
+      <div class="api-error" role="alert">
+        <p>No se ha podido cargar la información de ESIBuy. Comprueba que el backend esté disponible.</p>
+        <button type="button" class="text-link" (click)="loadHomeInfo()">Reintentar</button>
+      </div>
+    } @else if (homeInfo(); as info) {
+      <div class="api-info-heading">
+        <div>
+          <p class="eyebrow">Sobre {{ info.nombre }}</p>
+          <h2 id="about-heading">Una plataforma pensada para comprar con confianza.</h2>
+          <p class="api-description">{{ info.descripcion }}</p>
+        </div>
+        <p class="api-version">Versión {{ info.version }}</p>
+      </div>
+      <ul class="features">
+        @for (caracteristica of info.caracteristicas; track caracteristica) {
+          <li>{{ caracteristica }}</li>
+        }
+      </ul>
+    }
+  </section>
+>>>>>>> origin/feature/registro
 </main>
 
 <footer class="footer">
@@ -157,4 +185,14 @@
       Centro de ayuda
     </button>
   </div>
+<<<<<<< HEAD
+=======
+  @if (homeInfo(); as info) {
+    <div class="contact">
+      <span>Contacto:</span>
+      <a [href]="'mailto:' + info.contacto.email">{{ info.contacto.email }}</a>
+      <a [href]="'tel:' + info.contacto.telefono">{{ info.contacto.telefono }}</a>
+    </div>
+  }
+>>>>>>> origin/feature/registro
 </footer>

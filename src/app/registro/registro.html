@@ -1,0 +1,143 @@
+<!-- Layout partido del mockup de registro. Sin paso 2 ni verificación. -->
+<section class="acceso">
+  <aside class="panel-ink" aria-label="Permisos al crear la cuenta">
+    <span class="icono-coral" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7" />
+        <path d="M5.5 19c1.4-3 3.8-4.5 6.5-4.5s5.1 1.5 6.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+      </svg>
+    </span>
+    <h1>Permisos claros desde el primer día.</h1>
+    <p>Cliente y Vendedor son experiencias separadas. Revisamos los accesos para proteger a toda la comunidad.</p>
+    <ul>
+      <li>
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4" />
+          <path d="M4.8 8.2 7 10.3l4.4-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+        Datos protegidos y cifrados
+      </li>
+      <li>
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4" />
+          <path d="M4.8 8.2 7 10.3l4.4-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+        Acceso según tu rol
+      </li>
+      <li>
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4" />
+          <path d="M4.8 8.2 7 10.3l4.4-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+        Verificación reforzada
+      </li>
+    </ul>
+  </aside>
+
+  <div class="tarjeta">
+    <p class="ceja">Crear cuenta · Paso 1 de 2</p>
+    <h2>¿Cómo usarás ESIBuy?</h2>
+    <p class="intro">Selecciona un rol. El acceso y las herramientas disponibles dependerán de esta elección.</p>
+
+    <form (submit)="enviar($event)">
+      <!-- Elección visual de rol; no se envía a ningún API. -->
+      <div class="roles-cuenta" role="radiogroup" aria-label="Rol de la cuenta">
+        <button
+          type="button"
+          class="rol"
+          [class.elegido]="rol() === 'cliente'"
+          (click)="elegirRol('cliente')"
+          [attr.aria-pressed]="rol() === 'cliente'"
+        >
+          <span class="rol-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 8h12l-1 11H7L6 8Zm3-3h6l1 3H8l1-3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="marca" aria-hidden="true"></span>
+          <strong>Cliente</strong>
+          <span>Comprar, guardar favoritos y seguir pedidos.</span>
+        </button>
+        <button
+          type="button"
+          class="rol"
+          [class.elegido]="rol() === 'vendedor'"
+          (click)="elegirRol('vendedor')"
+          [attr.aria-pressed]="rol() === 'vendedor'"
+        >
+          <span class="rol-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 10h16v9H4v-9Zm2-5h12l2 5H4l2-5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="marca" aria-hidden="true"></span>
+          <strong>Vendedor</strong>
+          <span>Publicar productos y gestionar ventas tras verificación.</span>
+        </button>
+      </div>
+
+      <div class="dos-campos">
+        <label class="campo">
+          Nombre
+          <span class="entrada entrada-simple">
+            <input type="text" name="nombre" autocomplete="given-name" required placeholder="Tu nombre" />
+          </span>
+        </label>
+        <label class="campo">
+          Apellidos
+          <span class="entrada entrada-simple">
+            <input type="text" name="apellidos" autocomplete="family-name" required placeholder="Tus apellidos" />
+          </span>
+        </label>
+      </div>
+
+      <label class="campo">
+        Correo electrónico
+        <span class="entrada">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M3 6.5 10 11l7-4.5M4 15h12V5H4v10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+          </svg>
+          <input type="email" name="correo" autocomplete="email" required placeholder="nombre@correo.es" />
+        </span>
+      </label>
+
+      <label class="campo">
+        Contraseña
+        <span class="entrada">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+          </svg>
+          <input
+            type="password"
+            name="contrasena"
+            autocomplete="new-password"
+            required
+            minlength="10"
+            placeholder="Mínimo 10 caracteres"
+          />
+        </span>
+      </label>
+      <p class="pista">Incluye mayúscula, número y símbolo.</p>
+
+      <label class="check">
+        <input type="checkbox" name="condiciones" required />
+        Acepto las Condiciones de uso y la Política de privacidad
+      </label>
+      <label class="check">
+        <input type="checkbox" name="novedades" />
+        Quiero recibir novedades y recomendaciones
+      </label>
+
+      <button type="submit" class="btn btn-coral btn-ancho">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M2.5 8h11M9.5 4.5 13.5 8l-4 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        Crear cuenta y verificar correo
+      </button>
+    </form>
+
+    <p class="pie-form">
+      Podrás solicitar Premium desde tu perfil. Los vendedores requieren validación adicional antes de publicar.
+    </p>
+  </div>
+</section>
