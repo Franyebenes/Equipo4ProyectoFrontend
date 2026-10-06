@@ -368,11 +368,11 @@ describe('Registro', () => {
       reenvio.flush(RESPUESTA_CREADA, { status: 201, statusText: 'Created' });
     });
 
-    it('muestra en el aviso general los errores de campos que el formulario no tiene', () => {
+    it('pinta junto al avatar un código que el servidor rechaza', () => {
       rellenarCliente();
       responderError(enviarYCapturar(), 400, { errores: { avatar: ['AVATAR_NO_PERMITIDO'] } });
 
-      expect(texto('.error-general')).toBe('Elige uno de los avatares disponibles.');
+      expect(texto('#error-avatar')).toBe('Elige uno de los avatares disponibles.');
     });
 
     it('trata un 400 sin lista de errores como una petición inválida', () => {

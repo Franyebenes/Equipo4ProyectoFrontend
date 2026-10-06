@@ -388,6 +388,33 @@ form {
   margin-bottom: 1.4rem;
 }
 
+.lista-avatares {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.opcion-avatar {
+  width: 3.4rem;
+  height: 3.4rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  overflow: hidden;
+}
+
+.opcion-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.opcion-avatar.elegido {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 2px var(--coral-soft);
+}
+
 @media (min-width: 720px) {
   .acceso {
     padding: 2.2rem 0 3rem;

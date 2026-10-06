@@ -247,6 +247,25 @@
         }
 
         <div class="campo-grupo">
+          <p class="campo" id="etiqueta-avatar">Avatar (opcional)</p>
+          <div class="lista-avatares" role="radiogroup" aria-labelledby="etiqueta-avatar">
+            @for (id of avatares; track id) {
+              <button
+                type="button"
+                class="opcion-avatar"
+                [class.elegido]="form.controls.avatar.value === id"
+                (click)="elegirAvatar(id)"
+                [attr.aria-pressed]="form.controls.avatar.value === id"
+                [attr.aria-label]="'Avatar ' + id"
+              >
+                <img [src]="'/avatares/' + carpetaAvatares() + '/' + id + '.png'" [alt]="" />
+              </button>
+            }
+          </div>
+          <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'avatar' }" />
+        </div>
+
+        <div class="campo-grupo">
           <label class="campo">
             Contraseña
             <span class="entrada">

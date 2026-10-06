@@ -37,7 +37,8 @@ type CampoRegistro =
   | 'categoriaPrincipalId'
   | 'contrasena'
   | 'repetirContrasena'
-  | 'condiciones';
+  | 'condiciones'
+  | 'avatar';
 
 interface ErrorGeneral {
   texto: string;
@@ -46,6 +47,9 @@ interface ErrorGeneral {
 }
 
 const SEGUNDOS_ESPERA_POR_DEFECTO = 60;
+
+// Mismos identificadores que el backend. Hay 4 fotos de cliente y 4 de vendedor.
+const AVATARES = ['avatar-01', 'avatar-02', 'avatar-03', 'avatar-04'] as const;
 
 const TEXTOS_ERROR = {
   generico: 'No se ha podido completar el registro. Inténtalo de nuevo.',
@@ -84,6 +88,7 @@ export class Registro {
   readonly esperaSegundos = signal(0);
   readonly categorias = signal<Categoria[]>([]);
   readonly estadoCategorias = signal<'inicial' | 'cargando' | 'listo' | 'error'>('inicial');
+  readonly avatares = AVATARES;
 
   // Los campos de vendedor empiezan deshabilitados: un control deshabilitado no cuenta para la validez.
   readonly form = this.fb.group(
@@ -96,6 +101,7 @@ export class Registro {
       fechaNacimiento: ['', [fechaNacimientoValida()]],
       nombreComercial: [{ value: '', disabled: true }, [textoObligatorio()]],
       categoriaPrincipalId: [{ value: '', disabled: true }, [textoObligatorio()]],
+      avatar: [''],
       contrasena: ['', [contrasenaValida()]],
       repetirContrasena: ['', [contrasenaValida()]],
       // Estas dos casillas no viajan al backend: el servidor rechaza cualquier campo que no conozca.
@@ -111,9 +117,20 @@ export class Registro {
     inject(DestroyRef).onDestroy(() => this.detenerEspera());
   }
 
+  elegirAvatar(id: string): void {
+    this.form.controls.avatar.setValue(id);
+    this.errorGeneral.set(null);
+  }
+
+  // Cliente y vendedor tienen fotos distintas; el id que viaja al back es el mismo (avatar-01 …).
+  carpetaAvatares(): 'clientes' | 'vendedores' {
+    return this.rol() === 'vendedor' ? 'vendedores' : 'clientes';
+  }
+
   elegirRol(rol: RolRegistro): void {
     this.rol.set(rol);
     this.errorGeneral.set(null);
+    this.form.controls.avatar.setValue('');
     const { fechaNacimiento, nombreComercial, categoriaPrincipalId } = this.form.controls;
     if (rol === 'vendedor') {
       fechaNacimiento.disable();
@@ -187,12 +204,15 @@ export class Registro {
   private construirSolicitud(): SolicitudRegistro {
     const valores = this.form.getRawValue();
     const telefono = valores.telefono.trim();
+    const avatar = valores.avatar.trim();
     const comunes = {
       nombre: valores.nombre.trim(),
       apellidos: valores.apellidos.trim(),
       dni: valores.dni.trim(),
       email: valores.email.trim(),
       telefono: telefono === '' ? null : telefono,
+      // Sin foto elegida no se envía: el backend pone el avatar por defecto.
+      ...(avatar ? { avatar } : {}),
       // La contraseña no se recorta: los espacios forman parte de ella.
       contrasena: valores.contrasena,
       repetirContrasena: valores.repetirContrasena,
