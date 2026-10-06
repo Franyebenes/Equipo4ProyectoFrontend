@@ -5,6 +5,7 @@ import { Registro } from './registro/registro';
 import { CrearCategoriaComponent } from './admin/crear-categoria/crear-categoria';
 import { UserList } from './admin/user-list/user-list';
 import { DarAltaAdmin } from './admin/dar-alta-admin/dar-alta-admin';
+import { VerCategorias } from './admin/ver-categorias/ver-categorias';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -12,5 +13,6 @@ export const routes: Routes = [
   { path: 'registro', component: Registro },
   { path: 'admin/usuarios', component: UserList },
   { path: 'admin/administradores/nuevo', component: DarAltaAdmin },
+  { path: 'admin/categorias', component: VerCategorias },
   { path: 'admin/crear-categoria', component: CrearCategoriaComponent },
 ];
