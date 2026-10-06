@@ -1,4 +1,4 @@
-<!-- Layout partido del mockup de registro. Sin paso 2 ni verificación. -->
+<!-- Layout partido del mockup de registro. La cuenta queda pendiente de activación por un administrador. -->
 <section class="acceso">
   <aside class="panel-ink" aria-label="Permisos al crear la cuenta">
     <span class="icono-coral" aria-hidden="true">
@@ -35,109 +35,345 @@
   </aside>
 
   <div class="tarjeta">
-    <p class="ceja">Crear cuenta · Paso 1 de 2</p>
-    <h2>¿Cómo usarás ESIBuy?</h2>
-    <p class="intro">Selecciona un rol. El acceso y las herramientas disponibles dependerán de esta elección.</p>
-
-    <form (submit)="enviar($event)">
-      <!-- Elección visual de rol; no se envía a ningún API. -->
-      <div class="roles-cuenta" role="radiogroup" aria-label="Rol de la cuenta">
-        <button
-          type="button"
-          class="rol"
-          [class.elegido]="rol() === 'cliente'"
-          (click)="elegirRol('cliente')"
-          [attr.aria-pressed]="rol() === 'cliente'"
-        >
-          <span class="rol-icono" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M6 8h12l-1 11H7L6 8Zm3-3h6l1 3H8l1-3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
-            </svg>
-          </span>
-          <span class="marca" aria-hidden="true"></span>
-          <strong>Cliente</strong>
-          <span>Comprar, guardar favoritos y seguir pedidos.</span>
-        </button>
-        <button
-          type="button"
-          class="rol"
-          [class.elegido]="rol() === 'vendedor'"
-          (click)="elegirRol('vendedor')"
-          [attr.aria-pressed]="rol() === 'vendedor'"
-        >
-          <span class="rol-icono" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M4 10h16v9H4v-9Zm2-5h12l2 5H4l2-5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
-            </svg>
-          </span>
-          <span class="marca" aria-hidden="true"></span>
-          <strong>Vendedor</strong>
-          <span>Publicar productos y gestionar ventas tras verificación.</span>
-        </button>
-      </div>
-
-      <div class="dos-campos">
-        <label class="campo">
-          Nombre
-          <span class="entrada entrada-simple">
-            <input type="text" name="nombre" autocomplete="given-name" required placeholder="Tu nombre" />
-          </span>
-        </label>
-        <label class="campo">
-          Apellidos
-          <span class="entrada entrada-simple">
-            <input type="text" name="apellidos" autocomplete="family-name" required placeholder="Tus apellidos" />
-          </span>
-        </label>
-      </div>
-
-      <label class="campo">
-        Correo electrónico
-        <span class="entrada">
-          <svg viewBox="0 0 20 20" aria-hidden="true">
-            <path d="M3 6.5 10 11l7-4.5M4 15h12V5H4v10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+    @if (confirmacion(); as cuenta) {
+      <div class="confirmacion" role="status">
+        <span class="confirmacion-icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7" />
+            <path d="m8 12.4 2.8 2.8L16.2 9.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
-          <input type="email" name="correo" autocomplete="email" required placeholder="nombre@correo.es" />
         </span>
-      </label>
+        <p class="ceja">Cuenta creada</p>
+        <!-- tabindex -1: al terminar el registro se le da el foco, para que se vea y se lea. -->
+        <h2 tabindex="-1">¡Gracias por registrarte, {{ cuenta.nombre }}!</h2>
+        <p class="intro">
+          Hemos registrado <strong>{{ cuenta.email }}</strong>. Un administrador tiene que activar tu
+          cuenta antes de que puedas iniciar sesión.
+        </p>
+        <a routerLink="/" class="btn btn-coral btn-ancho">Volver al inicio</a>
+      </div>
+    } @else {
+      <p class="ceja">Crear cuenta</p>
+      <h2>¿Cómo usarás ESIBuy?</h2>
+      <p class="intro">Selecciona un rol. El acceso y las herramientas disponibles dependerán de esta elección.</p>
 
-      <label class="campo">
-        Contraseña
-        <span class="entrada">
-          <svg viewBox="0 0 20 20" aria-hidden="true">
-            <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-          </svg>
-          <input
-            type="password"
-            name="contrasena"
-            autocomplete="new-password"
-            required
-            minlength="10"
-            placeholder="Mínimo 10 caracteres"
-          />
-        </span>
-      </label>
-      <p class="pista">Incluye mayúscula, número y símbolo.</p>
+      <!-- Errores de un campo, todos a la vez. Se enlazan con el campo mediante aria-describedby. -->
+      <ng-template #errorDe let-campo>
+        @let mensajes = mensajesError(campo);
+        @if (mensajes.length > 0) {
+          <div class="errores-campo" [id]="'error-' + campo">
+            @for (mensaje of mensajes; track mensaje) {
+              <p class="error-campo">{{ mensaje }}</p>
+            }
+          </div>
+        }
+      </ng-template>
 
-      <label class="check">
-        <input type="checkbox" name="condiciones" required />
-        Acepto las Condiciones de uso y la Política de privacidad
-      </label>
-      <label class="check">
-        <input type="checkbox" name="novedades" />
-        Quiero recibir novedades y recomendaciones
-      </label>
+      <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+        <!-- Elección de rol: decide qué campos se piden y qué tipo de cuenta se envía. -->
+        <div class="roles-cuenta" role="radiogroup" aria-label="Rol de la cuenta">
+          <button
+            type="button"
+            class="rol"
+            [class.elegido]="rol() === 'cliente'"
+            (click)="elegirRol('cliente')"
+            [attr.aria-pressed]="rol() === 'cliente'"
+          >
+            <span class="rol-icono" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M6 8h12l-1 11H7L6 8Zm3-3h6l1 3H8l1-3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <span class="marca" aria-hidden="true"></span>
+            <strong>Cliente</strong>
+            <span>Comprar, guardar favoritos y seguir pedidos.</span>
+          </button>
+          <button
+            type="button"
+            class="rol"
+            [class.elegido]="rol() === 'vendedor'"
+            (click)="elegirRol('vendedor')"
+            [attr.aria-pressed]="rol() === 'vendedor'"
+          >
+            <span class="rol-icono" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 10h16v9H4v-9Zm2-5h12l2 5H4l2-5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <span class="marca" aria-hidden="true"></span>
+            <strong>Vendedor</strong>
+            <span>Publicar productos y gestionar ventas tras verificación.</span>
+          </button>
+        </div>
 
-      <button type="submit" class="btn btn-coral btn-ancho">
-        <svg viewBox="0 0 16 16" aria-hidden="true">
-          <path d="M2.5 8h11M9.5 4.5 13.5 8l-4 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        Crear cuenta y verificar correo
-      </button>
-    </form>
+        <div class="dos-campos">
+          <div class="campo-grupo">
+            <label class="campo">
+              Nombre
+              <span class="entrada entrada-simple">
+                <input
+                  id="nombre"
+                  type="text"
+                  formControlName="nombre"
+                  autocomplete="given-name"
+                  placeholder="Tu nombre"
+                  [attr.aria-invalid]="ariaInvalid('nombre')"
+                  [attr.aria-describedby]="ariaDescribedby('nombre')"
+                />
+              </span>
+            </label>
+            <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'nombre' }" />
+          </div>
+          <div class="campo-grupo">
+            <label class="campo">
+              Apellidos
+              <span class="entrada entrada-simple">
+                <input
+                  id="apellidos"
+                  type="text"
+                  formControlName="apellidos"
+                  autocomplete="family-name"
+                  placeholder="Tus apellidos"
+                  [attr.aria-invalid]="ariaInvalid('apellidos')"
+                  [attr.aria-describedby]="ariaDescribedby('apellidos')"
+                />
+              </span>
+            </label>
+            <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'apellidos' }" />
+          </div>
+        </div>
 
-    <p class="pie-form">
-      Podrás solicitar Premium desde tu perfil. Los vendedores requieren validación adicional antes de publicar.
-    </p>
+        <div class="campo-grupo">
+          <label class="campo">
+            Correo electrónico
+            <span class="entrada">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M3 6.5 10 11l7-4.5M4 15h12V5H4v10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              </svg>
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="nombre@correo.es"
+                [attr.aria-invalid]="ariaInvalid('email')"
+                [attr.aria-describedby]="ariaDescribedby('email')"
+              />
+            </span>
+          </label>
+          <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'email' }" />
+        </div>
+
+        <div class="dos-campos">
+          <div class="campo-grupo">
+            <label class="campo">
+              {{ rol() === 'vendedor' ? 'DNI o CIF' : 'DNI' }}
+              <span class="entrada entrada-simple">
+                <input
+                  id="dni"
+                  type="text"
+                  formControlName="dni"
+                  autocomplete="off"
+                  [placeholder]="rol() === 'vendedor' ? '12345678Z o B12345678' : '12345678Z'"
+                  [attr.aria-invalid]="ariaInvalid('dni')"
+                  [attr.aria-describedby]="ariaDescribedby('dni')"
+                />
+              </span>
+            </label>
+            <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'dni' }" />
+          </div>
+          <div class="campo-grupo">
+            <label class="campo">
+              Teléfono (opcional)
+              <span class="entrada entrada-simple">
+                <input
+                  id="telefono"
+                  type="tel"
+                  inputmode="numeric"
+                  formControlName="telefono"
+                  autocomplete="tel-national"
+                  placeholder="612345678"
+                  [attr.aria-invalid]="ariaInvalid('telefono')"
+                  [attr.aria-describedby]="ariaDescribedby('telefono')"
+                />
+              </span>
+            </label>
+            <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'telefono' }" />
+          </div>
+        </div>
+
+        @if (rol() === 'cliente') {
+          <div class="campo-grupo">
+            <label class="campo">
+              Fecha de nacimiento
+              <span class="entrada entrada-simple">
+                <input
+                  id="fechaNacimiento"
+                  type="date"
+                  formControlName="fechaNacimiento"
+                  autocomplete="bday"
+                  [attr.aria-invalid]="ariaInvalid('fechaNacimiento')"
+                  [attr.aria-describedby]="ariaDescribedby('fechaNacimiento')"
+                />
+              </span>
+            </label>
+            <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'fechaNacimiento' }" />
+          </div>
+        } @else {
+          <div class="dos-campos">
+            <div class="campo-grupo">
+              <label class="campo">
+                Nombre comercial
+                <span class="entrada entrada-simple">
+                  <input
+                    id="nombreComercial"
+                    type="text"
+                    formControlName="nombreComercial"
+                    autocomplete="organization"
+                    placeholder="Nombre de tu tienda"
+                    [attr.aria-invalid]="ariaInvalid('nombreComercial')"
+                    [attr.aria-describedby]="ariaDescribedby('nombreComercial')"
+                  />
+                </span>
+              </label>
+              <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'nombreComercial' }" />
+            </div>
+            <div class="campo-grupo">
+              <label class="campo">
+                Categoría principal
+                <span class="entrada entrada-simple">
+                  <select
+                    id="categoriaPrincipalId"
+                    formControlName="categoriaPrincipalId"
+                    [attr.aria-invalid]="ariaInvalid('categoriaPrincipalId')"
+                    [attr.aria-describedby]="ariaDescribedby('categoriaPrincipalId')"
+                  >
+                    <option value="" disabled>
+                      @switch (estadoCategorias()) {
+                        @case ('cargando') {
+                          Cargando categorías…
+                        }
+                        @case ('error') {
+                          No se han podido cargar
+                        }
+                        @default {
+                          Elige una categoría
+                        }
+                      }
+                    </option>
+                    @for (categoria of categorias(); track categoria.id) {
+                      <option [value]="categoria.id">{{ categoria.nombre }}</option>
+                    }
+                  </select>
+                </span>
+              </label>
+              <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'categoriaPrincipalId' }" />
+              @if (estadoCategorias() === 'error') {
+                <p class="error-campo">
+                  No se han podido cargar las categorías.
+                  <button type="button" class="enlace-coral" (click)="cargarCategorias()">Reintentar</button>
+                </p>
+              } @else if (estadoCategorias() === 'listo' && categorias().length === 0) {
+                <p class="error-campo">Todavía no hay categorías disponibles.</p>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="campo-grupo">
+          <label class="campo">
+            Contraseña
+            <span class="entrada">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              </svg>
+              <input
+                id="contrasena"
+                type="password"
+                formControlName="contrasena"
+                autocomplete="new-password"
+                placeholder="Mínimo 12 caracteres"
+                [attr.aria-invalid]="ariaInvalid('contrasena')"
+                [attr.aria-describedby]="ariaDescribedby('contrasena')"
+              />
+            </span>
+          </label>
+          <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'contrasena' }" />
+        </div>
+        <p class="pista">
+          Usa al menos 12 caracteres. Una frase de varias palabras es fácil de recordar y segura.
+        </p>
+
+        <div class="campo-grupo">
+          <label class="campo">
+            Repite la contraseña
+            <span class="entrada">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              </svg>
+              <input
+                id="repetirContrasena"
+                type="password"
+                formControlName="repetirContrasena"
+                autocomplete="new-password"
+                placeholder="Vuelve a escribirla"
+                [attr.aria-invalid]="ariaInvalid('repetirContrasena')"
+                [attr.aria-describedby]="ariaDescribedby('repetirContrasena')"
+              />
+            </span>
+          </label>
+          <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'repetirContrasena' }" />
+        </div>
+
+        <div class="campo-grupo">
+          <label class="check">
+            <input
+              id="condiciones"
+              type="checkbox"
+              formControlName="condiciones"
+              [attr.aria-invalid]="ariaInvalid('condiciones')"
+              [attr.aria-describedby]="ariaDescribedby('condiciones')"
+            />
+            Acepto las Condiciones de uso y la Política de privacidad
+          </label>
+          <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'condiciones' }" />
+        </div>
+        <label class="check">
+          <input id="novedades" type="checkbox" formControlName="novedades" />
+          Quiero recibir novedades y recomendaciones
+        </label>
+
+        <!-- Junto al botón, que es donde mira el usuario justo después de enviar. -->
+        @if (errorGeneral(); as error) {
+          <div class="error-general" role="alert">
+            <p>{{ error.texto }}</p>
+            @if (error.referencia) {
+              <p class="referencia">Código de referencia: <code>{{ error.referencia }}</code></p>
+            }
+          </div>
+        }
+
+        <button
+          type="submit"
+          class="btn btn-coral btn-ancho"
+          [disabled]="enviando() || esperaSegundos() > 0"
+        >
+          @if (esperaSegundos() > 0) {
+            Espera {{ esperaSegundos() }} s
+          } @else if (enviando()) {
+            Creando cuenta…
+          } @else {
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M2.5 8h11M9.5 4.5 13.5 8l-4 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Crear cuenta
+          }
+        </button>
+      </form>
+
+      <p class="pie-form">
+        Podrás solicitar Premium desde tu perfil. Los vendedores requieren validación adicional antes de publicar.
+      </p>
+    }
   </div>
 </section>

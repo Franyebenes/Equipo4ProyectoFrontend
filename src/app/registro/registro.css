@@ -3,6 +3,8 @@
   display: block;
   flex: 1;
   background: var(--cream);
+  --error: #b3261e;
+  --error-suave: #fdecea;
 }
 
 .acceso {
@@ -343,6 +345,112 @@ form {
   text-align: center;
   color: var(--muted);
   font-size: 0.76rem;
+}
+
+/* Campo con su mensaje de error debajo. */
+.campo-grupo {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.errores-campo {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.error-campo {
+  margin: 0;
+  color: var(--error);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.entrada input[aria-invalid='true'],
+.entrada select[aria-invalid='true'] {
+  border-color: var(--error);
+}
+
+.entrada input[aria-invalid='true']:focus,
+.entrada select[aria-invalid='true']:focus {
+  outline-color: var(--error-suave);
+}
+
+.check input[aria-invalid='true'] {
+  outline: 2px solid var(--error);
+}
+
+.entrada select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.78rem 1rem;
+  background: white;
+  color: var(--ink);
+}
+
+.entrada select:focus {
+  outline: 2px solid var(--coral-soft);
+  border-color: #f0b9a8;
+}
+
+.enlace-coral {
+  cursor: pointer;
+}
+
+.error-general {
+  padding: 0.8rem 0.9rem;
+  background: var(--error-suave);
+  border-radius: 0.85rem;
+  color: var(--error);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.error-general p {
+  margin: 0;
+}
+
+.error-general .referencia {
+  margin-top: 0.3rem;
+  font-weight: 500;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Pantalla que sustituye al formulario cuando el registro se completa. */
+.confirmacion {
+  display: grid;
+  justify-items: start;
+  gap: 0.2rem;
+}
+
+.confirmacion-icono {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: #e5efe6;
+  color: var(--ok);
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.9rem;
+}
+
+.confirmacion-icono svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.confirmacion h2:focus {
+  outline: none;
+}
+
+.confirmacion .intro {
+  margin-bottom: 1.4rem;
 }
 
 @media (min-width: 860px) {
