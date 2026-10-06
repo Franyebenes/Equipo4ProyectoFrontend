@@ -1,0 +1,52 @@
+<section class="admin-page">
+  <div class="bar">
+    <nav class="admin-tabs" aria-label="Administración">
+      <a routerLink="/admin/usuarios" routerLinkActive="is-active">Usuarios</a>
+      <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active">Dar de alta administrador</a>
+      <a routerLink="/admin/categorias" routerLinkActive="is-active">Categorías</a>
+
+    </nav>
+
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">Panel de administración</p>
+        <h1>Categorías</h1>
+        <p class="sub">Categorías que forman el catálogo de ESIBuy, ordenadas alfabéticamente.</p>
+      </div>
+      <a routerLink="/admin/crear-categoria" class="btn btn-coral">+ Nueva categoría</a>
+    </header>
+
+    @if (error()) {
+      <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+    }
+
+    <div class="card">
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (cargando()) {
+              <tr><td colspan="2" class="vacio">Cargando categorías…</td></tr>
+            } @else {
+              @for (c of categorias(); track c.nombre) {
+                <tr>
+                  <td class="col-nombre"><strong>{{ c.nombre }}</strong></td>
+                  <td class="col-descripcion">{{ c.descripcion }}</td>
+                </tr>
+              } @empty {
+                @if (!error()) {
+                  <tr><td colspan="2" class="vacio">Todavía no hay categorías registradas en el catálogo.</td></tr>
+                }
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

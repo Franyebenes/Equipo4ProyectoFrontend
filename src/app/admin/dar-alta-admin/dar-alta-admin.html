@@ -1,0 +1,79 @@
+<section class="admin-page">
+  <div class="bar">
+    <nav class="admin-tabs" aria-label="Administración">
+      <a routerLink="/admin/usuarios" routerLinkActive="is-active">Usuarios</a>
+      <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active">Dar de alta administrador</a>
+      <a routerLink="/admin/categorias" routerLinkActive="is-active">Categorías</a>
+    </nav>
+
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">Panel de administración</p>
+        <h1>Nuevo administrador</h1>
+        <p class="sub">Crea una cuenta con permisos de administración.</p>
+      </div>
+    </header>
+
+    <form class="card form-card" (ngSubmit)="enviar()">
+      <h2 class="seccion">Datos personales</h2>
+      <div class="grid">
+        <label class="campo">
+          Nombre *
+          <input type="text" name="nombre" [(ngModel)]="datos.nombre" autocomplete="given-name">
+        </label>
+        <label class="campo">
+          Apellidos *
+          <input type="text" name="apellidos" [(ngModel)]="datos.apellidos" autocomplete="family-name">
+        </label>
+        <label class="campo">
+          Email *
+          <input type="email" name="email" [(ngModel)]="datos.email" autocomplete="email">
+        </label>
+        <label class="campo">
+          Avatar (URL de la imagen)
+          <input type="url" name="avatar" [(ngModel)]="datos.avatar" placeholder="https://...">
+        </label>
+      </div>
+
+      <h2 class="seccion">Datos de administración</h2>
+      <div class="grid">
+        <label class="campo">
+          Sede *
+          <input type="text" name="sede" [(ngModel)]="datos.sede">
+        </label>
+        <label class="campo">
+          Fecha de incorporación
+          <input type="date" name="FechaIncorporacion" [(ngModel)]="datos.FechaIncorporacion">
+        </label>
+      </div>
+
+      <h2 class="seccion">Contraseña</h2>
+      <div class="grid">
+        <label class="campo">
+          Contraseña *
+          <input type="password" name="contrasena" [(ngModel)]="datos.contrasena" autocomplete="new-password">
+        </label>
+        <label class="campo">
+          Repetir contraseña *
+          <input type="password" name="repetirContrasena" [(ngModel)]="datos.repetirContrasena" autocomplete="new-password">
+        </label>
+      </div>
+
+      @if (error()) {
+        <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+      }
+      @if (exito()) {
+        <div class="aviso aviso-ok" role="status">
+          {{ exito() }} <a routerLink="/admin/usuarios">Ver listado</a>
+        </div>
+      }
+
+      <div class="botones">
+        <a routerLink="/admin/usuarios" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" class="btn btn-coral" [disabled]="enviando()">
+          {{ enviando() ? 'Creando…' : 'Crear administrador' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

@@ -1,20 +1,21 @@
 <header class="topbar">
   <div class="bar">
-    <a class="brand" href="/" aria-label="ESIBuy, inicio">
+    <a class="brand" routerLink="/" aria-label="ESIBuy, inicio">
       <span class="logo" aria-hidden="true">E</span>
       <span class="wordmark">ESIBuy</span>
     </a>
 
     <nav class="nav-desktop" aria-label="Principal">
-      <a href="/" aria-current="page">Inicio</a>
+      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">Inicio</a>
       <button type="button">Cómo funciona</button>
       <button type="button">Seguridad</button>
       <button type="button">Ayuda</button>
     </nav>
 
     <div class="actions">
-      <button type="button" class="btn btn-ghost">Iniciar sesión</button>
-      <button type="button" class="btn btn-coral">Crear cuenta</button>
+      <!-- Destinos de autenticación: solo las páginas pedidas. -->
+      <a routerLink="/login" class="btn btn-ghost">Iniciar sesión</a>
+      <a routerLink="/registro" class="btn btn-coral">Crear cuenta</a>
       <button
         type="button"
         class="menu-btn"
@@ -32,174 +33,15 @@
 
   @if (menuAbierto()) {
     <nav id="menu-movil" class="nav-mobile" aria-label="Principal">
-      <a href="/" aria-current="page" (click)="cerrarMenu()">Inicio</a>
+      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Inicio</a>
       <button type="button" (click)="cerrarMenu()">Cómo funciona</button>
       <button type="button" (click)="cerrarMenu()">Seguridad</button>
       <button type="button" (click)="cerrarMenu()">Ayuda</button>
-      <button type="button" class="btn btn-ghost" (click)="cerrarMenu()">Iniciar sesión</button>
-      <button type="button" class="btn btn-coral" (click)="cerrarMenu()">Crear cuenta</button>
+      <a routerLink="/login" class="btn btn-ghost" (click)="cerrarMenu()">Iniciar sesión</a>
+      <a routerLink="/registro" class="btn btn-coral" (click)="cerrarMenu()">Crear cuenta</a>
     </nav>
   }
 </header>
 
-<main>
-  <section class="hero">
-    <div class="hero-copy">
-      <p class="badge">Marketplace privado y seguro</p>
-      <h1>Descubre mejor.<br />Compra con confianza.</h1>
-      <p class="lead">
-        ESIBuy conecta a clientes y vendedores verificados. Inicia sesión o crea tu cuenta para
-        acceder al marketplace según tu rol.
-      </p>
-      <div class="hero-ctas">
-        <button type="button" class="btn btn-coral btn-lg">
-          <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path
-              d="M2.5 8h11M9.5 4.5 13.5 8l-4 3.5"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          Iniciar sesión
-        </button>
-        <button type="button" class="btn btn-white btn-lg">Registrarme</button>
-      </div>
-      <p class="note">
-        <svg viewBox="0 0 20 20" aria-hidden="true">
-          <path
-            d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linejoin="round"
-          />
-        </svg>
-        Sin sesión no se muestran productos, precios ni catálogos. Los vendedores tampoco pueden
-        consultar ni gestionar sus artículos.
-      </p>
-      <ul class="trust">
-        <li>
-          <svg viewBox="0 0 16 16" aria-hidden="true">
-            <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4" />
-            <path d="M4.8 8.2 7 10.3l4.4-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-          Identidad verificada
-        </li>
-        <li>
-          <svg viewBox="0 0 16 16" aria-hidden="true">
-            <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4" />
-            <path d="M4.8 8.2 7 10.3l4.4-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-          Pagos protegidos
-        </li>
-        <li>
-          <svg viewBox="0 0 16 16" aria-hidden="true">
-            <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4" />
-            <path d="M4.8 8.2 7 10.3l4.4-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-          Control por roles
-        </li>
-      </ul>
-    </div>
-    <div class="hero-photo">
-      <img
-        src="hero.jpg"
-        alt="Grupo de personas conversando en un espacio luminoso"
-        width="717"
-        height="498"
-      />
-    </div>
-  </section>
-
-  <section class="roles">
-    <div class="roles-head">
-      <div>
-        <p class="eyebrow">Una cuenta, un acceso claro</p>
-        <h2>Empieza según lo que necesitas.</h2>
-      </div>
-      <p class="roles-aside">
-        La información disponible cambia de forma segura según el rol asignado a tu cuenta.
-      </p>
-    </div>
-    <div class="cards">
-      <article class="card card-sage">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path
-              d="M6 8h12l-1 11H7L6 8Zm3-3h6l1 3H8l1-3Z"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </span>
-        <h3>Quiero comprar</h3>
-        <p>Crea una cuenta Cliente para acceder al catálogo, favoritos, pedidos y seguimiento.</p>
-        <button type="button" class="text-link">Registro como Cliente →</button>
-      </article>
-      <article class="card card-peach">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path
-              d="M4 10h16v9H4v-9Zm2-5h12l2 5H4l2-5Z"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </span>
-        <h3>Quiero vender</h3>
-        <p>Solicita una cuenta Vendedor. Sin iniciar sesión no podrás ver ni gestionar tus productos.</p>
-        <button type="button" class="text-link">Registro como Vendedor →</button>
-      </article>
-      <article class="card card-gold">
-        <span class="icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path
-              d="M12 4.5 13.2 9H18l-3.8 2.8L15.5 17 12 14.2 8.5 17l1.3-5.2L6 9h4.8L12 4.5Z"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </span>
-        <h3>Ventajas Premium</h3>
-        <p>Diferencia tu experiencia con soporte prioritario, alertas y beneficios exclusivos.</p>
-        <button type="button" class="text-link">Conocer Premium →</button>
-      </article>
-    </div>
-  </section>
-</main>
-
-<app-user-list></app-user-list>
-
-<footer class="footer">
-  <div class="bar footer-bar">
-    <a class="brand brand-on-dark" href="/" aria-label="ESIBuy, inicio">
-      <span class="logo" aria-hidden="true">E</span>
-      <span class="wordmark">ESIBuy</span>
-    </a>
-    <p class="legal">
-      © 2026 ESIBuy ·
-      <button type="button">Privacidad</button>
-      ·
-      <button type="button">Condiciones</button>
-      ·
-      <button type="button">Accesibilidad</button>
-    </p>
-    <button type="button" class="help">
-      <svg viewBox="0 0 16 16" aria-hidden="true">
-        <circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.4" />
-        <path d="M6.4 6.4a1.6 1.6 0 1 1 2.2 1.5c-.5.3-.8.6-.8 1.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        <circle cx="8" cy="11.4" r="0.7" fill="currentColor" />
-      </svg>
-      Centro de ayuda
-    </button>
-  </div>
-</footer>
+<!-- Home, login y registro se pintan aquí según la ruta. -->
+<router-outlet />
