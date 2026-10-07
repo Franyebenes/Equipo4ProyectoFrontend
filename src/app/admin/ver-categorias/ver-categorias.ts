@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { mensajeError } from '../admin.service';
 import { Categoria, CategoriaService } from '../categoria.service';
@@ -21,6 +21,14 @@ export class VerCategorias implements OnInit {
   eliminando = signal(false);
   exito = signal('');
   errorEliminar = signal('');
+
+  constructor() {
+    // Aviso que deja Editar categoría al volver al listado tras guardar
+    const exito = inject(Router).currentNavigation()?.extras.state?.['exito'];
+    if (typeof exito === 'string') {
+      this.exito.set(exito);
+    }
+  }
 
   ngOnInit(): void {
     this.cargar();
