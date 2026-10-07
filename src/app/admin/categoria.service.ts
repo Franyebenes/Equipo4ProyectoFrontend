@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Categoria {
+  id: string;
   nombre: string;
   descripcion: string;
 }
@@ -14,5 +15,9 @@ export class CategoriaService {
 
   listar(): Observable<Categoria[]> {
     return this.http.get<Categoria[]>(this.api);
+  }
+
+    eliminar(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.api}/${id}`);
   }
 }
