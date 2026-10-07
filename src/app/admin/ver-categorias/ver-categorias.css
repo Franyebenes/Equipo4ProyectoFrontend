@@ -30,3 +30,8 @@ tbody tr + tr td {
 .col-descripcion {
   color: var(--muted, #6b6e67);
 }
+
+.col-acciones {
+  width: 1%;
+  white-space: nowrap;
+}

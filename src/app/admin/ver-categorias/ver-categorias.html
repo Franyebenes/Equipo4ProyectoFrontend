@@ -27,20 +27,26 @@
             <tr>
               <th>Nombre</th>
               <th>Descripción</th>
+                <th class="col-acciones derecha">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @if (cargando()) {
-              <tr><td colspan="2" class="vacio">Cargando categorías…</td></tr>
+              <tr><td colspan="3" class="vacio">Cargando categorías…</td></tr>
             } @else {
                   @for (c of categorias(); track c.id) {
                 <tr>
                   <td class="col-nombre"><strong>{{ c.nombre }}</strong></td>
                   <td class="col-descripcion">{{ c.descripcion }}</td>
+                  <td class="col-acciones">
+                    <div class="acciones">
+                      <button type="button" class="btn btn-danger btn-sm" (click)="pedirConfirmacion(c)">Eliminar</button>
+                    </div>
+                  </td>
                 </tr>
               } @empty {
                 @if (!error()) {
-                  <tr><td colspan="2" class="vacio">Todavía no hay categorías registradas en el catálogo.</td></tr>
+                  <tr><td colspan="3" class="vacio">Todavía no hay categorías registradas en el catálogo.</td></tr>
                 }
               }
             }

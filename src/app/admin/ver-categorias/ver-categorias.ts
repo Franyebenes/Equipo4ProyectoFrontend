@@ -16,6 +16,7 @@ export class VerCategorias implements OnInit {
   categorias = signal<Categoria[]>([]);
   cargando = signal(false);
   error = signal('');
+  categoriaAEliminar = signal<Categoria | null>(null);
 
   ngOnInit(): void {
     this.cargar();
@@ -34,5 +35,9 @@ export class VerCategorias implements OnInit {
         this.error.set(mensajeError(e));
       },
     });
+  }
+
+    pedirConfirmacion(categoria: Categoria): void {
+    this.categoriaAEliminar.set(categoria);
   }
 }
