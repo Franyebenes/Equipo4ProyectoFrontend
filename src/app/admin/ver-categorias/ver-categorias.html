@@ -33,7 +33,7 @@
             @if (cargando()) {
               <tr><td colspan="2" class="vacio">Cargando categorías…</td></tr>
             } @else {
-              @for (c of categorias(); track c.nombre) {
+                  @for (c of categorias(); track c.id) {
                 <tr>
                   <td class="col-nombre"><strong>{{ c.nombre }}</strong></td>
                   <td class="col-descripcion">{{ c.descripcion }}</td>
