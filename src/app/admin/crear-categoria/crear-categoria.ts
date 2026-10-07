@@ -14,7 +14,7 @@ import { Categoria, CategoriaService } from '../categoria.service';
 export class CrearCategoriaComponent {
   private categoriaService = inject(CategoriaService);
 
-  datos: Categoria = { nombre: '', descripcion: '' };
+  datos: Omit<Categoria, 'id'> = { nombre: '', descripcion: '' };
   enviando = signal(false);
   error = signal('');
   exito = signal('');

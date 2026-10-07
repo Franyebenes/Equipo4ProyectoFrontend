@@ -17,11 +17,11 @@ export class CategoriaService {
     return this.http.get<Categoria[]>(this.api);
   }
  
-  crear(categoria: Categoria): Observable<Categoria> {
+  crear(categoria: Omit<Categoria, 'id'>): Observable<Categoria> {
     return this.http.post<Categoria>(this.api, categoria);
   }
 
-    eliminar(id: string): Observable<void> {
+  eliminar(id: string): Observable<void> {
     return this.http.delete<void>(`${this.api}/${id}`);
   }
 }
