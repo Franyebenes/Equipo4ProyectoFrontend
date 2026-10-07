@@ -56,3 +56,13 @@
     </div>
   </div>
 </section>
+
+@if (categoriaAEliminar(); as categoria) {
+  <app-dialogo-confirmacion
+    titulo="Eliminar categoría"
+    [mensaje]="'¿Seguro que quieres eliminar la categoría «' + categoria.nombre + '»? Esta acción no se puede deshacer.'"
+    textoConfirmar="Eliminar"
+    textoProcesando="Eliminando…"
+    [procesando]="eliminando()"
+    (cancelar)="cancelarEliminacion()" />
+}
