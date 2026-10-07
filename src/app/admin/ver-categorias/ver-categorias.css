@@ -30,3 +30,14 @@ tbody tr + tr td {
 .col-descripcion {
   color: var(--muted, #6b6e67);
 }
+
+.col-acciones {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.aviso-exito {
+  border: 1px solid #b9dfc8;
+  background: #e7f4eb;
+  color: #286541;
+}
