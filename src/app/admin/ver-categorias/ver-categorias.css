@@ -36,6 +36,12 @@ tbody tr + tr td {
   white-space: nowrap;
 }
 
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
 .aviso-exito {
   border: 1px solid #b9dfc8;
   background: #e7f4eb;
