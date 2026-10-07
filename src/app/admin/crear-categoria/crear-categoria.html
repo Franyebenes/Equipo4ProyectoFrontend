@@ -1,100 +1,49 @@
-<div class="admin-shell">
-    <aside class="admin-sidebar" aria-label="Navegación de administración">
-        <a class="brand" href="/admin/crear-categoria" aria-label="ESIBuy administración">
-            <span class="brand-mark">E</span>
-            <span>ESI<strong>Buy</strong></span>
-        </a>
+<section class="admin-page">
+  <div class="bar">
+    <nav class="admin-tabs" aria-label="Administración">
+      <a routerLink="/admin/usuarios" routerLinkActive="is-active">Usuarios</a>
+      <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active">Dar de alta administrador</a>
+      <a routerLink="/admin/categorias" routerLinkActive="is-active">Categorías</a>
+    </nav>
 
-        <div class="admin-identity">
-            <span class="identity-label">ÁREA PRIVADA</span>
-            <strong>Administrador</strong>
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">Panel de administración</p>
+        <h1>Nueva categoría</h1>
+        <p class="sub">Añade una categoría al catálogo de ESIBuy para clasificar los productos.</p>
+      </div>
+    </header>
+
+    <form class="card form-card" (ngSubmit)="enviar()">
+      <h2 class="seccion">Datos de la categoría</h2>
+
+      <label class="campo">
+        Nombre *
+        <input type="text" name="nombre" [(ngModel)]="datos.nombre" maxlength="50"
+               placeholder="Ej.: Tecnología, Hogar, Libros">
+      </label>
+
+      <label class="campo">
+        Descripción *
+        <textarea name="descripcion" [(ngModel)]="datos.descripcion" maxlength="200" rows="4"
+                  placeholder="Breve descripción de la categoría"></textarea>
+      </label>
+
+      @if (error()) {
+        <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+      }
+      @if (exito()) {
+        <div class="aviso aviso-ok" role="status">
+          {{ exito() }} <a routerLink="/admin/categorias">Ver listado</a>
         </div>
+      }
 
-        <nav class="sidebar-nav">
-            <a href="#"><span class="nav-icon icon-dashboard" aria-hidden="true"></span>Resumen</a>
-            <a href="#"><span class="nav-icon icon-users" aria-hidden="true"></span>Usuarios</a>
-            <a href="#"><span class="nav-icon icon-store" aria-hidden="true"></span>Vendedores</a>
-            <a class="active" href="/admin/crear-categoria" aria-current="page">
-                <span class="nav-icon icon-category" aria-hidden="true"></span>Categorías
-            </a>
-            <a href="#"><span class="nav-icon icon-alert" aria-hidden="true"></span>Incidencias</a>
-        </nav>
-
-        <div class="sidebar-bottom">
-            <div class="protected-session">
-                <span class="shield-icon" aria-hidden="true">✓</span>
-                <span><strong>Sesión protegida</strong><small>Última verificación: hoy, 09:42</small></span>
-            </div>
-            <div class="sidebar-profile">
-                <span class="profile-avatar">M</span>
-                <span class="profile-copy"><strong>Marta · Admin</strong><small>marta@esibuy.es</small></span>
-                <span class="logout-icon" aria-hidden="true">↪</span>
-            </div>
-        </div>
-    </aside>
-
-    <div class="admin-workspace">
-        <header class="topbar">
-            <div class="breadcrumb"><span>ESIBuy</span><span class="crumb-separator">/</span><strong>Categorías</strong></div>
-            <div class="topbar-actions">
-                <label class="nav-search">
-                    <span class="search-icon" aria-hidden="true"></span>
-                    <input type="search" aria-label="Buscar en ESIBuy" placeholder="Buscar en ESIBuy">
-                </label>
-                <button class="notification-button" type="button" aria-label="Notificaciones"><span class="bell-icon" aria-hidden="true"></span></button>
-            </div>
-        </header>
-
-        <main class="admin-content">
-            <div class="content-heading">
-                <div>
-                    <span class="section-eyebrow">CATÁLOGO · CATEGORÍAS</span>
-                    <h1>Crear nueva categoría</h1>
-                    <p class="subtitle">Añade una categoría al catálogo de ESIBuy para clasificar los productos del sistema.</p>
-                </div>
-            </div>
-
-            <section class="card-container" aria-labelledby="form-title">
-                <div class="card-heading">
-                    <div>
-                        <h2 id="form-title">Datos de la categoría</h2>
-                        <p>Los campos marcados con <span class="required">*</span> son obligatorios.</p>
-                    </div>
-                    <span class="category-badge" aria-hidden="true">C</span>
-                </div>
-
-                <form (submit)="onSubmit(); $event.preventDefault();" class="admin-form" novalidate>
-                    <div class="form-group">
-                        <label for="nombreCategoria">Nombre de la categoría <span class="required">*</span></label>
-                        <input
-                            type="text"
-                            id="nombreCategoria"
-                            name="nombre"
-                            maxlength="50"
-                            placeholder="Ej.: Tecnología, Hogar, Libros"
-                            [(ngModel)]="nombreCategoria"
-                            [class.invalid]="isInvalid"
-                            [attr.aria-invalid]="isInvalid"
-                            aria-describedby="nombre-help nombre-error"
-                            (input)="onInput()"
-                            required
-                        >
-                        <span id="nombre-help" class="help-text">Máximo 50 caracteres. Debe ser un nombre único.</span>
-                        <div id="nombre-error" class="error-message" aria-live="polite">{{ errorMessage }}</div>
-                    </div>
-
-                    @if (successMessage) {
-                        <output class="alert-box success">{{ successMessage }}</output>
-                    }
-
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" (click)="resetForm()">Cancelar</button>
-                        <button type="submit" class="btn btn-primary" id="btn-guardar">
-                            <span class="add-icon" aria-hidden="true">+</span>Guardar categoría
-                        </button>
-                    </div>
-                </form>
-            </section>
-        </main>
-    </div>
-</div>
+      <div class="botones">
+        <a routerLink="/admin/categorias" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" class="btn btn-coral" [disabled]="enviando()">
+          {{ enviando() ? 'Creando…' : 'Crear categoría' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
