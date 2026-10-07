@@ -19,6 +19,8 @@ export class VerCategorias implements OnInit {
   error = signal('');
   categoriaAEliminar = signal<Categoria | null>(null);
   eliminando = signal(false);
+  exito = signal('');
+  errorEliminar = signal('');
 
   ngOnInit(): void {
     this.cargar();
@@ -47,5 +49,33 @@ export class VerCategorias implements OnInit {
     if (!this.eliminando()) {
       this.categoriaAEliminar.set(null);
     }
+  }
+
+
+    confirmarEliminacion(): void {
+    const categoria = this.categoriaAEliminar();
+    if (!categoria) {
+      return;
+    }
+    this.eliminando.set(true);
+    this.exito.set('');
+    this.errorEliminar.set('');
+
+    this.categoriaService.eliminar(categoria.id).subscribe({
+      next: () => {
+        this.eliminando.set(false);
+        this.categoriaAEliminar.set(null);
+        this.exito.set(`Categoría «${categoria.nombre}» eliminada correctamente.`);
+        this.cargar();
+      },
+      error: (e: HttpErrorResponse) => {
+        this.eliminando.set(false);
+        this.categoriaAEliminar.set(null);
+        this.errorEliminar.set(mensajeError(e));
+        if (e.status === 404) {
+          this.cargar();
+        }
+      },
+    });
   }
 }

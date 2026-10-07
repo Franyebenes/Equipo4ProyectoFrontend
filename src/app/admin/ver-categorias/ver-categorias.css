@@ -35,3 +35,9 @@ tbody tr + tr td {
   width: 1%;
   white-space: nowrap;
 }
+
+.aviso-exito {
+  border: 1px solid #b9dfc8;
+  background: #e7f4eb;
+  color: #286541;
+}
