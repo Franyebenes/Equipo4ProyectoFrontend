@@ -1,0 +1,27 @@
+.form-card {
+  max-width: 780px;
+  padding: 2rem;
+}
+
+.seccion {
+  margin: 1.75rem 0 0.9rem;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.seccion:first-child {
+  margin-top: 0;
+}
+
+.botones {
+  margin-top: 1.5rem;
+}
+
+.aviso {
+  margin-top: 1.5rem;
+}
+
+.aviso a {
+  color: inherit;
+  font-weight: 800;
+}

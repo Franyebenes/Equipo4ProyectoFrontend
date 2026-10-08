@@ -1,0 +1,49 @@
+<section class="admin-page">
+  <div class="bar">
+    <nav class="admin-tabs" aria-label="Administración">
+      <a routerLink="/admin/usuarios" routerLinkActive="is-active">Usuarios</a>
+      <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active">Dar de alta administrador</a>
+      <a routerLink="/admin/categorias" routerLinkActive="is-active">Categorías</a>
+    </nav>
+
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">Panel de administración</p>
+        <h1>Nueva categoría</h1>
+        <p class="sub">Añade una categoría al catálogo de ESIBuy para clasificar los productos.</p>
+      </div>
+    </header>
+
+    <form class="card form-card" (ngSubmit)="enviar()">
+      <h2 class="seccion">Datos de la categoría</h2>
+
+      <label class="campo">
+        Nombre *
+        <input type="text" name="nombre" [(ngModel)]="datos.nombre" maxlength="50"
+               placeholder="Ej.: Tecnología, Hogar, Libros">
+      </label>
+
+      <label class="campo">
+        Descripción *
+        <textarea name="descripcion" [(ngModel)]="datos.descripcion" maxlength="200" rows="4"
+                  placeholder="Breve descripción de la categoría"></textarea>
+      </label>
+
+      @if (error()) {
+        <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+      }
+      @if (exito()) {
+        <div class="aviso aviso-ok" role="status">
+          {{ exito() }} <a routerLink="/admin/categorias">Ver listado</a>
+        </div>
+      }
+
+      <div class="botones">
+        <a routerLink="/admin/categorias" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" class="btn btn-coral" [disabled]="enviando()">
+          {{ enviando() ? 'Creando…' : 'Crear categoría' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
