@@ -1,0 +1,58 @@
+<section class="admin-page">
+  <div class="bar">
+    <a routerLink="/vendedor/productos" class="volver">← Volver a mi catálogo</a>
+
+    @if (cargando()) {
+      <div class="card ficha"><p class="muted">Cargando producto…</p></div>
+    } @else if (error()) {
+      <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+    } @else {
+      @if (producto(); as p) {
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">Mi catálogo</p>
+            <h1>{{ p.nombre }}</h1>
+            <p class="sub">{{ p.categorias.join(' · ') }}</p>
+          </div>
+          <span class="estado" [class.inactivo]="!p.visible">{{ p.visible ? 'Activo' : 'Inactivo' }}</span>
+        </header>
+
+        <div class="card ficha">
+          @if (p.imagen) {
+            <img class="imagen" [src]="p.imagen" [alt]="p.nombre">
+          }
+
+          <dl class="datos">
+            <div>
+              <dt>Precio</dt>
+              <dd>{{ formatearPrecio(p.precio) }}</dd>
+            </div>
+            @if (p.descuento) {
+              <div>
+                <dt>Descuento</dt>
+                <dd>{{ p.descuento }} % · {{ precioConDescuento(p, p.descuento) }}</dd>
+              </div>
+            }
+            @if (p.descuentoPremium) {
+              <div>
+                <dt>Descuento Premium</dt>
+                <dd>{{ p.descuentoPremium }} % · {{ precioConDescuento(p, p.descuentoPremium) }}</dd>
+              </div>
+            }
+            <div>
+              <dt>Stock</dt>
+              <dd>{{ p.stock === 0 ? 'Sin stock' : p.stock + (p.stock === 1 ? ' unidad' : ' unidades') }}</dd>
+            </div>
+            <div>
+              <dt>Estado</dt>
+              <dd>{{ p.visible ? 'Activo: visible para los clientes' : 'Inactivo: oculto para los clientes' }}</dd>
+            </div>
+          </dl>
+
+          <h2 class="seccion">Descripción</h2>
+          <p class="descripcion">{{ p.descripcion || 'Este producto no tiene descripción.' }}</p>
+        </div>
+      }
+    }
+  </div>
+</section>
