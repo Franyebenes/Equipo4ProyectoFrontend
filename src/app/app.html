@@ -13,9 +13,14 @@
     </nav>
 
     <div class="actions">
-      <!-- Destinos de autenticación: solo las páginas pedidas. -->
-      <a routerLink="/login" class="btn btn-ghost">Iniciar sesión</a>
-      <a routerLink="/registro" class="btn btn-coral">Crear cuenta</a>
+      <!-- Con sesión: usuario y cierre de sesión. Sin sesión: los destinos de autenticación. -->
+      @if (auth.usuario(); as usuario) {
+        <span class="usuario" [attr.title]="usuario.email">Hola, {{ usuario.nombre }}</span>
+        <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
+      } @else {
+        <a routerLink="/login" class="btn btn-ghost">Iniciar sesión</a>
+        <a routerLink="/registro" class="btn btn-coral">Crear cuenta</a>
+      }
       <button
         type="button"
         class="menu-btn"
@@ -37,8 +42,13 @@
       <button type="button" (click)="cerrarMenu()">Cómo funciona</button>
       <button type="button" (click)="cerrarMenu()">Seguridad</button>
       <button type="button" (click)="cerrarMenu()">Ayuda</button>
-      <a routerLink="/login" class="btn btn-ghost" (click)="cerrarMenu()">Iniciar sesión</a>
-      <a routerLink="/registro" class="btn btn-coral" (click)="cerrarMenu()">Crear cuenta</a>
+      @if (auth.usuario(); as usuario) {
+        <span class="usuario">Hola, {{ usuario.nombre }}</span>
+        <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
+      } @else {
+        <a routerLink="/login" class="btn btn-ghost" (click)="cerrarMenu()">Iniciar sesión</a>
+        <a routerLink="/registro" class="btn btn-coral" (click)="cerrarMenu()">Crear cuenta</a>
+      }
     </nav>
   }
 </header>

@@ -1,44 +1,5 @@
-<!-- Layout partido del mockup: panel ink + formulario. -->
+<!-- Formulario de acceso centrado. Sin panel decorativo ni recuperar contraseña (sprint 2). -->
 <section class="acceso">
-  <aside class="panel-ink" aria-label="Motivos para iniciar sesión">
-    <span class="icono-coral" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path
-          d="M12 3 5 6v6c0 4.2 2.9 8.1 7 9 4.1-.9 7-4.8 7-9V6l-7-3Z"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          stroke-linejoin="round"
-        />
-      </svg>
-    </span>
-    <h1>Tu marketplace empieza después del login.</h1>
-    <p>Productos, precios y herramientas de venta permanecen ocultos hasta verificar tu identidad y permisos.</p>
-    <ul>
-      <li>
-        <svg viewBox="0 0 16 16" aria-hidden="true">
-          <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4" />
-          <path d="M4.8 8.2 7 10.3l4.4-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-        Datos protegidos y cifrados
-      </li>
-      <li>
-        <svg viewBox="0 0 16 16" aria-hidden="true">
-          <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4" />
-          <path d="M4.8 8.2 7 10.3l4.4-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-        Acceso según tu rol
-      </li>
-      <li>
-        <svg viewBox="0 0 16 16" aria-hidden="true">
-          <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.4" />
-          <path d="M4.8 8.2 7 10.3l4.4-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-        Verificación reforzada
-      </li>
-    </ul>
-  </aside>
-
   <div class="tarjeta">
     <p class="ceja">Acceso seguro</p>
     <h2>Bienvenido de nuevo</h2>
@@ -51,8 +12,11 @@
           <svg viewBox="0 0 20 20" aria-hidden="true">
             <path d="M3 6.5 10 11l7-4.5M4 15h12V5H4v10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
           </svg>
-          <input type="email" name="correo" autocomplete="username" required placeholder="lucia@email.es" />
+          <input type="email" name="correo" autocomplete="username" required placeholder="lucia@email.es" [(ngModel)]="correo" />
         </span>
+        @for (mensaje of mensajesCampo('email'); track mensaje) {
+          <span class="error-campo">{{ mensaje }}</span>
+        }
       </label>
 
       <label class="campo">
@@ -61,24 +25,28 @@
           <svg viewBox="0 0 20 20" aria-hidden="true">
             <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
           </svg>
-          <input type="password" name="contrasena" autocomplete="current-password" required placeholder="Introduce tu contraseña" />
+          <input type="password" name="contrasena" autocomplete="current-password" required placeholder="Introduce tu contraseña" [(ngModel)]="contrasena" />
         </span>
+        @for (mensaje of mensajesCampo('contrasena'); track mensaje) {
+          <span class="error-campo">{{ mensaje }}</span>
+        }
       </label>
 
-      <div class="fila-opciones">
-        <label class="check">
-          <input type="checkbox" name="recordar" />
-          Recordar este dispositivo
-        </label>
-        <!-- Visible en el mockup; la página «Recupera el acceso» no se implementa. -->
-        <button type="button" class="enlace-coral">¿Has olvidado tu contraseña?</button>
-      </div>
+      <!-- Sin "recordar este dispositivo": el backend no lo admite (la sesión caduca por inactividad). -->
+      @if (error(); as mensajeError) {
+        <p class="error" role="alert">
+          {{ mensajeError }}
+          @if (segundosRestantes() > 0) {
+            Vuelve a intentarlo en {{ segundosRestantes() }} s.
+          }
+        </p>
+      }
 
-      <button type="submit" class="btn btn-coral btn-ancho">
+      <button type="submit" class="btn btn-coral btn-ancho" [disabled]="enviando() || segundosRestantes() > 0">
         <svg viewBox="0 0 16 16" aria-hidden="true">
           <path d="M2.5 8h11M9.5 4.5 13.5 8l-4 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
-        Continuar de forma segura
+        {{ enviando() ? 'Comprobando...' : 'Continuar de forma segura' }}
       </button>
     </form>
 
