@@ -10,6 +10,9 @@
       @if (auth.usuario()?.rol === 'VENDEDOR') {
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mi catálogo</a>
       }
+      @if (auth.usuario()?.rol === 'ADMIN') {
+        <a routerLink="/admin/categorias" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
+      }
       <button type="button">Cómo funciona</button>
       <button type="button">Seguridad</button>
       <button type="button">Ayuda</button>
@@ -44,6 +47,9 @@
       <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Inicio</a>
       @if (auth.usuario()?.rol === 'VENDEDOR') {
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mi catálogo</a>
+      }
+      @if (auth.usuario()?.rol === 'ADMIN') {
+        <a routerLink="/admin/categorias" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
       }
       <button type="button" (click)="cerrarMenu()">Cómo funciona</button>
       <button type="button" (click)="cerrarMenu()">Seguridad</button>
