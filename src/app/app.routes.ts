@@ -7,6 +7,8 @@ import { UserList } from './admin/user-list/user-list';
 import { DarAltaAdmin } from './admin/dar-alta-admin/dar-alta-admin';
 import { VerCategorias } from './admin/ver-categorias/ver-categorias';
 import { EditarCategoria } from './admin/editar-categoria/editar-categoria';
+import { MisProductos } from './vendedor/mis-productos/mis-productos';
+import { DetalleProducto } from './vendedor/detalle-producto/detalle-producto';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -17,4 +19,6 @@ export const routes: Routes = [
   { path: 'admin/categorias', component: VerCategorias },
   { path: 'admin/crear-categoria', component: CrearCategoriaComponent },
   { path: 'admin/categorias/:id/editar', component: EditarCategoria },
+  { path: 'vendedor/productos', component: MisProductos },
+  { path: 'vendedor/productos/:id', component: DetalleProducto },
 ];

@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-import { AuthService, ErrorAutenticacion } from '../core/auth.service';
+import { AuthService, ErrorAutenticacion, Rol } from '../core/auth.service';
 
 // Textos para los códigos de validación que devuelve el backend (400).
 const TEXTOS_DE_VALIDACION: Record<string, string> = {
@@ -11,7 +11,15 @@ const TEXTOS_DE_VALIDACION: Record<string, string> = {
   LONGITUD_EXCESIVA: 'El valor es demasiado largo.',
 };
 
-// Página de login: envía las credenciales al backend y, si son correctas, vuelve a la portada con la sesión iniciada.
+// Zona de cada rol tras iniciar sesión. Los clientes, de momento, a la portada.
+const RUTA_TRAS_LOGIN: Record<Rol, string> = {
+  ADMIN: '/admin/categorias',
+  VENDEDOR: '/vendedor/productos',
+  CLIENTE: '/',
+  PREMIUM: '/',
+};
+
+// Página de login: envía las credenciales al backend y, si son correctas, lleva al usuario a la zona de su rol.
 @Component({
   selector: 'app-login',
   imports: [RouterLink, FormsModule],
@@ -48,9 +56,9 @@ export class Login {
     this.erroresCampo.set({});
     this.enviando.set(true);
     try {
-      await this.auth.login(this.correo.trim(), this.contrasena);
+      const usuario = await this.auth.login(this.correo.trim(), this.contrasena);
       this.contrasena = '';
-      await this.router.navigateByUrl('/');
+      await this.router.navigateByUrl(RUTA_TRAS_LOGIN[usuario.rol]);
     } catch (error) {
       if (!(error instanceof ErrorAutenticacion)) {
         throw error;
