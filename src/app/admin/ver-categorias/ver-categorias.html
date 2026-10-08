@@ -47,6 +47,7 @@
                   <td class="col-descripcion">{{ c.descripcion }}</td>
                   <td class="col-acciones">
                     <div class="acciones">
+                      <a [routerLink]="['/admin/categorias', c.id, 'editar']" class="btn btn-ghost btn-sm">Editar</a>
                       <button type="button" class="btn btn-danger btn-sm" (click)="pedirConfirmacion(c)">Eliminar</button>
                     </div>
                   </td>
