@@ -61,6 +61,18 @@ describe('Login', () => {
     expect(navegar).not.toHaveBeenCalled();
   });
 
+  it('con la cuenta pendiente de activación lo explica y no navega', async () => {
+    auth.login.mockRejectedValue(
+      new ErrorAutenticacion('pendiente', 'Cuenta pendiente de activación. Un administrador debe activarla.'),
+    );
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+    const { html } = await enviar();
+
+    expect(html.querySelector('.error')?.textContent).toContain('Cuenta pendiente de activación');
+    expect(navegar).not.toHaveBeenCalled();
+  });
+
   it('muestra los errores de validación junto al campo afectado', async () => {
     auth.login.mockRejectedValue(
       new ErrorAutenticacion('validacion', 'Revisa los datos introducidos.', {

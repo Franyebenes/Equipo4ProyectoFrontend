@@ -15,7 +15,10 @@ export interface Usuario {
   rol: Rol;
 }
 
-export type TipoError = 'credenciales' | 'validacion' | 'bloqueado' | 'servidor' | 'red';
+export type TipoError = 'credenciales' | 'pendiente' | 'validacion' | 'bloqueado' | 'servidor' | 'red';
+
+// Código con el que el backend avisa de que las credenciales son correctas pero la cuenta aún no está activada.
+const CUENTA_PENDIENTE = 'CUENTA_PENDIENTE_DE_ACTIVACION';
 
 // Error de autenticación ya traducido a algo que la pantalla puede mostrar.
 export class ErrorAutenticacion extends Error {
@@ -32,6 +35,10 @@ export class ErrorAutenticacion extends Error {
   ) {
     super(mensaje);
   }
+}
+
+function esCuentaPendiente(error: HttpErrorResponse): boolean {
+  return error.error?.codigo === CUENTA_PENDIENTE;
 }
 
 interface TokenCsrf {
@@ -121,14 +128,15 @@ export class AuthService {
   }
 
   // Envía una petición que modifica datos con el token CSRF. Si el servidor responde 403 (token caducado o de otra
-  // sesión) pide uno nuevo y reintenta una sola vez.
+  // sesión) pide uno nuevo y reintenta una sola vez. El 403 de "cuenta pendiente de activación" no es un fallo de
+  // CSRF y no se reintenta.
   private async enviarConCsrf<T>(peticion: (cabeceras: HttpHeaders) => Observable<T>): Promise<T> {
     for (let intento = 0; ; intento++) {
       const csrf = await this.tokenCsrf();
       try {
         return await firstValueFrom(peticion(new HttpHeaders({ [csrf.headerName]: csrf.token })));
       } catch (error) {
-        if (error instanceof HttpErrorResponse && error.status === 403 && intento === 0) {
+        if (error instanceof HttpErrorResponse && error.status === 403 && !esCuentaPendiente(error) && intento === 0) {
           this.csrf = null;
           continue;
         }
@@ -160,6 +168,12 @@ export class AuthService {
           reintentarEnSegundos: Number(error.headers.get('Retry-After')) || 0,
         });
       case 403:
+        if (esCuentaPendiente(error)) {
+          return new ErrorAutenticacion(
+            'pendiente',
+            'Cuenta pendiente de activación. Un administrador debe activarla antes de que puedas entrar.',
+          );
+        }
         return new ErrorAutenticacion(
           'servidor',
           'No se ha podido verificar la petición. Recarga la página e inténtalo de nuevo.',

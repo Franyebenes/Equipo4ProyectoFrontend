@@ -102,6 +102,13 @@ describe('AuthService', () => {
       expect(error.message).toBe('Correo o contraseña incorrectos.');
     });
 
+    it('403 con el código de cuenta pendiente: mensaje de activación y sin reintento de CSRF', async () => {
+      const error = await fallar(403, { mensaje: 'Cuenta pendiente de activacion', codigo: 'CUENTA_PENDIENTE_DE_ACTIVACION' });
+      expect(error.tipo).toBe('pendiente');
+      expect(error.message).toContain('pendiente de activación');
+      // afterEach verifica que no se pidió otro token ni se reenvió el login
+    });
+
     it('400: errores por campo del backend', async () => {
       const error = await fallar(400, { errores: { email: ['FORMATO_INVALIDO'] } });
       expect(error.tipo).toBe('validacion');
