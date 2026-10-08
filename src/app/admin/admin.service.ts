@@ -44,7 +44,6 @@ export interface DatosAltaAdmin {
   avatar: string;
   contrasena: string;
   repetirContrasena: string;
-  FechaIncorporacion: string;
 }
 
 export const ETIQUETA_ROL: Record<Rol, string> = {

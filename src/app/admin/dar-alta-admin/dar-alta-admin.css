@@ -25,3 +25,37 @@
   color: inherit;
   font-weight: 800;
 }
+.campo-pass {
+  position: relative;
+  display: flex;
+}
+
+.campo-pass input {
+  flex: 1;
+  min-width: 0;
+  padding-right: 2.75rem;
+}
+
+.ojo {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  padding: 0.3rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.ojo:hover {
+  color: var(--ink);
+}
+
+.ojo:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 1px;
+}

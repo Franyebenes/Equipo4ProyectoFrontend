@@ -43,7 +43,7 @@
         </label>
         <label class="campo">
           Fecha de incorporación
-          <input type="date" name="FechaIncorporacion" [(ngModel)]="datos.FechaIncorporacion">
+          <input type="text" [value]="hoy" readonly disabled title="Se asigna automáticamente con la fecha de alta">
         </label>
       </div>
 
@@ -51,11 +51,25 @@
       <div class="grid">
         <label class="campo">
           Contraseña *
-          <input type="password" name="contrasena" [(ngModel)]="datos.contrasena" autocomplete="new-password">
+          <span class="campo-pass">
+            <input [type]="verContrasena() ? 'text' : 'password'" name="contrasena" [(ngModel)]="datos.contrasena" autocomplete="new-password">
+            <button type="button" class="ojo" (click)="verContrasena.set(!verContrasena())"
+                    [attr.aria-label]="verContrasena() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                    [attr.aria-pressed]="verContrasena()">
+              <ng-container *ngTemplateOutlet="iconoOjo; context: { visible: verContrasena() }" />
+            </button>
+          </span>
         </label>
         <label class="campo">
           Repetir contraseña *
-          <input type="password" name="repetirContrasena" [(ngModel)]="datos.repetirContrasena" autocomplete="new-password">
+          <span class="campo-pass">
+            <input [type]="verRepetir() ? 'text' : 'password'" name="repetirContrasena" [(ngModel)]="datos.repetirContrasena" autocomplete="new-password">
+            <button type="button" class="ojo" (click)="verRepetir.set(!verRepetir())"
+                    [attr.aria-label]="verRepetir() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                    [attr.aria-pressed]="verRepetir()">
+              <ng-container *ngTemplateOutlet="iconoOjo; context: { visible: verRepetir() }" />
+            </button>
+          </span>
         </label>
       </div>
 
@@ -77,3 +91,13 @@
     </form>
   </div>
 </section>
+
+<ng-template #iconoOjo let-visible="visible">
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+    <circle cx="12" cy="12" r="3" />
+    @if (visible) {
+      <path d="M3 3l18 18" />
+    }
+  </svg>
+</ng-template>
