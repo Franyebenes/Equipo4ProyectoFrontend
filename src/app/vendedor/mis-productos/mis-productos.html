@@ -1,0 +1,59 @@
+<section class="admin-page">
+  <div class="bar">
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">Panel de vendedor</p>
+        <h1>Mi catálogo</h1>
+        <p class="sub">Productos que has dado de alta en ESIBuy, ordenados alfabéticamente.</p>
+      </div>
+      <button type="button" class="btn btn-ghost" (click)="cargar()" [disabled]="cargando()">Actualizar</button>
+    </header>
+
+    @if (error()) {
+      <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+    } @else {
+      <div class="card">
+        <div class="tabla-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th class="derecha">Precio</th>
+                <th class="derecha">Stock</th>
+                <th>Estado</th>
+                <th class="col-acciones derecha">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (cargando()) {
+                <tr><td colspan="6" class="vacio">Cargando tus productos…</td></tr>
+              } @else {
+                @for (p of productos(); track p.id) {
+                  <tr>
+                    <td><strong>{{ p.nombre }}</strong></td>
+                    <td class="muted">{{ p.categorias.join(', ') }}</td>
+                    <td class="derecha">{{ formatearPrecio(p.precio) }}</td>
+                    <td class="derecha">{{ p.stock }}</td>
+                    <td>
+                      <span class="estado" [class.inactivo]="!p.visible">{{ p.visible ? 'Activo' : 'Inactivo' }}</span>
+                    </td>
+                    <td class="col-acciones">
+                      <a [routerLink]="['/vendedor/productos', p.id]" class="btn btn-ghost btn-sm">Ver detalle</a>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6" class="vacio">
+                      Todavía no has dado de alta ningún producto. Cuando lo hagas, aparecerá aquí.
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </div>
+</section>
