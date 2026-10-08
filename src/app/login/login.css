@@ -94,6 +94,25 @@ form {
   flex: 0 0 auto;
 }
 
+.error,
+.error-campo {
+  color: #a3281c;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.error {
+  margin: 0;
+  padding: 0.75rem 0.95rem;
+  background: #fdecea;
+  border-radius: 0.85rem;
+}
+
+.btn-ancho:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-ancho {
   width: 100%;
   padding: 0.9rem 1.1rem;
