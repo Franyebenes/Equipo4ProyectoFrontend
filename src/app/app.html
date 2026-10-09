@@ -11,7 +11,7 @@
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mi catálogo</a>
       }
       @if (auth.usuario()?.rol === 'ADMIN') {
-        <a routerLink="/admin/categorias" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
+        <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
       }
       <button type="button">Cómo funciona</button>
       <button type="button">Seguridad</button>
@@ -49,7 +49,7 @@
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mi catálogo</a>
       }
       @if (auth.usuario()?.rol === 'ADMIN') {
-        <a routerLink="/admin/categorias" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
+        <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
       }
       <button type="button" (click)="cerrarMenu()">Cómo funciona</button>
       <button type="button" (click)="cerrarMenu()">Seguridad</button>

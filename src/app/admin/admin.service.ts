@@ -60,10 +60,33 @@ export const ETIQUETA_ESTADO: Record<EstadoUsuario, string> = {
   ELIMINADO: 'Eliminado',
 };
 
+// Textos para los códigos de validación del backend (CodigoError).
+const TEXTOS_CODIGO: Record<string, string> = {
+  OBLIGATORIO: 'es obligatorio',
+  FORMATO_INVALIDO: 'no tiene un formato válido',
+  LONGITUD_EXCESIVA: 'es demasiado largo',
+  DOMINIO_EMAIL_INEXISTENTE: 'tiene un dominio que no existe',
+  TELEFONO_INVALIDO: 'debe tener 9 números',
+  AVATAR_NO_PERMITIDO: 'no es un avatar permitido',
+  CONTRASENAS_NO_COINCIDEN: 'no coincide con la contraseña',
+  CONTRASENA_CORTA: 'debe tener al menos 12 caracteres',
+  CONTRASENA_LARGA: 'es demasiado larga',
+  CONTRASENA_COMUN: 'es demasiado común',
+  CONTRASENA_FILTRADA: 'aparece en filtraciones conocidas',
+  CONTRASENA_CON_DATOS_PERSONALES: 'no puede contener tu nombre o tu correo',
+};
+
 export function mensajeError(e: HttpErrorResponse): string {
   if (e.status === 0) return 'No se puede conectar con el servidor. ¿Está arrancado el backend?';
-  if (e.status === 401 || e.status === 403) return 'Necesitas iniciar sesión como administrador para hacer esto.';
+  if (e.status === 401) return 'Tu sesión ha caducado. Inicia sesión de nuevo.';
+  if (e.status === 403) return 'No tienes permisos para realizar esta acción.';
   const cuerpo = e.error;
+  // 400 con errores por campo: {"errores": {"email": ["FORMATO_INVALIDO"]}}
+  if (e.status === 400 && cuerpo?.errores) {
+    return Object.entries(cuerpo.errores as Record<string, string[]>)
+      .map(([campo, codigos]) => `${campo}: ${codigos.map((c) => TEXTOS_CODIGO[c] ?? c).join(', ')}`)
+      .join(' · ');
+  }
   if (typeof cuerpo === 'string' && cuerpo) return cuerpo;
   return cuerpo?.mensaje ?? cuerpo?.message ?? 'Ha ocurrido un error. Inténtalo de nuevo.';
 }

@@ -1,0 +1,140 @@
+/* Filtros en una fila (en el móvil, uno debajo de otro) */
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 260px));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Tabla: mismo diseño que la de categorías (ver-categorias.css) */
+.tabla-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.85rem 1.25rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  color: var(--muted, #6b6e67);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line, #e6e1d8);
+}
+
+tbody tr + tr td {
+  border-top: 1px solid var(--line, #e6e1d8);
+}
+
+.col-email {
+  color: var(--muted, #6b6e67);
+}
+
+.col-acciones {
+  width: 1%;
+  white-space: nowrap;
+}
+
+th.derecha {
+  text-align: right;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.vacio {
+  padding: 2rem 1.25rem;
+  color: var(--muted, #6b6e67);
+  text-align: center;
+}
+
+/* Columna Usuario: inicial en un círculo + nombre (y nombre comercial debajo si es vendedor) */
+.persona {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.persona strong,
+.persona small {
+  display: block;
+}
+
+.persona small {
+  margin-top: 0.1rem;
+  color: var(--muted, #6b6e67);
+  font-size: 0.8rem;
+}
+
+.avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: var(--coral-soft, #fde8e1);
+  color: var(--coral, #e7552c);
+  font-weight: 800;
+}
+
+/* Rol y estado como etiquetas */
+.chip,
+.estado {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.chip {
+  background: var(--cream, #f4f0e9);
+  color: var(--ink, #191a17);
+}
+
+.estado[data-estado='ACTIVO'] {
+  background: #e7f4eb;
+  color: #286541;
+}
+
+.estado[data-estado='DESACTIVADO'] {
+  background: var(--note, #f8e7bf);
+  color: #7a5a12;
+}
+
+.estado[data-estado='BLOQUEADO'] {
+  background: var(--coral-soft, #fde8e1);
+  color: #a3361a;
+}
+
+.estado[data-estado='ELIMINADO'] {
+  background: var(--line, #e6e1d8);
+  color: var(--muted, #6b6e67);
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--line, #e6e1d8);
+  color: var(--muted, #6b6e67);
+  font-size: 0.85rem;
+}

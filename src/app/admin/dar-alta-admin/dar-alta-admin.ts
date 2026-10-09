@@ -23,6 +23,9 @@ export class DarAltaAdmin {
   // Solo informativa: el backend asigna la fecha del alta.
   readonly hoy = new Date().toLocaleDateString('es-ES');
 
+  // Mismos identificadores que el catálogo del backend (esibuy.avatares.disponibles)
+  readonly avatares = ['avatar-01', 'avatar-02', 'avatar-03', 'avatar-04'];
+
   enviar(): void {
     this.error.set('');
     this.exito.set('');

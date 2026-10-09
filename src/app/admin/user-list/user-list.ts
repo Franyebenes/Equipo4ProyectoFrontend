@@ -70,6 +70,14 @@ export class UserList implements OnInit {
     });
   }
 
+  // Activa una cuenta pendiente (DESACTIVADO -> ACTIVO). El backend lo hace con el mismo endpoint que desbloquear.
+  activar(u: Usuario): void {
+    this.admin.desbloquear(u.id).subscribe({
+      next: () => this.cargar(),
+      error: (e: HttpErrorResponse) => this.fallo(e),
+    });
+  }
+
   eliminar(u: Usuario): void {
     if (!confirm(`¿Seguro que quieres eliminar a ${u.email}?`)) return;
     this.admin.eliminar(u.id).subscribe({

@@ -13,7 +13,7 @@ const TEXTOS_DE_VALIDACION: Record<string, string> = {
 
 // Zona de cada rol tras iniciar sesión. Los clientes, de momento, a la portada.
 const RUTA_TRAS_LOGIN: Record<Rol, string> = {
-  ADMIN: '/admin/categorias',
+  ADMIN: '/admin/usuarios',
   VENDEDOR: '/vendedor/productos',
   CLIENTE: '/',
   PREMIUM: '/',
