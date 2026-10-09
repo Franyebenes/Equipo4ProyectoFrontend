@@ -39,6 +39,9 @@ export class UserList implements OnInit {
 
   filtroRol: Rol | '' = '';
   filtroEstado: EstadoUsuario | '' = '';
+  busqueda = '';
+  // Espera a que el usuario deje de escribir antes de pedir al backend (una petición, no una por tecla)
+  private temporizadorBusqueda: ReturnType<typeof setTimeout> | undefined;
 
   ngOnInit(): void {
     this.cargar();
@@ -47,7 +50,7 @@ export class UserList implements OnInit {
   cargar(): void {
     this.cargando.set(true);
     this.error.set('');
-    this.admin.listar(this.pagina(), this.tamano, this.filtroRol, this.filtroEstado).subscribe({
+    this.admin.listar(this.pagina(), this.tamano, this.filtroRol, this.filtroEstado, this.busqueda).subscribe({
       next: (p) => {
         this.usuarios.set(p.contenido);
         this.totalPaginas.set(p.totalPaginas);
@@ -61,6 +64,12 @@ export class UserList implements OnInit {
   aplicarFiltros(): void {
     this.pagina.set(0);
     this.cargar();
+  }
+
+  buscar(texto: string): void {
+    this.busqueda = texto;
+    clearTimeout(this.temporizadorBusqueda);
+    this.temporizadorBusqueda = setTimeout(() => this.aplicarFiltros(), 300);
   }
 
   irAPagina(n: number): void {

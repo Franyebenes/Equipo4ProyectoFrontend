@@ -96,10 +96,12 @@ export class AdminService {
   private http = inject(HttpClient);
   private api = 'http://localhost:8080/api/admin/usuarios';
 
-  listar(pagina: number, tamano: number, rol: Rol | '', estado: EstadoUsuario | ''): Observable<Pagina<Usuario>> {
+  listar(pagina: number, tamano: number, rol: Rol | '', estado: EstadoUsuario | '',
+         busqueda = ''): Observable<Pagina<Usuario>> {
     let params = new HttpParams().set('pagina', pagina).set('tamano', tamano);
     if (rol) params = params.set('rol', rol);
     if (estado) params = params.set('estado', estado);
+    if (busqueda.trim()) params = params.set('busqueda', busqueda.trim());
     return this.http.get<Pagina<Usuario>>(this.api, { params });
   }
 

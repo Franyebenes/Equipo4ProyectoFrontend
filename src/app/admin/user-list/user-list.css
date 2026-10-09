@@ -1,10 +1,17 @@
 /* Filtros en una fila (en el móvil, uno debajo de otro) */
 .filtros {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 260px));
+  grid-template-columns: minmax(240px, 2fr) repeat(2, minmax(180px, 1fr));
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
+
+@media (max-width: 700px) {
+  .filtros {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 /* Tabla: mismo diseño que la de categorías (ver-categorias.css) */
 .tabla-scroll {

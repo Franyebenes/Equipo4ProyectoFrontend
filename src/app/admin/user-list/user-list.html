@@ -15,6 +15,11 @@
     </header>
 
     <div class="filtros">
+       <label class="campo campo-busqueda">
+        Buscar
+        <input type="search" [ngModel]="busqueda" (ngModelChange)="buscar($event)"
+               placeholder="Nombre, apellidos o correo" maxlength="100" autocomplete="off">
+      </label>
       <label class="campo">
         Rol
         <select [ngModel]="filtroRol" (ngModelChange)="filtroRol = $event; aplicarFiltros()">
