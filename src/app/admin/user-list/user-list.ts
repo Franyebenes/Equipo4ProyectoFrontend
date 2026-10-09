@@ -19,7 +19,8 @@ export class UserList implements OnInit {
   private admin = inject(AdminService);
 
   readonly roles: Rol[] = ['ADMIN', 'VENDEDOR', 'CLIENTE', 'PREMIUM'];
-  readonly estados: EstadoUsuario[] = ['ACTIVO', 'DESACTIVADO', 'BLOQUEADO', 'ELIMINADO'];
+  // Sin ELIMINADO: la eliminación es física y el usuario desaparece de la base de datos
+  readonly estados: EstadoUsuario[] = ['ACTIVO', 'DESACTIVADO', 'BLOQUEADO'];
   readonly etiquetaRol = ETIQUETA_ROL;
   readonly etiquetaEstado = ETIQUETA_ESTADO;
   readonly tamano = 20;

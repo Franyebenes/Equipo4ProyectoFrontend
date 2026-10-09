@@ -27,7 +27,7 @@
       <label class="campo">
         Estado
         <select [ngModel]="filtroEstado" (ngModelChange)="filtroEstado = $event; aplicarFiltros()">
-          <option value="">Todos menos eliminados</option>
+          <option value="">Todos los estados</option>
           @for (e of estados; track e) {
             <option [value]="e">{{ etiquetaEstado[e] }}</option>
           }
@@ -117,7 +117,7 @@
 @if (usuarioAEliminar(); as usuario) {
   <app-dialogo-confirmacion
     titulo="Eliminar usuario"
-    [mensaje]="'¿Seguro que quieres eliminar a ' + usuario.nombre + ' ' + usuario.apellidos + ' (' + usuario.email + ')? Ya no podrá iniciar sesión.'"
+    [mensaje]="'¿Seguro que quieres eliminar a ' + usuario.nombre + ' ' + usuario.apellidos + ' (' + usuario.email + ')? Se borrará definitivamente y esta acción no se puede deshacer.'"
     textoConfirmar="Eliminar"
     textoProcesando="Eliminando…"
     [procesando]="eliminando()"
