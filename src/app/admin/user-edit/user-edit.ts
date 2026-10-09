@@ -12,6 +12,9 @@ export class UserEdit {
   @Output() guardar = new EventEmitter<{ id: string; datos: DatosModificacion }>();
   @Output() cancelar = new EventEmitter<void>();
 
+  // Error del backend al guardar: se muestra dentro del modal, que tapa el aviso de la página
+  @Input() errorServidor = '';
+
   original: Usuario | null = null;
   form: DatosModificacion | null = null;
   error = '';
@@ -31,6 +34,7 @@ export class UserEdit {
 
   onGuardar(): void {
     if (!this.original || !this.form) return;
+    this.error = '';
     if (!this.form.nombre.trim() || !this.form.apellidos.trim()) {
       this.error = 'El nombre y los apellidos son obligatorios.';
       return;

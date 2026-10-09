@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -6,7 +7,7 @@ import { AdminService, DatosAltaAdmin, mensajeError } from '../admin.service';
 
 @Component({
   selector: 'app-dar-alta-admin',
-  imports: [FormsModule, RouterLink, RouterLinkActive],
+  imports: [FormsModule, NgTemplateOutlet, RouterLink, RouterLinkActive],
   templateUrl: './dar-alta-admin.html',
   styleUrls: ['../admin-shared.css', './dar-alta-admin.css'],
 })
@@ -17,6 +18,13 @@ export class DarAltaAdmin {
   enviando = signal(false);
   error = signal('');
   exito = signal('');
+  verContrasena = signal(false);
+  verRepetir = signal(false);
+  // Solo informativa: el backend asigna la fecha del alta.
+  readonly hoy = new Date().toLocaleDateString('es-ES');
+
+  // Mismos identificadores que el catálogo del backend (esibuy.avatares.disponibles)
+  readonly avatares = ['avatar-01', 'avatar-02', 'avatar-03', 'avatar-04'];
 
   enviar(): void {
     this.error.set('');
@@ -50,7 +58,7 @@ export class DarAltaAdmin {
   private vacio(): DatosAltaAdmin {
     return {
       nombre: '', apellidos: '', email: '', sede: '', avatar: '',
-      contrasena: '', repetirContrasena: '', FechaIncorporacion: '',
+      contrasena: '', repetirContrasena: '',
     };
   }
 }

@@ -13,6 +13,8 @@ export interface Usuario {
   email: string;
   nombre: string;
   rol: Rol;
+  // Identificador del avatar del perfil (p. ej. 'avatar-01'); null o ausente si no eligió ninguno.
+  avatar?: string | null;
 }
 
 export type TipoError = 'credenciales' | 'pendiente' | 'validacion' | 'bloqueado' | 'servidor' | 'red';
@@ -37,7 +39,8 @@ export class ErrorAutenticacion extends Error {
   }
 }
 
-function esCuentaPendiente(error: HttpErrorResponse): boolean {
+// necesario para el interceptor: si el backend responde 403 con este código, no es un fallo de CSRF y no se reintenta.
+export function esCuentaPendiente(error: HttpErrorResponse): boolean {
   return error.error?.codigo === CUENTA_PENDIENTE;
 }
 
@@ -88,6 +91,7 @@ export class AuthService {
         email: respuesta.email,
         nombre: respuesta.nombre,
         rol: respuesta.rol,
+        avatar: respuesta.avatar,
       };
       this._usuario.set(usuario);
       return usuario;
@@ -120,11 +124,16 @@ export class AuthService {
     this.csrf = null;
   }
 
-  private async tokenCsrf(): Promise<TokenCsrf> {
+  // cambiado a public para que sea accesible desde el interceptor
+  async tokenCsrf(): Promise<TokenCsrf> {
     if (!this.csrf) {
       this.csrf = await firstValueFrom(this.http.get<TokenCsrf>(`${this.api}/api/auth/csrf`));
     }
     return this.csrf;
+  }
+  // despues de recibir un 403, se descarta el token CSRF para que la próxima petición pida uno nuevo
+  olvidarCsrf(): void {
+    this.csrf = null;
   }
 
   // Envía una petición que modifica datos con el token CSRF. Si el servidor responde 403 (token caducado o de otra

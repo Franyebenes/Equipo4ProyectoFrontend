@@ -35,8 +35,8 @@
 
       <p class="nota">El email no se puede modificar.</p>
 
-      @if (error) {
-        <div class="aviso aviso-error" role="alert">{{ error }}</div>
+      @if (error || errorServidor) {
+        <div class="aviso aviso-error" role="alert">{{ error || errorServidor }}</div>
       }
 
       <div class="botones">

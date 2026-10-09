@@ -1,27 +1,36 @@
 <header class="topbar">
   <div class="bar">
-    <a class="brand" routerLink="/" aria-label="ESIBuy, inicio">
+    <!-- El administrador no tiene portada: el logo lo lleva a su panel -->
+    <a class="brand" [routerLink]="esAdmin() ? '/admin/usuarios' : '/'" aria-label="ESIBuy, inicio">
       <span class="logo" aria-hidden="true">E</span>
       <span class="wordmark">ESIBuy</span>
     </a>
 
     <nav class="nav-desktop" aria-label="Principal">
-      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">Inicio</a>
+      @if (!esAdmin()) {
+        <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">Inicio</a>
+      }
       @if (auth.usuario()?.rol === 'VENDEDOR') {
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mi catálogo</a>
       }
-      @if (auth.usuario()?.rol === 'ADMIN') {
-        <a routerLink="/admin/categorias" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
+      @if (esAdmin()) {
+        <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
+      } @else {
+        <button type="button">Cómo funciona</button>
+        <button type="button">Seguridad</button>
+        <button type="button">Ayuda</button>
       }
-      <button type="button">Cómo funciona</button>
-      <button type="button">Seguridad</button>
-      <button type="button">Ayuda</button>
     </nav>
 
     <div class="actions">
       <!-- Con sesión: usuario y cierre de sesión. Sin sesión: los destinos de autenticación. -->
       @if (auth.usuario(); as usuario) {
-        <span class="usuario" [attr.title]="usuario.email">Hola, {{ usuario.nombre }}</span>
+        <span class="usuario" [attr.title]="usuario.email">
+          @if (esAdmin()) {
+            <ng-container *ngTemplateOutlet="avatarUsuario" />
+          }
+          Hola, {{ usuario.nombre }}
+        </span>
         <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
       } @else {
         <a routerLink="/login" class="btn btn-ghost">Iniciar sesión</a>
@@ -44,18 +53,26 @@
 
   @if (menuAbierto()) {
     <nav id="menu-movil" class="nav-mobile" aria-label="Principal">
-      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Inicio</a>
+      @if (!esAdmin()) {
+        <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Inicio</a>
+      }
       @if (auth.usuario()?.rol === 'VENDEDOR') {
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mi catálogo</a>
       }
-      @if (auth.usuario()?.rol === 'ADMIN') {
-        <a routerLink="/admin/categorias" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
+      @if (esAdmin()) {
+        <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
+      } @else {
+        <button type="button" (click)="cerrarMenu()">Cómo funciona</button>
+        <button type="button" (click)="cerrarMenu()">Seguridad</button>
+        <button type="button" (click)="cerrarMenu()">Ayuda</button>
       }
-      <button type="button" (click)="cerrarMenu()">Cómo funciona</button>
-      <button type="button" (click)="cerrarMenu()">Seguridad</button>
-      <button type="button" (click)="cerrarMenu()">Ayuda</button>
       @if (auth.usuario(); as usuario) {
-        <span class="usuario">Hola, {{ usuario.nombre }}</span>
+        <span class="usuario">
+          @if (esAdmin()) {
+            <ng-container *ngTemplateOutlet="avatarUsuario" />
+          }
+          Hola, {{ usuario.nombre }}
+        </span>
         <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
       } @else {
         <a routerLink="/login" class="btn btn-ghost" (click)="cerrarMenu()">Iniciar sesión</a>
@@ -64,6 +81,19 @@
     </nav>
   }
 </header>
+
+<!-- Avatar del usuario en la cabecera: su imagen del catálogo o, si no tiene, la inicial de su nombre. -->
+<ng-template #avatarUsuario>
+  @if (auth.usuario(); as usuario) {
+    <span class="avatar-usuario" aria-hidden="true">
+      @if (imagenAvatar(); as imagen) {
+        <img [src]="imagen" alt="">
+      } @else {
+        {{ inicial() }}
+      }
+    </span>
+  }
+</ng-template>
 
 <!-- Home, login y registro se pintan aquí según la ruta. -->
 <router-outlet />

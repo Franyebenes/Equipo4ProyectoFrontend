@@ -115,6 +115,7 @@ form {
   color: var(--coral);
   font-weight: 700;
   font-size: 0.84rem;
+  cursor: pointer;
 }
 
 .btn-ancho {
@@ -330,9 +331,6 @@ form {
   border-color: #f0b9a8;
 }
 
-.enlace-coral {
-  cursor: pointer;
-}
 
 .error-general {
   padding: 0.8rem 0.9rem;

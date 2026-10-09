@@ -16,47 +16,72 @@
 
     <form class="card form-card" (ngSubmit)="enviar()">
       <h2 class="seccion">Datos personales</h2>
-      <div class="grid">
+      <div class="grid grid-2">
         <label class="campo">
           Nombre *
-          <input type="text" name="nombre" [(ngModel)]="datos.nombre" autocomplete="given-name">
+          <input type="text" name="nombre" [(ngModel)]="datos.nombre" autocomplete="given-name" placeholder="Tu nombre">
         </label>
         <label class="campo">
           Apellidos *
-          <input type="text" name="apellidos" [(ngModel)]="datos.apellidos" autocomplete="family-name">
+          <input type="text" name="apellidos" [(ngModel)]="datos.apellidos" autocomplete="family-name" placeholder="Tus apellidos">
         </label>
-        <label class="campo">
+        <label class="campo campo-completo">
           Email *
-          <input type="email" name="email" [(ngModel)]="datos.email" autocomplete="email">
-        </label>
-        <label class="campo">
-          Avatar (URL de la imagen)
-          <input type="url" name="avatar" [(ngModel)]="datos.avatar" placeholder="https://...">
+          <input type="email" name="email" [(ngModel)]="datos.email" autocomplete="email" placeholder="nombre@correo.es">
         </label>
       </div>
 
       <h2 class="seccion">Datos de administración</h2>
-      <div class="grid">
+      <div class="grid grid-2">
         <label class="campo">
           Sede *
-          <input type="text" name="sede" [(ngModel)]="datos.sede">
+          <input type="text" name="sede" [(ngModel)]="datos.sede" placeholder="Ciudad Real">
         </label>
         <label class="campo">
           Fecha de incorporación
-          <input type="date" name="FechaIncorporacion" [(ngModel)]="datos.FechaIncorporacion">
+          <input type="text" [value]="hoy" readonly disabled title="Se asigna automáticamente con la fecha de alta">
         </label>
+        <div class="campo campo-completo">
+          <span id="etiqueta-avatar">Avatar (opcional)</span>
+          <div class="lista-avatares" role="radiogroup" aria-labelledby="etiqueta-avatar">
+            @for (id of avatares; track id) {
+              <button type="button" class="opcion-avatar"
+                      [class.elegido]="datos.avatar === id" [attr.aria-pressed]="datos.avatar === id"
+                      (click)="datos.avatar = datos.avatar === id ? '' : id">
+                <img [src]="'/avatares/clientes/' + id + '.png'" alt="">
+              </button>
+            }
+          </div>
+        </div>
       </div>
 
       <h2 class="seccion">Contraseña</h2>
       <div class="grid">
         <label class="campo">
           Contraseña *
-          <input type="password" name="contrasena" [(ngModel)]="datos.contrasena" autocomplete="new-password">
+          <span class="campo-pass">
+            <input [type]="verContrasena() ? 'text' : 'password'" name="contrasena" [(ngModel)]="datos.contrasena" autocomplete="new-password" placeholder="Mínimo 12 caracteres">
+            <button type="button" class="ojo" (click)="verContrasena.set(!verContrasena())"
+                    [attr.aria-label]="verContrasena() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                    [attr.aria-pressed]="verContrasena()">
+              <ng-container *ngTemplateOutlet="iconoOjo; context: { visible: verContrasena() }" />
+            </button>
+          </span>
         </label>
         <label class="campo">
           Repetir contraseña *
-          <input type="password" name="repetirContrasena" [(ngModel)]="datos.repetirContrasena" autocomplete="new-password">
+          <span class="campo-pass">
+            <input [type]="verRepetir() ? 'text' : 'password'" name="repetirContrasena" [(ngModel)]="datos.repetirContrasena" autocomplete="new-password" placeholder="Vuelve a escribirla">
+            <button type="button" class="ojo" (click)="verRepetir.set(!verRepetir())"
+                    [attr.aria-label]="verRepetir() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                    [attr.aria-pressed]="verRepetir()">
+              <ng-container *ngTemplateOutlet="iconoOjo; context: { visible: verRepetir() }" />
+            </button>
+          </span>
         </label>
+        <p class="pista campo-completo">
+          Usa al menos 12 caracteres. Una frase de varias palabras es fácil de recordar y segura.
+        </p>
       </div>
 
       @if (error()) {
@@ -77,3 +102,13 @@
     </form>
   </div>
 </section>
+
+<ng-template #iconoOjo let-visible="visible">
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+    <circle cx="12" cy="12" r="3" />
+    @if (visible) {
+      <path d="M3 3l18 18" />
+    }
+  </svg>
+</ng-template>

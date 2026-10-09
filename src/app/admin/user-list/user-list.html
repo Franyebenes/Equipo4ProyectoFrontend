@@ -12,10 +12,14 @@
         <h1>Usuarios</h1>
         <p class="sub">{{ totalElementos() }} usuarios encontrados</p>
       </div>
-      <a routerLink="/admin/administradores/nuevo" class="btn btn-coral">+ Nuevo administrador</a>
     </header>
 
     <div class="filtros">
+       <label class="campo campo-busqueda">
+        Buscar
+        <input type="search" [ngModel]="busqueda" (ngModelChange)="buscar($event)"
+               placeholder="Nombre, apellidos o correo" maxlength="100" autocomplete="off">
+      </label>
       <label class="campo">
         Rol
         <select [ngModel]="filtroRol" (ngModelChange)="filtroRol = $event; aplicarFiltros()">
@@ -28,7 +32,7 @@
       <label class="campo">
         Estado
         <select [ngModel]="filtroEstado" (ngModelChange)="filtroEstado = $event; aplicarFiltros()">
-          <option value="">Todos menos eliminados</option>
+          <option value="">Todos los estados</option>
           @for (e of estados; track e) {
             <option [value]="e">{{ etiquetaEstado[e] }}</option>
           }
@@ -38,6 +42,9 @@
 
     @if (error()) {
       <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+    }
+    @if (exito()) {
+      <div class="aviso aviso-ok" role="status">{{ exito() }}</div>
     }
 
     <div class="card">
@@ -49,7 +56,7 @@
               <th>Email</th>
               <th>Rol</th>
               <th>Estado</th>
-              <th class="derecha">Acciones</th>
+              <th class="col-acciones derecha">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -69,7 +76,7 @@
                       </div>
                     </div>
                   </td>
-                  <td>{{ u.email }}</td>
+                  <td class="col-email">{{ u.email }}</td>
                   <td>
                     @for (r of u.roles; track r) {
                       <span class="chip">{{ etiquetaRol[r] }}</span>
@@ -78,10 +85,13 @@
                   <td>
                     <span class="estado" [attr.data-estado]="u.estado">{{ etiquetaEstado[u.estado] }}</span>
                   </td>
-                  <td>
+                  <td class="col-acciones">
                     <div class="acciones">
-                      <button type="button" class="btn btn-ghost btn-sm" (click)="editar(u)">Editar</button>
                       @if (u.estado !== 'ELIMINADO') {
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="editar(u)">Editar</button>
+                        @if (u.estado === 'DESACTIVADO') {
+                          <button type="button" class="btn btn-coral btn-sm" (click)="activar(u)">Activar</button>
+                        }
                         <button type="button" class="btn btn-ghost btn-sm" (click)="toggleBloqueo(u)">
                           {{ u.estado === 'BLOQUEADO' ? 'Desbloquear' : 'Bloquear' }}
                         </button>
@@ -109,7 +119,19 @@
   </div>
 </section>
 
+@if (usuarioAEliminar(); as usuario) {
+  <app-dialogo-confirmacion
+    titulo="Eliminar usuario"
+    [mensaje]="'¿Seguro que quieres eliminar a ' + usuario.nombre + ' ' + usuario.apellidos + ' (' + usuario.email + ')? Se borrará definitivamente y esta acción no se puede deshacer.'"
+    textoConfirmar="Eliminar"
+    textoProcesando="Eliminando…"
+    [procesando]="eliminando()"
+    (cancelar)="cancelarEliminacion()"
+    (confirmar)="confirmarEliminacion()" />
+}
+
 <app-user-edit
   [usuario]="usuarioEditando()"
+  [errorServidor]="errorEdicion()"
   (guardar)="guardarEdicion($event)"
   (cancelar)="cancelarEdicion()" />
