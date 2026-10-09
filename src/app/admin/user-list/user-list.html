@@ -127,5 +127,6 @@
 
 <app-user-edit
   [usuario]="usuarioEditando()"
+  [errorServidor]="errorEdicion()"
   (guardar)="guardarEdicion($event)"
   (cancelar)="cancelarEdicion()" />

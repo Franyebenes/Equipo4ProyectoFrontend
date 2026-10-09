@@ -28,6 +28,7 @@ export class UserList implements OnInit {
   cargando = signal(false);
   error = signal('');
   exito = signal('');
+  errorEdicion = signal('');
   usuarioAEliminar = signal<Usuario | null>(null);
   eliminando = signal(false);
   pagina = signal(0);
@@ -117,20 +118,26 @@ export class UserList implements OnInit {
   }
 
   editar(u: Usuario): void {
+    this.errorEdicion.set('');
+    this.exito.set('');
     this.usuarioEditando.set(u);
   }
 
   guardarEdicion(evento: { id: string; datos: DatosModificacion }): void {
+    this.errorEdicion.set('');
     this.admin.modificar(evento.id, evento.datos).subscribe({
-      next: () => {
+      next: (u) => {
         this.usuarioEditando.set(null);
+        this.exito.set(`Datos de ${u.email} guardados correctamente.`);
         this.cargar();
       },
-      error: (e: HttpErrorResponse) => this.fallo(e),
+      // El modal sigue abierto (no se pierden los cambios) y muestra el error dentro
+      error: (e: HttpErrorResponse) => this.errorEdicion.set(mensajeError(e)),
     });
   }
 
   cancelarEdicion(): void {
+    this.errorEdicion.set('');
     this.usuarioEditando.set(null);
   }
 
