@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 
 import { API_URL } from '../core/api';
 
@@ -17,6 +17,22 @@ export interface ProductoCatalogo {
   descuentoPremium: number | null;
   stock: number;
   visible: boolean;
+}
+
+// HU15.1 - Datos para dar de alta un producto (ProductoAltaDTO en el backend).
+export interface ProductoAlta {
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  idCategorias: string[];
+  stock: number;
+  imagen: string | null;
+}
+
+// Token CSRF que devuelve /api/auth/csrf; el backend lo exige en las peticiones que modifican datos.
+interface TokenCsrf {
+  token: string;
+  headerName: string;
 }
 
 const FORMATO_EUROS = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
@@ -44,6 +60,7 @@ export function mensajeErrorCatalogo(e: HttpErrorResponse): string {
 export class ProductoService {
   private http = inject(HttpClient);
   private api = `${inject(API_URL)}/api/vendedor/productos`;
+  private apiBase = inject(API_URL);
 
   listarMios(): Observable<ProductoCatalogo[]> {
     return this.http.get<ProductoCatalogo[]>(this.api);
@@ -51,5 +68,14 @@ export class ProductoService {
 
   obtenerMio(id: string): Observable<ProductoCatalogo> {
     return this.http.get<ProductoCatalogo>(`${this.api}/${id}`);
+  }
+
+  // HU15.1 - Pide el token CSRF y despues envia el alta con el en la cabecera.
+  crear(datos: ProductoAlta): Observable<ProductoCatalogo> {
+    return this.http.get<TokenCsrf>(`${this.apiBase}/api/auth/csrf`).pipe(
+      switchMap((csrf) =>
+        this.http.post<ProductoCatalogo>(this.api, datos, { headers: { [csrf.headerName]: csrf.token } }),
+      ),
+    );
   }
 }

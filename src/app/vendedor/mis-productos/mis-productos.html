@@ -6,7 +6,10 @@
         <h1>Mi catálogo</h1>
         <p class="sub">Productos que has dado de alta en ESIBuy, ordenados alfabéticamente.</p>
       </div>
-      <button type="button" class="btn btn-ghost" (click)="cargar()" [disabled]="cargando()">Actualizar</button>
+      <div class="botones">
+        <button type="button" class="btn btn-ghost" (click)="cargar()" [disabled]="cargando()">Actualizar</button>
+        <a routerLink="/vendedor/productos/nuevo" class="btn btn-crear">Crear producto</a>
+      </div>
     </header>
 
     @if (error()) {
