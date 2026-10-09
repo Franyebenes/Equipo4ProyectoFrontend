@@ -9,6 +9,7 @@ import { VerCategorias } from './admin/ver-categorias/ver-categorias';
 import { EditarCategoria } from './admin/editar-categoria/editar-categoria';
 import { MisProductos } from './vendedor/mis-productos/mis-productos';
 import { DetalleProducto } from './vendedor/detalle-producto/detalle-producto';
+import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -20,5 +21,6 @@ export const routes: Routes = [
   { path: 'admin/crear-categoria', component: CrearCategoriaComponent },
   { path: 'admin/categorias/:id/editar', component: EditarCategoria },
   { path: 'vendedor/productos', component: MisProductos },
+  { path: 'vendedor/productos/nuevo', component: CrearProducto },
   { path: 'vendedor/productos/:id', component: DetalleProducto },
 ];
