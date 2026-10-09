@@ -17,3 +17,14 @@ export const rolGuard = (rol: Rol): CanActivateFn => async () => {
   }
   return router.parseUrl(usuario ? '/' : '/login');
 };
+
+// Páginas públicas (portada, login y registro) que no tienen sentido para un administrador: si hay una sesión de
+// ADMIN, se le lleva a su panel. El resto de usuarios, con sesión o sin ella, entran con normalidad.
+export const sinAdminGuard: CanActivateFn = async () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (!auth.usuario()) {
+    await auth.restaurarSesion();
+  }
+  return auth.usuario()?.rol === 'ADMIN' ? router.parseUrl('/admin/usuarios') : true;
+};

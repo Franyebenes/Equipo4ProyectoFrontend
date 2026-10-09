@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { App } from './app';
@@ -22,8 +22,14 @@ describe('App', () => {
 
   it('should render title', async () => {
     const fixture = TestBed.createComponent(App);
-    // El h1 vive en la Home enrutada; hay que completar la navegación inicial.
-    await TestBed.inject(Router).navigateByUrl('/');
+    // El h1 vive en la Home enrutada; hay que completar la navegación inicial. La portada pasa por sinAdminGuard,
+    // que pregunta por la sesión: se responde 401 (visitante sin sesión) para que la navegación termine.
+    const navegacion = TestBed.inject(Router).navigateByUrl('/');
+    await new Promise((resolver) => setTimeout(resolver));
+    TestBed.inject(HttpTestingController)
+      .expectOne((peticion) => peticion.url.endsWith('/api/auth/me'))
+      .flush(null, { status: 401, statusText: 'Unauthorized' });
+    await navegacion;
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();

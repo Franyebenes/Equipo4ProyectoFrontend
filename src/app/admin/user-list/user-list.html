@@ -38,6 +38,9 @@
     @if (error()) {
       <div class="aviso aviso-error" role="alert">{{ error() }}</div>
     }
+    @if (exito()) {
+      <div class="aviso aviso-ok" role="status">{{ exito() }}</div>
+    }
 
     <div class="card">
       <div class="tabla-scroll">
@@ -110,6 +113,17 @@
     </div>
   </div>
 </section>
+
+@if (usuarioAEliminar(); as usuario) {
+  <app-dialogo-confirmacion
+    titulo="Eliminar usuario"
+    [mensaje]="'¿Seguro que quieres eliminar a ' + usuario.nombre + ' ' + usuario.apellidos + ' (' + usuario.email + ')? Ya no podrá iniciar sesión.'"
+    textoConfirmar="Eliminar"
+    textoProcesando="Eliminando…"
+    [procesando]="eliminando()"
+    (cancelar)="cancelarEliminacion()"
+    (confirmar)="confirmarEliminacion()" />
+}
 
 <app-user-edit
   [usuario]="usuarioEditando()"

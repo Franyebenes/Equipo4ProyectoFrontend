@@ -13,6 +13,8 @@ export interface Usuario {
   email: string;
   nombre: string;
   rol: Rol;
+  // Identificador del avatar del perfil (p. ej. 'avatar-01'); null o ausente si no eligió ninguno.
+  avatar?: string | null;
 }
 
 export type TipoError = 'credenciales' | 'pendiente' | 'validacion' | 'bloqueado' | 'servidor' | 'red';
@@ -89,6 +91,7 @@ export class AuthService {
         email: respuesta.email,
         nombre: respuesta.nombre,
         rol: respuesta.rol,
+        avatar: respuesta.avatar,
       };
       this._usuario.set(usuario);
       return usuario;

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserEdit } from '../user-edit/user-edit';
+import { DialogoConfirmacion } from '../dialogo-confirmacion/dialogo-confirmacion';
 import {
   AdminService, Usuario, Rol, EstadoUsuario, DatosModificacion,
   ETIQUETA_ROL, ETIQUETA_ESTADO, mensajeError,
@@ -10,7 +11,7 @@ import {
 
 @Component({
   selector: 'app-user-list',
-  imports: [FormsModule, RouterLink, RouterLinkActive, UserEdit],
+  imports: [FormsModule, RouterLink, RouterLinkActive, UserEdit, DialogoConfirmacion],
   templateUrl: './user-list.html',
   styleUrls: ['../admin-shared.css', './user-list.css'],
 })
@@ -26,6 +27,9 @@ export class UserList implements OnInit {
   usuarios = signal<Usuario[]>([]);
   cargando = signal(false);
   error = signal('');
+  exito = signal('');
+  usuarioAEliminar = signal<Usuario | null>(null);
+  eliminando = signal(false);
   pagina = signal(0);
   totalPaginas = signal(0);
   totalElementos = signal(0);
@@ -78,11 +82,37 @@ export class UserList implements OnInit {
     });
   }
 
+  // Abre el diálogo de confirmación de la plataforma (el mismo que en Categorías) en lugar del confirm() del navegador
   eliminar(u: Usuario): void {
-    if (!confirm(`¿Seguro que quieres eliminar a ${u.email}?`)) return;
+    this.exito.set('');
+    this.usuarioAEliminar.set(u);
+  }
+
+  cancelarEliminacion(): void {
+    if (!this.eliminando()) {
+      this.usuarioAEliminar.set(null);
+    }
+  }
+
+  confirmarEliminacion(): void {
+    const u = this.usuarioAEliminar();
+    if (!u) {
+      return;
+    }
+    this.eliminando.set(true);
+    this.error.set('');
     this.admin.eliminar(u.id).subscribe({
-      next: () => this.cargar(),
-      error: (e: HttpErrorResponse) => this.fallo(e),
+      next: () => {
+        this.eliminando.set(false);
+        this.usuarioAEliminar.set(null);
+        this.exito.set(`Usuario ${u.email} eliminado correctamente.`);
+        this.cargar();
+      },
+      error: (e: HttpErrorResponse) => {
+        this.eliminando.set(false);
+        this.usuarioAEliminar.set(null);
+        this.fallo(e);
+      },
     });
   }
 

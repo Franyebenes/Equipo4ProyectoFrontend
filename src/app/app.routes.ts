@@ -6,7 +6,7 @@ import { VerCategorias } from './admin/ver-categorias/ver-categorias';
 import { EditarCategoria } from './admin/editar-categoria/editar-categoria';
 import { MisProductos } from './vendedor/mis-productos/mis-productos';
 import { DetalleProducto } from './vendedor/detalle-producto/detalle-producto';
-import { rolGuard } from './core/rol.guard';
+import { rolGuard, sinAdminGuard } from './core/rol.guard';
 import { Registro } from './registro/registro';
 import { Login } from './login/login';
 import { Home } from './home/home';
@@ -31,7 +31,8 @@ export const routes: Routes = [
       { path: 'productos/:id', component: DetalleProducto },
     ],
   },
-   { path: '', component: Home },
-  { path: 'login', component: Login },
-  { path: 'registro', component: Registro },
+  // Un administrador no usa la portada ni el login/registro: sinAdminGuard lo lleva a su panel
+  { path: '', component: Home, canActivate: [sinAdminGuard] },
+  { path: 'login', component: Login, canActivate: [sinAdminGuard] },
+  { path: 'registro', component: Registro, canActivate: [sinAdminGuard] },
 ];
