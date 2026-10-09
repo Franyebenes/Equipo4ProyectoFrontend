@@ -7,15 +7,26 @@
 
     <nav class="nav-desktop" aria-label="Principal">
       <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">Inicio</a>
+      @if (auth.usuario()?.rol === 'VENDEDOR') {
+        <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mi catálogo</a>
+      }
+      @if (auth.usuario()?.rol === 'ADMIN') {
+        <a routerLink="/admin/categorias" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
+      }
       <button type="button">Cómo funciona</button>
       <button type="button">Seguridad</button>
       <button type="button">Ayuda</button>
     </nav>
 
     <div class="actions">
-      <!-- Destinos de autenticación: solo las páginas pedidas. -->
-      <a routerLink="/login" class="btn btn-ghost">Iniciar sesión</a>
-      <a routerLink="/registro" class="btn btn-coral">Crear cuenta</a>
+      <!-- Con sesión: usuario y cierre de sesión. Sin sesión: los destinos de autenticación. -->
+      @if (auth.usuario(); as usuario) {
+        <span class="usuario" [attr.title]="usuario.email">Hola, {{ usuario.nombre }}</span>
+        <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
+      } @else {
+        <a routerLink="/login" class="btn btn-ghost">Iniciar sesión</a>
+        <a routerLink="/registro" class="btn btn-coral">Crear cuenta</a>
+      }
       <button
         type="button"
         class="menu-btn"
@@ -34,11 +45,22 @@
   @if (menuAbierto()) {
     <nav id="menu-movil" class="nav-mobile" aria-label="Principal">
       <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Inicio</a>
+      @if (auth.usuario()?.rol === 'VENDEDOR') {
+        <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mi catálogo</a>
+      }
+      @if (auth.usuario()?.rol === 'ADMIN') {
+        <a routerLink="/admin/categorias" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
+      }
       <button type="button" (click)="cerrarMenu()">Cómo funciona</button>
       <button type="button" (click)="cerrarMenu()">Seguridad</button>
       <button type="button" (click)="cerrarMenu()">Ayuda</button>
-      <a routerLink="/login" class="btn btn-ghost" (click)="cerrarMenu()">Iniciar sesión</a>
-      <a routerLink="/registro" class="btn btn-coral" (click)="cerrarMenu()">Crear cuenta</a>
+      @if (auth.usuario(); as usuario) {
+        <span class="usuario">Hola, {{ usuario.nombre }}</span>
+        <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
+      } @else {
+        <a routerLink="/login" class="btn btn-ghost" (click)="cerrarMenu()">Iniciar sesión</a>
+        <a routerLink="/registro" class="btn btn-coral" (click)="cerrarMenu()">Crear cuenta</a>
+      }
     </nav>
   }
 </header>
