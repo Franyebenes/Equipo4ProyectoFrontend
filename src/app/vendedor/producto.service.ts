@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, switchMap } from 'rxjs';
+import { Categoria } from '../admin/categoria.service';
 
 import { API_URL } from '../core/api';
 
@@ -68,6 +69,10 @@ export class ProductoService {
 
   obtenerMio(id: string): Observable<ProductoCatalogo> {
     return this.http.get<ProductoCatalogo>(`${this.api}/${id}`);
+  }
+
+  listarCategorias(): Observable<Categoria[]> {
+    return this.http.get<Categoria[]>(`${this.apiBase}/api/registro/categorias`);
   }
 
   // HU15.1 - Pide el token CSRF y despues envia el alta con el en la cabecera.

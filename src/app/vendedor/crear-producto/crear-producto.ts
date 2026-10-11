@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { Categoria, CategoriaService } from '../../admin/categoria.service';
+import { Categoria } from '../../admin/categoria.service';
 import { ProductoService, mensajeErrorCatalogo } from '../producto.service';
 
 const PRECIO_MINIMO = 0;
@@ -20,7 +20,6 @@ const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 })
 export class CrearProducto implements OnInit {
   private productoService = inject(ProductoService);
-  private categoriaService = inject(CategoriaService);
   private router = inject(Router);
 
   nombre = '';
@@ -34,8 +33,9 @@ export class CrearProducto implements OnInit {
   guardando = signal(false);
   error = signal('');
 
+  // Las categorias se piden al endpoint publico del registro (el de /api/admin es solo para el administrador)
   ngOnInit(): void {
-    this.categoriaService.listar().subscribe({
+    this.productoService.listarCategorias().subscribe({
       next: (lista) => this.categorias.set(lista),
       error: (e: HttpErrorResponse) => this.error.set(mensajeErrorCatalogo(e)),
     });
