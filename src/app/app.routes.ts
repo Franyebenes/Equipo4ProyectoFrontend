@@ -32,8 +32,8 @@ export const routes: Routes = [
     canActivate: [rolGuard('VENDEDOR')],
     children: [
       { path: 'productos', component: MisProductos },
-      { path: 'productos/:id', component: DetalleProducto },
       { path: 'productos/nuevo', component: CrearProducto },
+      { path: 'productos/:id', component: DetalleProducto },
     ],
   },
   
