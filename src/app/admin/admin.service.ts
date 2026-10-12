@@ -18,6 +18,8 @@ export interface Usuario {
   fechaIncorporacion: string | null;
   roles: Rol[];
   estado: EstadoUsuario;
+  categoriaPrincipalId: string | null;
+  fechaNacimiento: string | null;
 }
 
 export interface Pagina<T> {
@@ -34,6 +36,10 @@ export interface DatosModificacion {
   dni: string;
   telefono: string;
   sede: string;
+  fechaNacimiento: string | null;
+  categoriaPrincipalId: string;
+  nombreComercial: string;
+  avatar: string;
 }
 
 export interface DatosAltaAdmin {
@@ -74,6 +80,8 @@ const TEXTOS_CODIGO: Record<string, string> = {
   CONTRASENA_COMUN: 'es demasiado común',
   CONTRASENA_FILTRADA: 'aparece en filtraciones conocidas',
   CONTRASENA_CON_DATOS_PERSONALES: 'no puede contener tu nombre o tu correo',
+  NOMBRE_COMERCIAL_DUPLICADO: 'Nombre comercial ya está en uso por otro vendedor',
+  CategoriaInexistente: 'La categoría no existe',
 };
 
 export function mensajeError(e: HttpErrorResponse): string {
@@ -93,8 +101,8 @@ export function mensajeError(e: HttpErrorResponse): string {
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  private http = inject(HttpClient);
-  private api = 'http://localhost:8080/api/admin/usuarios';
+  private readonly http = inject(HttpClient);
+  private readonly api = 'http://localhost:8080/api/admin/usuarios';
 
   listar(pagina: number, tamano: number, rol: Rol | '', estado: EstadoUsuario | '',
          busqueda = ''): Observable<Pagina<Usuario>> {
