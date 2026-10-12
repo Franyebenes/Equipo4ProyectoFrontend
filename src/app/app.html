@@ -2,8 +2,8 @@
   <div class="bar">
     <!-- El administrador no tiene portada: el logo lo lleva a su panel -->
     <a class="brand" [routerLink]="esAdmin() ? '/admin/usuarios' : '/'" aria-label="ESIBuy, inicio">
-      <span class="logo" aria-hidden="true">E</span>
-      <span class="wordmark">ESIBuy</span>
+            <img class="logo-marca" src="logo-esibuy.png" alt="" width="46" height="34" />
+            <span class="wordmark">ESI<span class="wordmark-buy">Buy</span></span>
     </a>
 
     <nav class="nav-desktop" aria-label="Principal">
@@ -16,9 +16,9 @@
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
       } @else {
-        <button type="button">Cómo funciona</button>
-        <button type="button">Seguridad</button>
-        <button type="button">Ayuda</button>
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('como-funciona')">Cómo funciona</button>
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('seguridad')">Seguridad</button>
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('ayuda')">Ayuda</button>
       }
     </nav>
 
@@ -62,9 +62,9 @@
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
       } @else {
-        <button type="button" (click)="cerrarMenu()">Cómo funciona</button>
-        <button type="button" (click)="cerrarMenu()">Seguridad</button>
-        <button type="button" (click)="cerrarMenu()">Ayuda</button>
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('como-funciona')">Cómo funciona</button>
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('seguridad')">Seguridad</button>
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('ayuda')">Ayuda</button>
       }
       @if (auth.usuario(); as usuario) {
         <span class="usuario">
@@ -97,3 +97,77 @@
 
 <!-- Home, login y registro se pintan aquí según la ruta. -->
 <router-outlet />
+
+<!-- Ventanas informativas de la cabecera (Cómo funciona, Seguridad y Ayuda). -->
+<!-- Ventanas informativas de la cabecera (Cómo funciona, Seguridad y Ayuda). -->
+@switch (ventanaAbierta()) {
+  @case ('como-funciona') {
+    <app-ventana-info titulo="Cómo funciona ESIBuy" (cerrar)="cerrarVentana()">
+      <p class="info-intro">ESIBuy une a clientes y vendedores verificados. Así se usa, según lo que quieras hacer:</p>
+      <div class="info-columnas">
+        <div>
+          <h3 class="info-subtitulo">Si quieres comprar</h3>
+          <ol class="info-pasos">
+            <li><strong>Crea tu cuenta</strong> de cliente desde «Crear cuenta».</li>
+            <li><strong>Explora el catálogo</strong> y busca por categoría, precio o valoración.</li>
+            <li><strong>Añade productos al carrito</strong> y finaliza tu compra.</li>
+            <li><strong>Sigue tu pedido</strong> hasta que llegue a casa.</li>
+          </ol>
+        </div>
+        <div>
+          <h3 class="info-subtitulo">Si quieres vender</h3>
+          <ol class="info-pasos">
+            <li><strong>Regístrate como vendedor</strong> desde «Crear cuenta».</li>
+            <li><strong>Publica tus productos</strong> con su precio y su stock.</li>
+            <li><strong>Gestiona tus pedidos</strong> y consulta tus ventas.</li>
+          </ol>
+        </div>
+      </div>
+    </app-ventana-info>
+  }
+  @case ('seguridad') {
+    <app-ventana-info titulo="Tu seguridad en ESIBuy" (cerrar)="cerrarVentana()">
+      <p class="info-intro">Así protegemos tu cuenta y tus datos.</p>
+      <h3 class="info-subtitulo">Ya activo</h3>
+      <ul class="info-lista">
+        <li><strong>Contraseñas seguras.</strong> Exigimos contraseñas robustas y rechazamos las más comunes o las que han aparecido en filtraciones.</li>
+        <li><strong>Contraseñas protegidas.</strong> Nunca guardamos tu contraseña tal cual, sino una versión cifrada que no se puede revertir.</li>
+        <li><strong>Acceso según tu rol.</strong> Cada usuario (cliente, vendedor o administrador) solo ve y hace lo que le corresponde.</li>
+      </ul>
+      <h3 class="info-subtitulo">Próximamente</h3>
+      <ul class="info-lista info-lista-proxima">
+        <li><strong>Verificación en varios pasos</strong> al iniciar sesión.</li>
+        <li><strong>Conexión cifrada (HTTPS)</strong> en toda la plataforma.</li>
+        <li><strong>Cifrado de tus datos sensibles,</strong> como los datos de pago.</li>
+      </ul>
+    </app-ventana-info>
+  }
+  @case ('ayuda') {
+    <app-ventana-info titulo="Ayuda y preguntas frecuentes" (cerrar)="cerrarVentana()">
+      <p class="info-intro">Pulsa una pregunta para ver la respuesta.</p>
+      <div class="info-faq">
+        <details>
+          <summary>¿Cómo me registro?</summary>
+          <p>Pulsa «Crear cuenta», elige si quieres comprar o vender y completa tus datos.</p>
+        </details>
+        <details>
+          <summary>¿Por qué no veo productos ni precios?</summary>
+          <p>El catálogo solo se muestra con la sesión iniciada. Entra con tu cuenta o crea una nueva.</p>
+        </details>
+        <details>
+          <summary>¿Qué diferencia hay entre cliente Estándar y Premium?</summary>
+          <p>Los clientes Premium tienen ventajas exclusivas, como soporte prioritario, alertas y beneficios especiales.</p>
+        </details>
+        <details>
+          <summary>¿Cómo me hago vendedor?</summary>
+          <p>Al crear tu cuenta, elige la opción de vendedor. Después podrás publicar y gestionar tus productos.</p>
+        </details>
+        <details>
+          <summary>He olvidado mi contraseña, ¿qué hago?</summary>
+          <p>Escríbenos a soporte y te ayudaremos a recuperar el acceso a tu cuenta.</p>
+        </details>
+      </div>
+      <p class="info-contacto">¿No encuentras lo que buscas? Escríbenos a <a href="mailto:soporte@esibuy.es">soporte&#64;esibuy.es</a>.</p>
+    </app-ventana-info>
+  }
+}

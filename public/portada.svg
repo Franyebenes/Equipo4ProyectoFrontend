@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="800" height="480" role="img" aria-labelledby="portada-titulo">
+  <title id="portada-titulo">Móvil con la tienda de ESIBuy, una bolsa de la compra con el logo de ESIBuy y un paquete</title>
+
+  <defs>
+    <!-- Logo de ESIBuy: carrito con forma de E -->
+    <symbol id="logo-esibuy" viewBox="0 0 120 90">
+      <!-- Líneas de velocidad -->
+      <g fill="none" stroke="#ef5a24" stroke-width="5.2" stroke-linecap="round">
+        <path d="M3.5 37.5 L25 33.6"/>
+        <path d="M7 48.1 L32 44.5"/>
+        <path d="M16.6 57.8 L35.9 55"/>
+      </g>
+      <!-- E en forma de cesta -->
+      <path d="M35 13.5 L87.5 4.8 Q91 5.5 89.5 9.5 L88 13 L50 25 L51.8 32 L86 25 L83.6 35.9 L56.3 43 L60.2 54.7 L107.8 47.7 L103.1 60.9 Q102.3 62 100.8 62.2 L52.3 68.8 Q49.8 68.6 49 66 L29.7 23.4 Q28.6 16.5 35 13.5 Z" fill="#ef5a24" stroke="#ef5a24" stroke-width="2" stroke-linejoin="round"/>
+      <polygon points="33,19 50,25 51.8,32 56.3,43 60.2,54.7 62,59 52,68.5" fill="#a8320c" opacity="0.3"/>
+      <!-- Productos -->
+      <polygon points="93.6,23.1 111.7,19.1 107.3,30.5 89.1,34.4" fill="#f6d04d"/>
+      <polygon points="88.3,39.1 98.4,36.7 95.3,45.3 83.6,48.1" fill="#6f9f68"/>
+      <polygon points="103.1,34.4 119.5,32 114.8,42.5 99.2,44.7" fill="#f3a99f"/>
+      <!-- Base y ruedas -->
+      <path d="M56.3 73.4 L98.4 66.9" fill="none" stroke="#ef5a24" stroke-width="3.2" stroke-linecap="round"/>
+      <circle cx="56.3" cy="80" r="7" fill="#20251f"/>
+      <circle cx="89.1" cy="80" r="7" fill="#20251f"/>
+      <circle cx="56.3" cy="80" r="2.4" fill="#fffdf9"/>
+      <circle cx="89.1" cy="80" r="2.4" fill="#fffdf9"/>
+    </symbol>
+  </defs>
+
+  <!-- Fondo y formas suaves -->
+  <rect width="800" height="480" fill="#fde8e1"/>
+  <circle cx="130" cy="80" r="130" fill="#f9d8c9"/>
+  <circle cx="720" cy="420" r="170" fill="#cfd9c7"/>
+  <circle cx="650" cy="70" r="56" fill="#f1d66b" opacity="0.6"/>
+  <ellipse cx="430" cy="424" rx="320" ry="22" fill="#191a17" opacity="0.08"/>
+
+  <!-- Etiqueta de precio -->
+  <g transform="rotate(-12 150 310)">
+    <path d="M120 284 H192 a8 8 0 0 1 8 8 V328 a8 8 0 0 1 -8 8 H120 L98 310 Z" fill="#fffdf9"/>
+    <circle cx="113" cy="310" r="5" fill="#fde8e1"/>
+    <rect x="130" y="298" width="52" height="8" rx="4" fill="#191a17" opacity="0.75"/>
+    <rect x="130" y="314" width="34" height="10" rx="5" fill="#e7552c"/>
+  </g>
+
+  <!-- Destellos -->
+  <path d="M210 140 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 l7 -3 z" fill="#e7552c"/>
+  <path d="M620 196 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 l7 -3 z" fill="#f1d66b"/>
+  <path d="M736 236 l2.5 6 l6 2.5 l-6 2.5 l-2.5 6 l-2.5 -6 l-6 -2.5 l6 -2.5 z" fill="#fffdf9"/>
+
+  <!-- Móvil con la tienda -->
+  <g transform="rotate(-6 340 240)">
+    <rect x="250" y="60" width="180" height="360" rx="30" fill="#20251f"/>
+    <rect x="262" y="78" width="156" height="324" rx="20" fill="#fffdf9"/>
+    <rect x="315" y="84" width="50" height="8" rx="4" fill="#20251f"/>
+
+    <!-- Cabecera de la tienda -->
+    <use href="#logo-esibuy" x="271" y="104" width="24" height="18"/>
+    <text x="298" y="118.5" font-family="Segoe UI, system-ui, sans-serif" font-size="12.5" font-weight="800"><tspan fill="#20251f">ESI</tspan><tspan fill="#ef5a24">Buy</tspan></text>
+    <rect x="274" y="132" width="132" height="20" rx="10" fill="#f4f0e9"/>
+    <circle cx="287" cy="142" r="4" fill="none" stroke="#6b6e67" stroke-width="1.6"/>
+
+    <!-- Producto 1: taza -->
+    <rect x="274" y="162" width="62" height="78" rx="10" fill="#f4f0e9"/>
+    <rect x="280" y="168" width="50" height="40" rx="7" fill="#cfd9c7"/>
+    <rect x="296" y="178" width="16" height="20" rx="3" fill="#3f6f48"/>
+    <path d="M312 182 h3 a5 5 0 0 1 0 10 h-3" fill="none" stroke="#3f6f48" stroke-width="3"/>
+    <rect x="280" y="214" width="36" height="6" rx="3" fill="#191a17" opacity="0.7"/>
+    <rect x="280" y="225" width="22" height="7" rx="3.5" fill="#e7552c"/>
+
+    <!-- Producto 2: libro -->
+    <rect x="344" y="162" width="62" height="78" rx="10" fill="#f4f0e9"/>
+    <rect x="350" y="168" width="50" height="40" rx="7" fill="#f8e7bf"/>
+    <rect x="364" y="176" width="22" height="24" rx="2" fill="#e7552c"/>
+    <rect x="364" y="176" width="4" height="24" fill="#d14c26"/>
+    <rect x="372" y="183" width="10" height="2.5" rx="1" fill="#fffdf9" opacity="0.85"/>
+    <rect x="350" y="214" width="36" height="6" rx="3" fill="#191a17" opacity="0.7"/>
+    <rect x="350" y="225" width="22" height="7" rx="3.5" fill="#e7552c"/>
+
+    <!-- Producto 3: gafas de sol -->
+    <rect x="274" y="250" width="62" height="78" rx="10" fill="#f4f0e9"/>
+    <rect x="280" y="256" width="50" height="40" rx="7" fill="#f9d8c9"/>
+    <circle cx="296" cy="277" r="7" fill="#20251f"/>
+    <circle cx="314" cy="277" r="7" fill="#20251f"/>
+    <path d="M303 276 q2 -3 4 0 M289 274 l-4 -3 M321 274 l4 -3" fill="none" stroke="#20251f" stroke-width="2" stroke-linecap="round"/>
+    <rect x="280" y="302" width="36" height="6" rx="3" fill="#191a17" opacity="0.7"/>
+    <rect x="280" y="313" width="22" height="7" rx="3.5" fill="#e7552c"/>
+
+    <!-- Producto 4: auriculares -->
+    <rect x="344" y="250" width="62" height="78" rx="10" fill="#f4f0e9"/>
+    <rect x="350" y="256" width="50" height="40" rx="7" fill="#e6e1d8"/>
+    <path d="M362 284 a13 13 0 0 1 26 0" fill="none" stroke="#20251f" stroke-width="3"/>
+    <rect x="358" y="280" width="8" height="12" rx="3" fill="#20251f"/>
+    <rect x="384" y="280" width="8" height="12" rx="3" fill="#20251f"/>
+    <rect x="350" y="302" width="36" height="6" rx="3" fill="#191a17" opacity="0.7"/>
+    <rect x="350" y="313" width="22" height="7" rx="3.5" fill="#e7552c"/>
+
+    <!-- Botón de comprar y navegación -->
+    <rect x="274" y="342" width="132" height="26" rx="13" fill="#e7552c"/>
+    <rect x="318" y="352" width="44" height="6" rx="3" fill="#fffdf9"/>
+    <circle cx="316" cy="384" r="3.5" fill="#e6e1d8"/>
+    <circle cx="340" cy="384" r="3.5" fill="#e7552c"/>
+    <circle cx="364" cy="384" r="3.5" fill="#e6e1d8"/>
+  </g>
+
+  <!-- Aviso de pedido confirmado -->
+  <circle cx="442" cy="98" r="24" fill="#3f6f48"/>
+  <path d="M431 98 l8 8 l15 -16" fill="none" stroke="#fffdf9" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Bolsa de la compra -->
+  <path d="M505 232 V214 a25 25 0 0 1 50 0 V232" fill="none" stroke="#20251f" stroke-width="7" stroke-linecap="round"/>
+  <path d="M476 232 H584 L598 400 H462 Z" fill="#e7552c"/>
+  <path d="M584 232 L598 400 H576 L568 232 Z" fill="#d14c26"/>
+  <circle cx="522" cy="315" r="33" fill="#fffdf9"/>
+  <use href="#logo-esibuy" x="494" y="294" width="56" height="42"/>
+
+  <!-- Paquete -->
+  <rect x="566" y="318" width="128" height="94" rx="4" fill="#dca46a"/>
+  <rect x="558" y="302" width="144" height="24" rx="4" fill="#e9bb83"/>
+  <rect x="622" y="302" width="16" height="110" fill="#f1d66b"/>
+  <rect x="580" y="344" width="34" height="26" rx="3" fill="#fffdf9"/>
+  <rect x="585" y="351" width="24" height="3" rx="1.5" fill="#6b6e67"/>
+  <rect x="585" y="359" width="16" height="3" rx="1.5" fill="#6b6e67"/>
+</svg>
