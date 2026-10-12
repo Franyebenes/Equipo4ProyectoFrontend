@@ -1,0 +1,10 @@
+.pagina {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}

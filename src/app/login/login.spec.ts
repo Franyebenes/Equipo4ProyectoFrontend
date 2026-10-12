@@ -40,14 +40,14 @@ describe('Login', () => {
     expect(html.querySelector('input[type="checkbox"]')).toBeNull();
   });
 
-  it('con credenciales correctas inicia sesión y vuelve a la portada', async () => {
+  it('con credenciales correctas inicia sesión y lleva al cliente a su página', async () => {
     auth.login.mockResolvedValue({ id: '1', email: 'ana@ejemplo.es', nombre: 'Ana', rol: 'CLIENTE' });
     const navegar = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
     const { componente } = await enviar(' ana@ejemplo.es ');
 
     expect(auth.login).toHaveBeenCalledWith('ana@ejemplo.es', 'Clave-segura-1');
-    expect(navegar).toHaveBeenCalledWith('/');
+    expect(navegar).toHaveBeenCalledWith('/cliente');
     expect(componente.contrasena).toBe('');
   });
 
