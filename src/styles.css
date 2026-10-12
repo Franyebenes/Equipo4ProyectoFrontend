@@ -95,6 +95,16 @@ img {
   font-weight: 800;
 }
 
+.logo-marca {
+  display: block;
+  height: 2.1rem;
+  width: auto;
+}
+
+.wordmark-buy {
+  color: var(--coral);
+}
+
 .brand-on-dark {
   color: white;
 }
