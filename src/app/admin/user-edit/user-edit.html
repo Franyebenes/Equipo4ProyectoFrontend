@@ -31,7 +31,39 @@
             <input type="text" [(ngModel)]="f.sede">
           </label>
         }
+                @if (esCliente) {
+          <label class="campo">
+            Fecha de nacimiento
+            <input type="date" [(ngModel)]="f.fechaNacimiento">
+          </label>
+        }
+        @if (esVendedor) {
+          <label class="campo">
+            Nombre comercial *
+            <input type="text" [(ngModel)]="f.nombreComercial">
+          </label>
+          <label class="campo">
+            Categoría principal
+            <select [(ngModel)]="f.categoriaPrincipalId">
+              @for (c of categorias(); track c.id) {
+                <option [value]="c.id">{{ c.nombre }}</option>
+              }
+            </select>
+          </label>
+        }
+
       </div>
+            <span id="etiqueta-avatar-edit">Avatar</span>
+      <div class="lista-avatares" role="radiogroup" aria-labelledby="etiqueta-avatar-edit">
+        @for (id of avatares; track id) {
+          <button type="button" class="opcion-avatar"
+                  [class.elegido]="f.avatar === id" [attr.aria-pressed]="f.avatar === id"
+                  (click)="f.avatar = id">
+            <img [src]="'/avatares/' + carpetaAvatares + '/' + id + '.png'" alt="">
+          </button>
+        }
+      </div>
+
 
       <p class="nota">El email no se puede modificar.</p>
 

@@ -113,6 +113,11 @@ export class AuthService {
     }
   }
 
+  // Refleja en la cabecera los cambios del propio usuario (p. ej. un admin que edita su nombre o su avatar).
+  actualizarUsuario(cambios: Partial<Pick<Usuario, 'nombre' | 'avatar'>>): void {
+    this._usuario.update((usuario) => (usuario ? { ...usuario, ...cambios } : usuario));
+  }
+
   // La sesión ha caducado o ya no es válida (un 401 en una petición normal): se limpia y se va al login.
   sesionCaducada(): void {
     this.descartarSesion();

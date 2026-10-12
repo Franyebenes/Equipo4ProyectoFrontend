@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../../core/auth.service';
 import { UserEdit } from '../user-edit/user-edit';
 import { DialogoConfirmacion } from '../dialogo-confirmacion/dialogo-confirmacion';
 import {
@@ -17,6 +18,7 @@ import {
 })
 export class UserList implements OnInit {
   private admin = inject(AdminService);
+  private auth = inject(AuthService);
 
   readonly roles: Rol[] = ['ADMIN', 'VENDEDOR', 'CLIENTE', 'PREMIUM'];
   // Sin ELIMINADO: la eliminación es física y el usuario desaparece de la base de datos
@@ -138,6 +140,10 @@ export class UserList implements OnInit {
     this.admin.modificar(evento.id, evento.datos).subscribe({
       next: (u) => {
         this.usuarioEditando.set(null);
+        // Si el admin se ha editado a sí mismo, se actualiza también la cabecera
+        if (u.id === this.auth.usuario()?.id) {
+          this.auth.actualizarUsuario({ nombre: u.nombre, avatar: u.avatar });
+        }
         this.exito.set(`Datos de ${u.email} guardados correctamente.`);
         this.cargar();
       },
@@ -149,10 +155,6 @@ export class UserList implements OnInit {
   cancelarEdicion(): void {
     this.errorEdicion.set('');
     this.usuarioEditando.set(null);
-  }
-
-  inicial(u: Usuario): string {
-    return (u.nombre?.[0] ?? u.email[0]).toUpperCase();
   }
 
   private fallo(e: HttpErrorResponse): void {

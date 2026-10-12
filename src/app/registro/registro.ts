@@ -89,6 +89,9 @@ export class Registro {
   readonly categorias = signal<Categoria[]>([]);
   readonly estadoCategorias = signal<'inicial' | 'cargando' | 'listo' | 'error'>('inicial');
   readonly avatares = AVATARES;
+  // Botones del ojo: muestran u ocultan cada contraseña por separado.
+  readonly verContrasena = signal(false);
+  readonly verRepetirContrasena = signal(false);
 
   // Los campos de vendedor empiezan deshabilitados: un control deshabilitado no cuenta para la validez.
   readonly form = this.fb.group(
@@ -99,6 +102,8 @@ export class Registro {
       email: ['', [emailValido()]],
       telefono: ['', [telefonoOpcional()]],
       fechaNacimiento: ['', [fechaNacimientoValida()]],
+      // Solo para clientes: Premium se envía como tipoCuenta PREMIUM en lugar de CLIENTE. Estándar por defecto.
+      premium: [false],
       nombreComercial: [{ value: '', disabled: true }, [textoObligatorio()]],
       categoriaPrincipalId: [{ value: '', disabled: true }, [textoObligatorio()]],
       avatar: [''],
@@ -225,7 +230,11 @@ export class Registro {
         categoriaPrincipalId: valores.categoriaPrincipalId,
       };
     }
-    return { tipoCuenta: 'CLIENTE', ...comunes, fechaNacimiento: valores.fechaNacimiento };
+    return {
+      tipoCuenta: valores.premium ? 'PREMIUM' : 'CLIENTE',
+      ...comunes,
+      fechaNacimiento: valores.fechaNacimiento,
+    };
   }
 
   private alRegistrar(respuesta: RespuestaRegistro): void {

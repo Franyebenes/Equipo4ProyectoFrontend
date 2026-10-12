@@ -1,13 +1,13 @@
 <header class="topbar">
   <div class="bar">
-    <!-- El administrador no tiene portada: el logo lo lleva a su panel -->
-    <a class="brand" [routerLink]="esAdmin() ? '/admin/usuarios' : '/'" aria-label="ESIBuy, inicio">
+    <!-- Solo los visitantes tienen portada: con sesión, el logo lleva a la página de cada rol -->
+    <a class="brand" [routerLink]="rutaLogo()" aria-label="ESIBuy, inicio">
             <img class="logo-marca" src="logo-esibuy.png" alt="" width="46" height="34" />
             <span class="wordmark">ESI<span class="wordmark-buy">Buy</span></span>
     </a>
 
     <nav class="nav-desktop" aria-label="Principal">
-      @if (!esAdmin()) {
+      @if (!auth.usuario()) {
         <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">Inicio</a>
       }
       @if (auth.usuario()?.rol === 'VENDEDOR') {
@@ -15,7 +15,7 @@
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
-      } @else {
+      } @else if (!esCliente()) {
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('como-funciona')">Cómo funciona</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('seguridad')">Seguridad</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('ayuda')">Ayuda</button>
@@ -53,7 +53,7 @@
 
   @if (menuAbierto()) {
     <nav id="menu-movil" class="nav-mobile" aria-label="Principal">
-      @if (!esAdmin()) {
+      @if (!auth.usuario()) {
         <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Inicio</a>
       }
       @if (auth.usuario()?.rol === 'VENDEDOR') {
@@ -61,7 +61,7 @@
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
-      } @else {
+      } @else if (!esCliente()) {
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('como-funciona')">Cómo funciona</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('seguridad')">Seguridad</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('ayuda')">Ayuda</button>

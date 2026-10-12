@@ -72,6 +72,22 @@
           </button>
         </div>
 
+        @if (rol() === 'cliente') {
+          <div class="campo-grupo">
+            <p class="campo" id="etiqueta-tipo-cliente">Tipo de cliente</p>
+            <div class="tipos-cliente" role="radiogroup" aria-labelledby="etiqueta-tipo-cliente">
+              <label class="check">
+                <input type="radio" name="premium" formControlName="premium" [value]="false" />
+                Estándar
+              </label>
+              <label class="check">
+                <input type="radio" name="premium" formControlName="premium" [value]="true" />
+                Premium
+              </label>
+            </div>
+          </div>
+        }
+
         <div class="dos-campos">
           <div class="campo-grupo">
             <label class="campo">
@@ -268,19 +284,38 @@
         <div class="campo-grupo">
           <label class="campo">
             Contraseña
-            <span class="entrada">
+            <span class="entrada con-ojo">
               <svg viewBox="0 0 20 20" aria-hidden="true">
                 <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
               </svg>
               <input
                 id="contrasena"
-                type="password"
+                [type]="verContrasena() ? 'text' : 'password'"
                 formControlName="contrasena"
                 autocomplete="new-password"
                 placeholder="Mínimo 12 caracteres"
                 [attr.aria-invalid]="ariaInvalid('contrasena')"
                 [attr.aria-describedby]="ariaDescribedby('contrasena')"
               />
+              <button
+                type="button"
+                class="ver-contrasena"
+                (click)="verContrasena.set(!verContrasena())"
+                [attr.aria-label]="verContrasena() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                @if (verContrasena()) {
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M2 10C4 6.5 6.8 4.5 10 4.5S16 6.5 18 10C16 13.5 13.2 15.5 10 15.5S4 13.5 2 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                    <circle cx="10" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M3.5 3.5 16.5 16.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                } @else {
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M2 10C4 6.5 6.8 4.5 10 4.5S16 6.5 18 10C16 13.5 13.2 15.5 10 15.5S4 13.5 2 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                    <circle cx="10" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                  </svg>
+                }
+              </button>
             </span>
           </label>
           <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'contrasena' }" />
@@ -292,19 +327,38 @@
         <div class="campo-grupo">
           <label class="campo">
             Repite la contraseña
-            <span class="entrada">
+            <span class="entrada con-ojo">
               <svg viewBox="0 0 20 20" aria-hidden="true">
                 <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
               </svg>
               <input
                 id="repetirContrasena"
-                type="password"
+                [type]="verRepetirContrasena() ? 'text' : 'password'"
                 formControlName="repetirContrasena"
                 autocomplete="new-password"
                 placeholder="Vuelve a escribirla"
                 [attr.aria-invalid]="ariaInvalid('repetirContrasena')"
                 [attr.aria-describedby]="ariaDescribedby('repetirContrasena')"
               />
+              <button
+                type="button"
+                class="ver-contrasena"
+                (click)="verRepetirContrasena.set(!verRepetirContrasena())"
+                [attr.aria-label]="verRepetirContrasena() ? 'Ocultar la contraseña repetida' : 'Mostrar la contraseña repetida'"
+              >
+                @if (verRepetirContrasena()) {
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M2 10C4 6.5 6.8 4.5 10 4.5S16 6.5 18 10C16 13.5 13.2 15.5 10 15.5S4 13.5 2 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                    <circle cx="10" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M3.5 3.5 16.5 16.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                } @else {
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M2 10C4 6.5 6.8 4.5 10 4.5S16 6.5 18 10C16 13.5 13.2 15.5 10 15.5S4 13.5 2 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                    <circle cx="10" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                  </svg>
+                }
+              </button>
             </span>
           </label>
           <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'repetirContrasena' }" />

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { VentanaInfoService } from '../compartido/ventana-info/ventana-info.service';
 import { HomeApiService } from './home-api.service';
 import { HomeInfo } from './home-info';
 
@@ -13,6 +14,7 @@ import { HomeInfo } from './home-info';
 })
 export class Home {
   private readonly homeApi = inject(HomeApiService);
+  private readonly ventanas = inject(VentanaInfoService);
 
   readonly homeInfo = signal<HomeInfo | null>(null);
   readonly loading = signal(true);
@@ -36,5 +38,10 @@ export class Home {
         this.error.set(true);
       },
     });
+  }
+
+  // "Centro de ayuda" del pie: la misma ventana que el botón Ayuda de la cabecera.
+  abrirAyuda(): void {
+    this.ventanas.abierta.set('ayuda');
   }
 }
