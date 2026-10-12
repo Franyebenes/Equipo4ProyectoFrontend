@@ -1,6 +1,6 @@
 @if (form; as f) {
-  <div class="overlay" (click)="onCancelar()">
-    <div class="modal card" role="dialog" aria-modal="true" aria-labelledby="titulo-editar" (click)="$event.stopPropagation()">
+  <div class="overlay" (click)="onClickFondo($event)" (keydown.escape)="onCancelar()">
+    <div class="modal card" role="dialog" aria-modal="true" aria-labelledby="titulo-editar">
       <p class="eyebrow">Editar usuario</p>
       <h2 id="titulo-editar">{{ original?.nombre }} {{ original?.apellidos }}</h2>
 

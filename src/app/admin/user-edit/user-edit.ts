@@ -83,4 +83,9 @@ export class UserEdit {
   onCancelar(): void {
     this.cancelar.emit();
   }
+
+  // Solo cierra si el clic cae en el fondo, no dentro del modal
+  onClickFondo(event: MouseEvent): void {
+    if (event.target === event.currentTarget) this.onCancelar();
+  }
 }
