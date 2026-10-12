@@ -4,11 +4,10 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 
 import { AuthService } from './core/auth.service';
 import { VentanaInfo } from './compartido/ventana-info/ventana-info';
+import { Ventana, VentanaInfoService } from './compartido/ventana-info/ventana-info.service';
 
 // Solo los avatares del catálogo (avatar-01, avatar-02...) tienen imagen en public/avatares.
 const AVATAR_DEL_CATALOGO = /^avatar-\d+$/;
-// Ventanas informativas que se abren desde la cabecera.
-type Ventana = 'como-funciona' | 'seguridad' | 'ayuda';
 
 // Cáscara de la app: cabecera compartida (con el usuario y el cierre de sesión) y salida de rutas.
 @Component({
@@ -22,7 +21,8 @@ export class App {
   private readonly router = inject(Router);
 
   menuAbierto = signal(false);
-  ventanaAbierta = signal<Ventana | null>(null);
+  // Compartida con las páginas: el pie de la Home también abre la ventana de Ayuda.
+  ventanaAbierta = inject(VentanaInfoService).abierta;
 
   // El administrador solo trabaja en su panel: sin portada ni enlaces informativos en la cabecera.
   readonly esAdmin = computed(() => this.auth.usuario()?.rol === 'ADMIN');
