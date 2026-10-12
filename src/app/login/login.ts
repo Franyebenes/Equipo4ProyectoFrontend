@@ -40,6 +40,8 @@ export class Login {
   readonly erroresCampo = signal<Record<string, string[]>>({});
   // Cuenta atrás cuando el backend bloquea temporalmente los intentos (429 con Retry-After).
   readonly segundosRestantes = signal(0);
+  // Botón del ojo: muestra u oculta la contraseña.
+  readonly verContrasena = signal(false);
 
   private temporizador: ReturnType<typeof setInterval> | undefined;
 
