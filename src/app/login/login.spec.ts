@@ -35,6 +35,22 @@ describe('Login', () => {
     return vista;
   }
 
+  it('el botón del ojo alterna entre ocultar y mostrar la contraseña', () => {
+    const { fixture, html } = crear();
+    const campo = html.querySelector('input[name="contrasena"]') as HTMLInputElement;
+    const ojo = html.querySelector('.ver-contrasena') as HTMLButtonElement;
+
+    expect(campo.type).toBe('password');
+
+    ojo.click();
+    fixture.detectChanges();
+    expect(campo.type).toBe('text');
+
+    ojo.click();
+    fixture.detectChanges();
+    expect(campo.type).toBe('password');
+  });
+
   it('no ofrece "recordar dispositivo": el backend no lo admite', () => {
     const { html } = crear();
     expect(html.querySelector('input[type="checkbox"]')).toBeNull();

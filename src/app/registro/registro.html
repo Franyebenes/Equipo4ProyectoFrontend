@@ -173,7 +173,7 @@
                   type="tel"
                   inputmode="numeric"
                   formControlName="telefono"
-                  autocomplete="tel-national"
+                  autocomplete="tel"
                   placeholder="612345678"
                   [attr.aria-invalid]="ariaInvalid('telefono')"
                   [attr.aria-describedby]="ariaDescribedby('telefono')"
@@ -290,7 +290,7 @@
               </svg>
               <input
                 id="contrasena"
-                [type]="verContrasena() ? 'text' : 'password'"
+                type="password" [attr.type]="verContrasena() ? 'text' : 'password'"
                 formControlName="contrasena"
                 autocomplete="new-password"
                 placeholder="Mínimo 12 caracteres"
@@ -333,7 +333,7 @@
               </svg>
               <input
                 id="repetirContrasena"
-                [type]="verRepetirContrasena() ? 'text' : 'password'"
+                type="password" [attr.type]="verRepetirContrasena() ? 'text' : 'password'"
                 formControlName="repetirContrasena"
                 autocomplete="new-password"
                 placeholder="Vuelve a escribirla"

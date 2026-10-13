@@ -83,4 +83,12 @@ export class UserEdit {
   onCancelar(): void {
     this.cancelar.emit();
   }
+
+  // Escape cierra el modal sin guardar. Se corta la propagación para que el overlay y el modal no cancelen dos veces.
+  onTecla(evento: KeyboardEvent): void {
+    if (evento.key === 'Escape') {
+      evento.stopPropagation();
+      this.onCancelar();
+    }
+  }
 }
