@@ -1,0 +1,210 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--paper);
+}
+
+.topbar {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.topbar .bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 4.25rem;
+}
+
+.nav-desktop {
+  display: none;
+  margin: 0 auto;
+  gap: 1.35rem;
+}
+
+.nav-desktop a,
+.nav-desktop button,
+.nav-mobile a,
+.nav-mobile button:not(.btn) {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+
+.nav-desktop a[aria-current='page'],
+.nav-mobile a[aria-current='page'] {
+  color: var(--coral);
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.usuario {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+@media (max-width: 799px) {
+  .actions .usuario {
+    display: none;
+  }
+}
+
+/* Avatar del usuario en la cabecera (imagen del catálogo o inicial) */
+.avatar-usuario {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--coral-soft);
+  color: var(--coral);
+  font-weight: 800;
+}
+
+.avatar-usuario img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu-btn {
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: var(--cream);
+  display: grid;
+  place-content: center;
+  gap: 4px;
+}
+
+.menu-btn span {
+  display: block;
+  width: 1rem;
+  height: 2px;
+  background: var(--ink);
+}
+
+.nav-mobile {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.4rem 1rem 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+@media (min-width: 800px) {
+  .menu-btn,
+  .nav-mobile {
+    display: none;
+  }
+
+  .nav-desktop {
+    display: flex;
+  }
+}
+
+@media (max-width: 799px) {
+  .actions .btn {
+    display: none;
+  }
+}
+
+/* Contenido de las ventanas informativas (Cómo funciona, Seguridad y Ayuda) */
+.info-intro {
+  margin: 0 0 1rem;
+  color: var(--muted, #6b6e67);
+}
+
+.info-subtitulo {
+  margin: 1.1rem 0 0.5rem;
+  color: var(--coral, #e7552c);
+  font-size: 0.95rem;
+}
+
+.info-columnas {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.info-columnas .info-subtitulo {
+  margin-top: 0;
+}
+
+@media (min-width: 560px) {
+  .info-columnas {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.info-pasos,
+.info-lista {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.92rem;
+}
+
+.info-lista-proxima {
+  color: var(--muted, #6b6e67);
+}
+
+.info-faq {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.info-faq details {
+  border: 1px solid var(--line, #e6e1d8);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.info-faq summary {
+  padding: 0.75rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.info-faq details[open] summary {
+  color: var(--coral, #e7552c);
+}
+
+.info-faq details p {
+  margin: 0;
+  padding: 0 1rem 0.85rem;
+  color: var(--muted, #6b6e67);
+  font-size: 0.9rem;
+}
+
+.info-contacto {
+  margin: 1rem 0 0;
+  color: var(--muted, #6b6e67);
+  font-size: 0.88rem;
+}
+
+.info-contacto a {
+  color: var(--coral, #e7552c);
+  font-weight: 700;
+}

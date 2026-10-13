@@ -1,0 +1,34 @@
+.fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(25 26 23 / 45%);
+}
+
+.dialogo {
+  width: min(100%, 440px);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: var(--paper, #fffdf9);
+  box-shadow: 0 12px 40px rgb(25 26 23 / 18%);
+}
+
+.dialogo h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+.dialogo p {
+  margin: 0 0 1.5rem;
+  color: var(--muted, #6b6e67);
+  line-height: 1.5;
+}
+
+.botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}

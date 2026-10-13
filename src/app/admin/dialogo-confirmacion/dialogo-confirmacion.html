@@ -1,0 +1,13 @@
+<div class="fondo">
+  <div class="dialogo" role="alertdialog" aria-modal="true"
+       aria-labelledby="dialogo-titulo" aria-describedby="dialogo-mensaje">
+    <h2 id="dialogo-titulo">{{ titulo() }}</h2>
+    <p id="dialogo-mensaje">{{ mensaje() }}</p>
+    <div class="botones">
+      <button type="button" class="btn btn-ghost" [disabled]="procesando()" (click)="cerrar()">Cancelar</button>
+      <button type="button" class="btn btn-danger" [disabled]="procesando()" (click)="confirmar.emit()">
+        {{ procesando() ? textoProcesando() : textoConfirmar() }}
+      </button>
+    </div>
+  </div>
+</div>

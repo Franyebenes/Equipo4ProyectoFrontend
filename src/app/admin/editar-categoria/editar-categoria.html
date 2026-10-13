@@ -1,0 +1,53 @@
+<section class="admin-page">
+  <div class="bar">
+    <nav class="admin-tabs" aria-label="Administración">
+      <a routerLink="/admin/usuarios" routerLinkActive="is-active">Usuarios</a>
+      <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active">Dar de alta administrador</a>
+      <a routerLink="/admin/categorias" routerLinkActive="is-active">Categorías</a>
+    </nav>
+
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">Panel de administración</p>
+        <h1>Editar categoría</h1>
+        <p class="sub">Modifica el nombre o la descripción. Los cambios se verán al momento en el catálogo.</p>
+      </div>
+    </header>
+
+    @if (cargando()) {
+      <div class="card form-card">
+        <p class="cargando">Cargando datos de la categoría…</p>
+      </div>
+    } @else if (errorCarga()) {
+      <div class="aviso aviso-error" role="alert">{{ errorCarga() }}</div>
+      <a routerLink="/admin/categorias" class="btn btn-ghost">Volver al listado</a>
+    } @else {
+      <form class="card form-card" (ngSubmit)="guardar()">
+        <h2 class="seccion">Datos de la categoría</h2>
+
+        <label class="campo">
+          Nombre *
+          <input type="text" name="nombre" [(ngModel)]="datos.nombre" maxlength="50"
+                 placeholder="Ej.: Tecnología, Hogar, Libros">
+        </label>
+
+        <label class="campo">
+          Descripción *
+          <textarea name="descripcion" [(ngModel)]="datos.descripcion" maxlength="200" rows="4"
+                    placeholder="Breve descripción de la categoría"></textarea>
+        </label>
+
+        @if (error()) {
+          <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+        }
+
+        <div class="botones">
+          <a routerLink="/admin/categorias" class="btn btn-ghost">Cancelar</a>
+          <button type="submit" class="btn btn-coral" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</section>

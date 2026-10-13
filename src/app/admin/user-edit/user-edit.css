@@ -1,0 +1,61 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(25 26 23 / 45%);
+}
+
+.modal {
+  width: min(600px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.modal h2 {
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+.formulario {
+  margin: 1.5rem 0 0.75rem;
+}
+
+/* Selector de avatar: mismo aspecto que en el registro */
+.lista-avatares {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0.4rem 0 1rem;
+}
+
+.opcion-avatar {
+  width: 3.4rem;
+  height: 3.4rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.opcion-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.opcion-avatar.elegido {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 2px var(--coral-soft);
+}
+
+.nota {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}

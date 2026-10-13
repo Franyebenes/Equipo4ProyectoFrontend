@@ -1,0 +1,154 @@
+.admin-page {
+  padding: 2.5rem 0 4rem;
+  background: var(--cream);
+  min-height: calc(100vh - 72px);
+}
+
+.admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 2rem;
+  padding: 0.35rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.admin-tabs a {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+.admin-tabs a:hover {
+  color: var(--ink);
+}
+
+.admin-tabs a.is-active {
+  background: var(--ink);
+  color: white;
+}
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.3rem;
+  color: var(--coral);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-head h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.sub {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.aviso {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.9rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.aviso-error {
+  background: var(--coral-soft);
+  color: #9a3412;
+}
+
+.aviso-ok {
+  background: #e3eedf;
+  color: var(--ok);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.campo input,
+.campo select {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: white;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.campo input:focus,
+.campo select:focus {
+  outline: 2px solid var(--coral);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.campo input[readonly] {
+  background: var(--cream);
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+.btn-danger {
+  background: white;
+  color: #b42318;
+  box-shadow: inset 0 0 0 1px #f3c4bd;
+}
+
+.btn-danger:hover {
+  background: #fdecea;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

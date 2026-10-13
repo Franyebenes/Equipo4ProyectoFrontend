@@ -1,0 +1,173 @@
+<header class="topbar">
+  <div class="bar">
+    <!-- Solo los visitantes tienen portada: con sesión, el logo lleva a la página de cada rol -->
+    <a class="brand" [routerLink]="rutaLogo()" aria-label="ESIBuy, inicio">
+            <img class="logo-marca" src="logo-esibuy.png" alt="" width="46" height="34" />
+            <span class="wordmark">ESI<span class="wordmark-buy">Buy</span></span>
+    </a>
+
+    <nav class="nav-desktop" aria-label="Principal">
+      @if (!auth.usuario()) {
+        <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">Inicio</a>
+      }
+      @if (auth.usuario()?.rol === 'VENDEDOR') {
+        <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mi catálogo</a>
+      }
+      @if (esAdmin()) {
+        <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
+      } @else if (!esCliente()) {
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('como-funciona')">Cómo funciona</button>
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('seguridad')">Seguridad</button>
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('ayuda')">Ayuda</button>
+      }
+    </nav>
+
+    <div class="actions">
+      <!-- Con sesión: usuario y cierre de sesión. Sin sesión: los destinos de autenticación. -->
+      @if (auth.usuario(); as usuario) {
+        <span class="usuario" [attr.title]="usuario.email">
+          @if (esAdmin() || esVendedor()) {
+            <ng-container *ngTemplateOutlet="avatarUsuario" />
+          }
+          Hola, {{ usuario.nombre }}
+        </span>
+        <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
+      } @else {
+        <a routerLink="/login" class="btn btn-ghost">Iniciar sesión</a>
+        <a routerLink="/registro" class="btn btn-coral">Crear cuenta</a>
+      }
+      <button
+        type="button"
+        class="menu-btn"
+        (click)="alternarMenu()"
+        [attr.aria-expanded]="menuAbierto()"
+        aria-controls="menu-movil"
+        aria-label="Abrir menú"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+
+  @if (menuAbierto()) {
+    <nav id="menu-movil" class="nav-mobile" aria-label="Principal">
+      @if (!auth.usuario()) {
+        <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Inicio</a>
+      }
+      @if (auth.usuario()?.rol === 'VENDEDOR') {
+        <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mi catálogo</a>
+      }
+      @if (esAdmin()) {
+        <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
+      } @else if (!esCliente()) {
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('como-funciona')">Cómo funciona</button>
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('seguridad')">Seguridad</button>
+          <button type="button" aria-haspopup="dialog" (click)="abrirVentana('ayuda')">Ayuda</button>
+      }
+      @if (auth.usuario(); as usuario) {
+        <span class="usuario">
+          @if (esAdmin() || esVendedor()) {
+            <ng-container *ngTemplateOutlet="avatarUsuario" />
+          }
+          Hola, {{ usuario.nombre }}
+        </span>
+        <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
+      } @else {
+        <a routerLink="/login" class="btn btn-ghost" (click)="cerrarMenu()">Iniciar sesión</a>
+        <a routerLink="/registro" class="btn btn-coral" (click)="cerrarMenu()">Crear cuenta</a>
+      }
+    </nav>
+  }
+</header>
+
+<!-- Avatar del usuario en la cabecera: su imagen del catálogo o, si no tiene, la inicial de su nombre. -->
+<ng-template #avatarUsuario>
+  @if (auth.usuario(); as usuario) {
+    <span class="avatar-usuario" aria-hidden="true">
+      @if (imagenAvatar(); as imagen) {
+        <img [src]="imagen" alt="">
+      } @else {
+        {{ inicial() }}
+      }
+    </span>
+  }
+</ng-template>
+
+<!-- Home, login y registro se pintan aquí según la ruta. -->
+<router-outlet />
+
+<!-- Ventanas informativas de la cabecera (Cómo funciona, Seguridad y Ayuda). -->
+<!-- Ventanas informativas de la cabecera (Cómo funciona, Seguridad y Ayuda). -->
+@switch (ventanaAbierta()) {
+  @case ('como-funciona') {
+    <app-ventana-info titulo="Cómo funciona ESIBuy" (cerrar)="cerrarVentana()">
+      <p class="info-intro">ESIBuy une a clientes y vendedores verificados. Así se usa, según lo que quieras hacer:</p>
+      <div class="info-columnas">
+        <div>
+          <h3 class="info-subtitulo">Si quieres comprar</h3>
+          <ol class="info-pasos">
+            <li><strong>Crea tu cuenta</strong> de cliente desde «Crear cuenta».</li>
+            <li><strong>Explora el catálogo</strong> y busca por categoría, precio o valoración.</li>
+            <li><strong>Añade productos al carrito</strong> y finaliza tu compra.</li>
+            <li><strong>Sigue tu pedido</strong> hasta que llegue a casa.</li>
+          </ol>
+        </div>
+        <div>
+          <h3 class="info-subtitulo">Si quieres vender</h3>
+          <ol class="info-pasos">
+            <li><strong>Regístrate como vendedor</strong> desde «Crear cuenta».</li>
+            <li><strong>Publica tus productos</strong> con su precio y su stock.</li>
+            <li><strong>Gestiona tus pedidos</strong> y consulta tus ventas.</li>
+          </ol>
+        </div>
+      </div>
+    </app-ventana-info>
+  }
+  @case ('seguridad') {
+    <app-ventana-info titulo="Tu seguridad en ESIBuy" (cerrar)="cerrarVentana()">
+      <p class="info-intro">Así protegemos tu cuenta y tus datos.</p>
+      <h3 class="info-subtitulo">Ya activo</h3>
+      <ul class="info-lista">
+        <li><strong>Contraseñas seguras.</strong> Exigimos contraseñas robustas y rechazamos las más comunes o las que han aparecido en filtraciones.</li>
+        <li><strong>Contraseñas protegidas.</strong> Nunca guardamos tu contraseña tal cual, sino una versión cifrada que no se puede revertir.</li>
+        <li><strong>Acceso según tu rol.</strong> Cada usuario (cliente, vendedor o administrador) solo ve y hace lo que le corresponde.</li>
+      </ul>
+      <h3 class="info-subtitulo">Próximamente</h3>
+      <ul class="info-lista info-lista-proxima">
+        <li><strong>Verificación en varios pasos</strong> al iniciar sesión.</li>
+        <li><strong>Conexión cifrada (HTTPS)</strong> en toda la plataforma.</li>
+        <li><strong>Cifrado de tus datos sensibles,</strong> como los datos de pago.</li>
+      </ul>
+    </app-ventana-info>
+  }
+  @case ('ayuda') {
+    <app-ventana-info titulo="Ayuda y preguntas frecuentes" (cerrar)="cerrarVentana()">
+      <p class="info-intro">Pulsa una pregunta para ver la respuesta.</p>
+      <div class="info-faq">
+        <details>
+          <summary>¿Cómo me registro?</summary>
+          <p>Pulsa «Crear cuenta», elige si quieres comprar o vender y completa tus datos.</p>
+        </details>
+        <details>
+          <summary>¿Por qué no veo productos ni precios?</summary>
+          <p>El catálogo solo se muestra con la sesión iniciada. Entra con tu cuenta o crea una nueva.</p>
+        </details>
+        <details>
+          <summary>¿Qué diferencia hay entre cliente Estándar y Premium?</summary>
+          <p>Los clientes Premium tienen ventajas exclusivas, como soporte prioritario, alertas y beneficios especiales.</p>
+        </details>
+        <details>
+          <summary>¿Cómo me hago vendedor?</summary>
+          <p>Al crear tu cuenta, elige la opción de vendedor. Después podrás publicar y gestionar tus productos.</p>
+        </details>
+        <details>
+          <summary>He olvidado mi contraseña, ¿qué hago?</summary>
+          <p>Escríbenos a soporte y te ayudaremos a recuperar el acceso a tu cuenta.</p>
+        </details>
+      </div>
+      <p class="info-contacto">¿No encuentras lo que buscas? Escríbenos a <a href="mailto:soporte@esibuy.es">soporte&#64;esibuy.es</a>.</p>
+    </app-ventana-info>
+  }
+}

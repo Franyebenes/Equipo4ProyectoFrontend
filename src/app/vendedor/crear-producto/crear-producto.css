@@ -1,0 +1,88 @@
+.volver {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  color: var(--muted, #6b6e67);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.volver:hover {
+  color: var(--ink, #191a17);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.75rem;
+}
+
+/* admin-shared.css solo da estilo a input y select */
+.campo textarea {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 500;
+  resize: vertical;
+}
+
+.campo textarea:focus {
+  outline: 2px solid var(--coral);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.categorias {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.categorias legend {
+  margin-bottom: 0.5rem;
+  padding: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip input {
+  accent-color: var(--coral);
+}
+
+.chip.elegida {
+  border-color: var(--coral);
+  background: var(--coral-soft);
+}
+
+.vista-previa {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.vista-previa img {
+  width: 120px;
+  height: 120px;
+  border-radius: 0.8rem;
+  object-fit: cover;
+}
