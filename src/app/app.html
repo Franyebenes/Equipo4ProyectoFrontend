@@ -26,7 +26,7 @@
       <!-- Con sesión: usuario y cierre de sesión. Sin sesión: los destinos de autenticación. -->
       @if (auth.usuario(); as usuario) {
         <span class="usuario" [attr.title]="usuario.email">
-          @if (esAdmin()) {
+          @if (esAdmin() || esVendedor()) {
             <ng-container *ngTemplateOutlet="avatarUsuario" />
           }
           Hola, {{ usuario.nombre }}
@@ -68,7 +68,7 @@
       }
       @if (auth.usuario(); as usuario) {
         <span class="usuario">
-          @if (esAdmin()) {
+          @if (esAdmin() || esVendedor()) {
             <ng-container *ngTemplateOutlet="avatarUsuario" />
           }
           Hola, {{ usuario.nombre }}
