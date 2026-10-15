@@ -35,19 +35,35 @@ describe('Login', () => {
     return vista;
   }
 
+  it('el botón del ojo alterna entre ocultar y mostrar la contraseña', () => {
+    const { fixture, html } = crear();
+    const campo = html.querySelector('input[name="contrasena"]') as HTMLInputElement;
+    const ojo = html.querySelector('.ver-contrasena') as HTMLButtonElement;
+
+    expect(campo.type).toBe('password');
+
+    ojo.click();
+    fixture.detectChanges();
+    expect(campo.type).toBe('text');
+
+    ojo.click();
+    fixture.detectChanges();
+    expect(campo.type).toBe('password');
+  });
+
   it('no ofrece "recordar dispositivo": el backend no lo admite', () => {
     const { html } = crear();
     expect(html.querySelector('input[type="checkbox"]')).toBeNull();
   });
 
-  it('con credenciales correctas inicia sesión y vuelve a la portada', async () => {
+  it('con credenciales correctas inicia sesión y lleva al cliente a su página', async () => {
     auth.login.mockResolvedValue({ id: '1', email: 'ana@ejemplo.es', nombre: 'Ana', rol: 'CLIENTE' });
     const navegar = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
     const { componente } = await enviar(' ana@ejemplo.es ');
 
     expect(auth.login).toHaveBeenCalledWith('ana@ejemplo.es', 'Clave-segura-1');
-    expect(navegar).toHaveBeenCalledWith('/');
+    expect(navegar).toHaveBeenCalledWith('/cliente');
     expect(componente.contrasena).toBe('');
   });
 

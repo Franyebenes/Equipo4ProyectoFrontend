@@ -11,12 +11,12 @@ const TEXTOS_DE_VALIDACION: Record<string, string> = {
   LONGITUD_EXCESIVA: 'El valor es demasiado largo.',
 };
 
-// Zona de cada rol tras iniciar sesión. Los clientes, de momento, a la portada.
+// Zona de cada rol tras iniciar sesión. Los clientes (Estándar y Premium), de momento, a una página que lo confirma.
 const RUTA_TRAS_LOGIN: Record<Rol, string> = {
   ADMIN: '/admin/usuarios',
   VENDEDOR: '/vendedor/productos',
-  CLIENTE: '/',
-  PREMIUM: '/',
+  CLIENTE: '/cliente',
+  PREMIUM: '/cliente',
 };
 
 // Página de login: envía las credenciales al backend y, si son correctas, lleva al usuario a la zona de su rol.
@@ -40,6 +40,8 @@ export class Login {
   readonly erroresCampo = signal<Record<string, string[]>>({});
   // Cuenta atrás cuando el backend bloquea temporalmente los intentos (429 con Retry-After).
   readonly segundosRestantes = signal(0);
+  // Botón del ojo: muestra u oculta la contraseña.
+  readonly verContrasena = signal(false);
 
   private temporizador: ReturnType<typeof setInterval> | undefined;
 

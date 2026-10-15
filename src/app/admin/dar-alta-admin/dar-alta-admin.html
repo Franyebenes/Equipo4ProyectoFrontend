@@ -60,7 +60,7 @@
         <label class="campo">
           Contraseña *
           <span class="campo-pass">
-            <input [type]="verContrasena() ? 'text' : 'password'" name="contrasena" [(ngModel)]="datos.contrasena" autocomplete="new-password" placeholder="Mínimo 12 caracteres">
+            <input type="password" [attr.type]="verContrasena() ? 'text' : 'password'" name="contrasena" [(ngModel)]="datos.contrasena" autocomplete="new-password" placeholder="Mínimo 12 caracteres">
             <button type="button" class="ojo" (click)="verContrasena.set(!verContrasena())"
                     [attr.aria-label]="verContrasena() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
                     [attr.aria-pressed]="verContrasena()">
@@ -71,7 +71,7 @@
         <label class="campo">
           Repetir contraseña *
           <span class="campo-pass">
-            <input [type]="verRepetir() ? 'text' : 'password'" name="repetirContrasena" [(ngModel)]="datos.repetirContrasena" autocomplete="new-password" placeholder="Vuelve a escribirla">
+            <input type="password" [attr.type]="verRepetir() ? 'text' : 'password'" name="repetirContrasena" [(ngModel)]="datos.repetirContrasena" autocomplete="new-password" placeholder="Vuelve a escribirla">
             <button type="button" class="ojo" (click)="verRepetir.set(!verRepetir())"
                     [attr.aria-label]="verRepetir() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
                     [attr.aria-pressed]="verRepetir()">

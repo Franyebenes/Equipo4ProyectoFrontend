@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { Categoria } from '../../admin/categoria.service';
+import { errorCaracteresNoPermitidos } from '../../core/caracteres-permitidos';
 import { ProductoService, mensajeErrorCatalogo } from '../producto.service';
 
 const PRECIO_MINIMO = 0;
@@ -71,6 +72,11 @@ export class CrearProducto implements OnInit {
     if (!this.nombre.trim() || !this.descripcion.trim() || this.precio == null || this.stock == null
         || this.idCategorias().length === 0) {
       this.error.set('Rellena todos los campos obligatorios (*).');
+      return;
+    }
+    const falloCaracteres = errorCaracteresNoPermitidos(this.nombre.trim(), this.descripcion.trim());
+    if (falloCaracteres) {
+      this.error.set(falloCaracteres);
       return;
     }
     if (this.precio <= PRECIO_MINIMO || this.stock < STOCK_MINIMO || !Number.isInteger(this.stock)) {

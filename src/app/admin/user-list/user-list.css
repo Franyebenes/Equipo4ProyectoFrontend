@@ -69,7 +69,7 @@ th.derecha {
   text-align: center;
 }
 
-/* Columna Usuario: inicial en un círculo + nombre (y nombre comercial debajo si es vendedor) */
+/* Columna Usuario: nombre (y nombre comercial debajo si es vendedor) */
 .persona {
   display: flex;
   align-items: center;
@@ -85,18 +85,6 @@ th.derecha {
   margin-top: 0.1rem;
   color: var(--muted, #6b6e67);
   font-size: 0.8rem;
-}
-
-.avatar {
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 999px;
-  background: var(--coral-soft, #fde8e1);
-  color: var(--coral, #e7552c);
-  font-weight: 800;
 }
 
 /* Rol y estado como etiquetas */

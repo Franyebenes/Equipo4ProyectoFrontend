@@ -80,6 +80,45 @@ form {
   border-color: #f0b9a8;
 }
 
+/* Contraseña con botón del ojo: el texto no pasa por debajo del botón. */
+.entrada.con-ojo input {
+  padding-right: 3rem;
+}
+
+.ver-contrasena {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: #9a958c;
+}
+
+.ver-contrasena:hover {
+  color: var(--ink);
+}
+
+.ver-contrasena:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 1px;
+}
+
+/* El icono del ojo va dentro del botón, no a la izquierda como el resto de iconos del campo. */
+.entrada .ver-contrasena svg {
+  position: static;
+  transform: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: inherit;
+}
+
 .check {
   display: flex;
   align-items: flex-start;
@@ -122,23 +161,6 @@ form {
 .btn-ancho svg {
   width: 1rem;
   height: 1rem;
-}
-
-.separador {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin: 1.1rem 0 0.9rem;
-  color: #b0ada6;
-  font-size: 0.78rem;
-}
-
-.separador::before,
-.separador::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--line);
 }
 
 .cambio-via {

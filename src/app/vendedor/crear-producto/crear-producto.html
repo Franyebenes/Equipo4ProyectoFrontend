@@ -53,7 +53,7 @@
         Imagen
         @if (imagen(); as src) {
           <div class="vista-previa">
-            <img [src]="src" alt="Vista previa de la imagen del producto">
+            <img [src]="src" alt="Vista previa del producto">
             <button type="button" class="btn btn-ghost btn-sm" (click)="quitarImagen()">Quitar imagen</button>
           </div>
         } @else {

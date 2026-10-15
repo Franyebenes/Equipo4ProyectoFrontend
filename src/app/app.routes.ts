@@ -6,16 +6,18 @@ import { VerCategorias } from './admin/ver-categorias/ver-categorias';
 import { EditarCategoria } from './admin/editar-categoria/editar-categoria';
 import { MisProductos } from './vendedor/mis-productos/mis-productos';
 import { DetalleProducto } from './vendedor/detalle-producto/detalle-producto';
-import { rolGuard, sinAdminGuard } from './core/rol.guard';
+import { portadaGuard, rolGuard, sinAdminGuard } from './core/rol.guard';
 import { Registro } from './registro/registro';
 import { Login } from './login/login';
 import { Home } from './home/home';
+import { Cliente } from './cliente/cliente';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 
 export const routes: Routes = [
-  { path: '', component: Home },
+  { path: '', component: Home, canActivate: [portadaGuard] },
   { path: 'login', component: Login },
   { path: 'registro', component: Registro },
+  { path: 'cliente', component: Cliente, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
    {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],
