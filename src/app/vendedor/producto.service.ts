@@ -40,6 +40,9 @@ interface TokenCsrf {
   headerName: string;
 }
 
+// Imagen que se muestra cuando el producto no tiene foto (está en public/)
+export const IMAGEN_POR_DEFECTO = '/producto-sin-imagen.svg';
+
 const FORMATO_EUROS = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
 export function formatearPrecio(precio: number): string {
