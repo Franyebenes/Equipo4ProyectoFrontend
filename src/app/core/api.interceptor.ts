@@ -9,7 +9,7 @@ import { Injector, inject } from '@angular/core';
 import { Observable, catchError, from, switchMap, throwError } from 'rxjs';
 
 import { API_URL } from './api';
-import { AuthService, esCuentaPendiente } from './auth.service';
+import { AuthService } from './auth.service';
 
 // Rutas de autenticación: su 401 es una respuesta normal (credenciales incorrectas, sin sesión...), no una sesión
 // caducada, y la gestiona quien las llama. Login y logout además envían su propio token CSRF desde AuthService.
@@ -55,7 +55,7 @@ export const apiInterceptor: HttpInterceptorFn = (peticion, siguiente) => {
 };
 
 // Envía la petición con la cabecera CSRF. Si el servidor responde 403 (token caducado o de otra sesión) pide un token
-// nuevo y reintenta UNA sola vez. El 403 de "cuenta pendiente de activación" no es un fallo de CSRF y no se reintenta.
+// nuevo y reintenta UNA sola vez.
 function enviarConCsrf(
   peticion: HttpRequest<unknown>,
   siguiente: HttpHandlerFn,
@@ -68,7 +68,7 @@ function enviarConCsrf(
 
   return enviar().pipe(
     catchError((error: unknown) => {
-      if (error instanceof HttpErrorResponse && error.status === 403 && !esCuentaPendiente(error)) {
+      if (error instanceof HttpErrorResponse && error.status === 403) {
         auth.olvidarCsrf();
         return enviar(); // si este segundo intento también falla, el error sale tal cual (no hay más reintentos)
       }

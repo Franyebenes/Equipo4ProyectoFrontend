@@ -80,27 +80,78 @@ describe('contrasenaValida', () => {
     expect(errorDe(validar, '')).toEqual({ OBLIGATORIO: true });
   });
 
+  // Cumple la composición con el mínimo: mayúscula, minúsculas, un número y un carácter especial.
+  const completar = (longitud: number) => 'Aa1!' + 'a'.repeat(longitud - 4);
+
   it('acepta 12 caracteres y rechaza 11', () => {
-    expect(errorDe(validar, 'a'.repeat(12))).toBeNull();
-    expect(errorDe(validar, 'a'.repeat(11))).toEqual({ CONTRASENA_CORTA: true });
+    expect(errorDe(validar, completar(12))).toBeNull();
+    expect(errorDe(validar, completar(11))).toEqual({ CONTRASENA_CORTA: true });
   });
 
   it('acepta 128 caracteres y rechaza 129', () => {
-    expect(errorDe(validar, 'a'.repeat(128))).toBeNull();
-    expect(errorDe(validar, 'a'.repeat(129))).toEqual({ CONTRASENA_LARGA: true });
+    expect(errorDe(validar, completar(128))).toBeNull();
+    expect(errorDe(validar, completar(129))).toEqual({ CONTRASENA_LARGA: true });
   });
 
   it('cuenta los emojis como un carácter, igual que el backend', () => {
-    expect(errorDe(validar, '😀'.repeat(128))).toBeNull();
-    expect(errorDe(validar, '😀'.repeat(129))).toEqual({ CONTRASENA_LARGA: true });
+    expect(errorDe(validar, 'Aa1' + '😀'.repeat(125))).toBeNull();
+    expect(errorDe(validar, 'Aa1' + '😀'.repeat(126))).toEqual({ CONTRASENA_LARGA: true });
   });
 
-  it('no recorta los espacios: forman parte de la contraseña', () => {
-    expect(errorDe(validar, ' '.repeat(12))).toBeNull();
+  it('los espacios forman parte de la contraseña pero no cuentan como carácter especial', () => {
+    expect(errorDe(validar, 'Tren azul Lluvia 77!')).toBeNull();
+    expect(errorDe(validar, 'Tren azul Lluvia 77')).toEqual({ CONTRASENA_SIN_CARACTER_ESPECIAL: true });
   });
 
-  it('no impone reglas de composición (mayúsculas, números, símbolos)', () => {
-    expect(errorDe(validar, 'solo minusculas y espacios')).toBeNull();
+  describe('composición', () => {
+    it('exige un número', () => {
+      expect(errorDe(validar, 'Tren-Azul-Lluvia-Sol')).toEqual({ CONTRASENA_SIN_NUMERO: true });
+    });
+
+    it('solo cuentan los dígitos 0-9', () => {
+      expect(errorDe(validar, 'Tren-Azul-Lluvia-٣')).toEqual({ CONTRASENA_SIN_NUMERO: true });
+    });
+
+    it('exige un carácter especial', () => {
+      expect(errorDe(validar, 'TrenAzulLluviaSol77')).toEqual({ CONTRASENA_SIN_CARACTER_ESPECIAL: true });
+    });
+
+    it('acepta cualquier signo de puntuación o símbolo, y un emoji también cuenta', () => {
+      for (const especial of ['-', '_', '.', '!', '@', '#', '$', '%', '€', '¿', '~', '😀']) {
+        expect(errorDe(validar, `TrenAzul${especial}Lluvia77`)).toBeNull();
+      }
+    });
+
+    it('las letras con acento o la ñ no son caracteres especiales', () => {
+      expect(errorDe(validar, 'TrenCaféÑLluvia77')).toEqual({ CONTRASENA_SIN_CARACTER_ESPECIAL: true });
+    });
+
+    it('exige una mayúscula y una minúscula, también acentuadas', () => {
+      expect(errorDe(validar, 'tren-azul-lluvia-77')).toEqual({ CONTRASENA_SIN_MAYUSCULA: true });
+      expect(errorDe(validar, 'TREN-AZUL-LLUVIA-77')).toEqual({ CONTRASENA_SIN_MINUSCULA: true });
+      expect(errorDe(validar, 'tren-azul-lluvia-77É')).toBeNull();
+      expect(errorDe(validar, 'TREN-AZUL-LLUVIA-77ñ')).toBeNull();
+    });
+
+    it('normaliza a NFC: una mayúscula acentuada descompuesta sigue contando', () => {
+      expect(errorDe(validar, 'tren-azul-Éxito-77'.normalize('NFD'))).toBeNull();
+    });
+
+    it('devuelve todos los incumplimientos a la vez, como el backend', () => {
+      expect(errorDe(validar, 'abc')).toEqual({
+        CONTRASENA_CORTA: true,
+        CONTRASENA_SIN_NUMERO: true,
+        CONTRASENA_SIN_CARACTER_ESPECIAL: true,
+        CONTRASENA_SIN_MAYUSCULA: true,
+      });
+    });
+
+    it('un alfabeto sin mayúsculas ni minúsculas no puede cumplir la regla', () => {
+      expect(errorDe(validar, '你好世界你好世界你好1!')).toEqual({
+        CONTRASENA_SIN_MAYUSCULA: true,
+        CONTRASENA_SIN_MINUSCULA: true,
+      });
+    });
   });
 });
 
