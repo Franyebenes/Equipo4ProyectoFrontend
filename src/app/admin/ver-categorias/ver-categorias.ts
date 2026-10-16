@@ -1,13 +1,15 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { coincideBusqueda } from '../../core/busqueda';
 import { mensajeError } from '../admin.service';
 import { Categoria, CategoriaService } from '../categoria.service';
 import { DialogoConfirmacion } from '../dialogo-confirmacion/dialogo-confirmacion';
 
 @Component({
   selector: 'app-ver-categorias',
-    imports: [RouterLink, RouterLinkActive, DialogoConfirmacion],
+    imports: [RouterLink, RouterLinkActive, DialogoConfirmacion, FormsModule],
   templateUrl: './ver-categorias.html',
     styleUrls: ['../admin-shared.css', './ver-categorias.css'],
 })
@@ -21,6 +23,12 @@ export class VerCategorias implements OnInit {
   eliminando = signal(false);
   exito = signal('');
   errorEliminar = signal('');
+
+  // Buscador por nombre sobre la lista ya cargada
+  busqueda = signal('');
+  categoriasFiltradas = computed(() =>
+    this.categorias().filter((c) => coincideBusqueda(c.nombre, this.busqueda())),
+  );
 
   constructor() {
     // Aviso que deja Editar categoría al volver al listado tras guardar

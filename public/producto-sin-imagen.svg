@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500" viewBox="0 0 400 500" role="img" aria-label="Producto sin imagen">
+  <!-- Imagen por defecto de los productos que no tienen foto (colores de ESIBuy) -->
+  <rect width="400" height="500" fill="#f4f0e9"/>
+  <g fill="#b3ada3">
+    <!-- Cámara: cuerpo, visor y objetivo -->
+    <path d="M168 150h64l10 18h26a16 16 0 0 1 16 16v74a16 16 0 0 1-16 16H132a16 16 0 0 1-16-16v-74a16 16 0 0 1 16-16h26z"/>
+  </g>
+  <circle cx="200" cy="219" r="31" fill="#f4f0e9"/>
+  <circle cx="200" cy="219" r="19" fill="#b3ada3"/>
+  <text x="200" y="335" text-anchor="middle" fill="#9a958c"
+        font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-size="34" font-weight="700">Producto</text>
+  <text x="200" y="377" text-anchor="middle" fill="#9a958c"
+        font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-size="34" font-weight="700">sin imagen</text>
+</svg>

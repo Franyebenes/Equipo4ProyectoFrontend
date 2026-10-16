@@ -5,10 +5,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { Categoria } from '../../admin/categoria.service';
 import { errorCaracteresNoPermitidos } from '../../core/caracteres-permitidos';
-import { ProductoService, mensajeErrorCatalogo } from '../producto.service';
+import { ProductoService, formatearPrecio, mensajeErrorCatalogo } from '../producto.service';
 
 const PRECIO_MINIMO = 0;
 const STOCK_MINIMO = 0;
+// Mismo rango que el backend y el esquema de la BBDD (precio.descuento)
+const DESCUENTO_MINIMO = 0;
+const DESCUENTO_MAXIMO = 100;
 const TAMANO_MAXIMO_IMAGEN = 1024 * 1024; // 1 MB
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -27,6 +30,9 @@ export class CrearProducto implements OnInit {
   descripcion = '';
   precio: number | null = null;
   stock: number | null = null;
+  // Por defecto el producto se crea activo (visible para los clientes) y sin descuento
+  activo = true;
+  descuento: number | null = null;
 
   categorias = signal<Categoria[]>([]);
   idCategorias = signal<string[]>([]);
@@ -68,6 +74,15 @@ export class CrearProducto implements OnInit {
     this.imagen.set(null);
   }
 
+  // Precio final que verán los clientes con el descuento elegido, o '' si no aplica todavía
+  precioConDescuento(): string {
+    if (this.precio == null || this.precio <= PRECIO_MINIMO || !this.descuento
+        || this.descuento < DESCUENTO_MINIMO || this.descuento > DESCUENTO_MAXIMO) {
+      return '';
+    }
+    return formatearPrecio(this.precio * (1 - this.descuento / 100));
+  }
+
   guardar(): void {
     if (!this.nombre.trim() || !this.descripcion.trim() || this.precio == null || this.stock == null
         || this.idCategorias().length === 0) {
@@ -83,6 +98,10 @@ export class CrearProducto implements OnInit {
       this.error.set('El precio debe ser mayor que 0 y el stock un número entero no negativo.');
       return;
     }
+    if (this.descuento != null && (this.descuento < DESCUENTO_MINIMO || this.descuento > DESCUENTO_MAXIMO)) {
+      this.error.set('El descuento debe estar entre 0 y 100 %.');
+      return;
+    }
 
     this.guardando.set(true);
     this.error.set('');
@@ -94,6 +113,8 @@ export class CrearProducto implements OnInit {
         idCategorias: this.idCategorias(),
         stock: this.stock,
         imagen: this.imagen(),
+        activo: this.activo,
+        descuento: this.descuento,
       })
       .subscribe({
         // Vuelve al listado, donde ya aparece el producto nuevo

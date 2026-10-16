@@ -14,6 +14,14 @@
       <a routerLink="/admin/crear-categoria" class="btn btn-coral">+ Nueva categoría</a>
     </header>
 
+    <div class="filtros">
+      <label class="campo">
+        Buscar
+        <input type="search" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+               placeholder="Nombre de la categoría" maxlength="100" autocomplete="off">
+      </label>
+    </div>
+
     @if (error()) {
       <div class="aviso aviso-error" role="alert">{{ error() }}</div>
     }
@@ -40,7 +48,7 @@
             @if (cargando()) {
               <tr><td colspan="3" class="vacio">Cargando categorías…</td></tr>
             } @else {
-              @for (c of categorias(); track c.id) {
+              @for (c of categoriasFiltradas(); track c.id) {
                 <tr>
                   <td class="col-nombre"><strong>{{ c.nombre }}</strong></td>
                   <td class="col-descripcion">{{ c.descripcion }}</td>
@@ -53,7 +61,16 @@
                 </tr>
               } @empty {
                 @if (!error()) {
-                  <tr><td colspan="3" class="vacio">Todavía no hay categorías registradas en el catálogo.</td></tr>
+                  @if (categorias().length === 0) {
+                    <tr><td colspan="3" class="vacio">Todavía no hay categorías registradas en el catálogo.</td></tr>
+                  } @else {
+                    <tr>
+                      <td colspan="3" class="vacio">
+                        Ninguna categoría coincide con «{{ busqueda().trim() }}».
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="busqueda.set('')">Quitar búsqueda</button>
+                      </td>
+                    </tr>
+                  }
                 }
               }
             }

@@ -18,21 +18,24 @@
         </header>
 
         <div class="card ficha">
-          @if (p.imagen) {
-            <img class="imagen" [src]="p.imagen" [alt]="p.nombre">
-          }
+          <!-- Sin foto se muestra la imagen por defecto -->
+          <img class="imagen" [src]="p.imagen || imagenPorDefecto" [alt]="p.imagen ? p.nombre : 'Producto sin imagen'">
 
           <dl class="datos">
             <div>
               <dt>Precio</dt>
               <dd>{{ formatearPrecio(p.precio) }}</dd>
             </div>
-            @if (p.descuento) {
-              <div>
-                <dt>Descuento</dt>
-                <dd>{{ p.descuento }} % · {{ precioConDescuento(p, p.descuento) }}</dd>
-              </div>
-            }
+            <div>
+              <dt>Descuento</dt>
+              <dd>
+                @if (p.descuento) {
+                  {{ p.descuento }} % · {{ precioConDescuento(p, p.descuento) }}
+                } @else {
+                  Sin descuento
+                }
+              </dd>
+            </div>
             @if (p.descuentoPremium) {
               <div>
                 <dt>Descuento Premium</dt>

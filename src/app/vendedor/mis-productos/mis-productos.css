@@ -43,3 +43,21 @@ tbody tr + tr td {
   color: var(--muted, #6b6e67);
   text-align: center;
 }
+
+/* Buscador y filtro por categoría (mismo diseño que los filtros del listado de usuarios) */
+.filtros {
+  display: grid;
+  grid-template-columns: minmax(240px, 2fr) minmax(180px, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 700px) {
+  .filtros {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vacio .btn {
+  margin-left: 0.5rem;
+}

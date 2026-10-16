@@ -28,6 +28,10 @@ export interface ProductoAlta {
   idCategorias: string[];
   stock: number;
   imagen: string | null;
+  // true = visible para los clientes (campo "visible" del producto)
+  activo: boolean;
+  // Porcentaje de descuento (0-100) o null si no tiene
+  descuento: number | null;
 }
 
 // Token CSRF que devuelve /api/auth/csrf; el backend lo exige en las peticiones que modifican datos.
@@ -35,6 +39,9 @@ interface TokenCsrf {
   token: string;
   headerName: string;
 }
+
+// Imagen que se muestra cuando el producto no tiene foto (está en public/)
+export const IMAGEN_POR_DEFECTO = '/producto-sin-imagen.svg';
 
 const FORMATO_EUROS = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 

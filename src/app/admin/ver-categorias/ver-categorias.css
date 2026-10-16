@@ -47,3 +47,27 @@ tbody tr + tr td {
   background: #e7f4eb;
   color: #286541;
 }
+
+/* Buscador (mismo diseño que los filtros del listado de usuarios) */
+.filtros {
+  display: grid;
+  grid-template-columns: minmax(240px, 420px);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 700px) {
+  .filtros {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vacio {
+  padding: 2rem 1.25rem;
+  color: var(--muted, #6b6e67);
+  text-align: center;
+}
+
+.vacio .btn {
+  margin-left: 0.5rem;
+}

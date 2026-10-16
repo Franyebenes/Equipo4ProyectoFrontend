@@ -2,7 +2,13 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { ProductoCatalogo, ProductoService, formatearPrecio, mensajeErrorCatalogo } from '../producto.service';
+import {
+  IMAGEN_POR_DEFECTO,
+  ProductoCatalogo,
+  ProductoService,
+  formatearPrecio,
+  mensajeErrorCatalogo,
+} from '../producto.service';
 
 // Detalle de un producto del catálogo propio. Se pide al backend al entrar, así que muestra su estado actual.
 @Component({
@@ -16,6 +22,7 @@ export class DetalleProducto implements OnInit {
   private route = inject(ActivatedRoute);
 
   readonly formatearPrecio = formatearPrecio;
+  readonly imagenPorDefecto = IMAGEN_POR_DEFECTO;
 
   producto = signal<ProductoCatalogo | null>(null);
   cargando = signal(true);
