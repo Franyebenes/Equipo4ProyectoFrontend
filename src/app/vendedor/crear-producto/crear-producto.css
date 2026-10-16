@@ -86,3 +86,35 @@
   border-radius: 0.8rem;
   object-fit: cover;
 }
+
+.ayuda {
+  color: var(--ok, #3f6f48);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* Activo / desactivado: casilla grande con su explicación al lado */
+.interruptor {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: white;
+  cursor: pointer;
+}
+
+.interruptor input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.1rem 0 0;
+  accent-color: var(--coral);
+}
+
+.interruptor > span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.9rem;
+}

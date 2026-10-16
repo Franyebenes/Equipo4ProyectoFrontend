@@ -27,12 +27,16 @@
               <dt>Precio</dt>
               <dd>{{ formatearPrecio(p.precio) }}</dd>
             </div>
-            @if (p.descuento) {
-              <div>
-                <dt>Descuento</dt>
-                <dd>{{ p.descuento }} % · {{ precioConDescuento(p, p.descuento) }}</dd>
-              </div>
-            }
+            <div>
+              <dt>Descuento</dt>
+              <dd>
+                @if (p.descuento) {
+                  {{ p.descuento }} % · {{ precioConDescuento(p, p.descuento) }}
+                } @else {
+                  Sin descuento
+                }
+              </dd>
+            </div>
             @if (p.descuentoPremium) {
               <div>
                 <dt>Descuento Premium</dt>

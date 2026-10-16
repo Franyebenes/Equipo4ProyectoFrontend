@@ -28,6 +28,10 @@ export interface ProductoAlta {
   idCategorias: string[];
   stock: number;
   imagen: string | null;
+  // true = visible para los clientes (campo "visible" del producto)
+  activo: boolean;
+  // Porcentaje de descuento (0-100) o null si no tiene
+  descuento: number | null;
 }
 
 // Token CSRF que devuelve /api/auth/csrf; el backend lo exige en las peticiones que modifican datos.
