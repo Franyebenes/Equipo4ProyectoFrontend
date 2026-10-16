@@ -11,7 +11,7 @@ import { Registro } from './registro';
 const URL_REGISTRO = 'http://localhost:8080/api/auth/registro';
 const URL_CATEGORIAS = 'http://localhost:8080/api/registro/categorias';
 // Valor de prueba: cumple la política (12 a 128 caracteres) y no se usa en ningún sitio real.
-const CONTRASENA = 'una-contrasena-de-prueba';
+const CONTRASENA = 'Una-contrasena-de-prueba-1';
 const CATEGORIAS = [
   { id: '64b7f0c2a1b2c3d4e5f60718', nombre: 'Electrónica' },
   { id: '64b7f0c2a1b2c3d4e5f60719', nombre: 'Hogar' },
@@ -172,7 +172,7 @@ describe('Registro', () => {
 
     it('avisa si las contraseñas no coinciden, también si solo cambian las mayúsculas', () => {
       rellenarCliente();
-      escribir('#repetirContrasena', CONTRASENA.toUpperCase());
+      escribir('#repetirContrasena', CONTRASENA.replace('prueba', 'PRUEBA'));
       enviar();
 
       expect(texto('#error-repetirContrasena')).toBe('Las contraseñas no coinciden.');
@@ -180,11 +180,27 @@ describe('Registro', () => {
 
     it('avisa de una contraseña de menos de 12 caracteres', () => {
       rellenarCliente();
-      escribir('#contrasena', 'corta');
-      escribir('#repetirContrasena', 'corta');
+      escribir('#contrasena', 'Corta-1a');
+      escribir('#repetirContrasena', 'Corta-1a');
       enviar();
 
       expect(texto('#error-contrasena')).toBe('La contraseña debe tener al menos 12 caracteres.');
+    });
+
+    it('avisa a la vez de todo lo que le falta a la contraseña', () => {
+      rellenarCliente();
+      escribir('#contrasena', 'abcdefghijkl');
+      escribir('#repetirContrasena', 'abcdefghijkl');
+      enviar();
+
+      const mensajes = Array.from(pagina.querySelectorAll('#error-contrasena .error-campo')).map((p) =>
+        p.textContent?.trim(),
+      );
+      expect(mensajes).toEqual([
+        'La contraseña debe incluir al menos un número.',
+        'La contraseña debe incluir al menos un carácter especial, como - _ . ! @ #.',
+        'La contraseña debe incluir al menos una letra mayúscula.',
+      ]);
     });
 
     it('avisa a un menor de edad antes de enviar', () => {

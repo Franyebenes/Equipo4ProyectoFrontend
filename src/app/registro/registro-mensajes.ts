@@ -24,6 +24,11 @@ const MENSAJES: Record<string, string> = {
   CONDICIONES_NO_ACEPTADAS: 'Debes aceptar las condiciones para crear la cuenta.',
   CONTRASENA_CORTA: `La contraseña debe tener al menos ${CONTRASENA_LONGITUD_MINIMA} caracteres.`,
   CONTRASENA_LARGA: `La contraseña no puede superar los ${CONTRASENA_LONGITUD_MAXIMA} caracteres.`,
+  CONTRASENA_SIN_NUMERO: 'La contraseña debe incluir al menos un número.',
+  CONTRASENA_SIN_CARACTER_ESPECIAL:
+    'La contraseña debe incluir al menos un carácter especial, como - _ . ! @ #.',
+  CONTRASENA_SIN_MAYUSCULA: 'La contraseña debe incluir al menos una letra mayúscula.',
+  CONTRASENA_SIN_MINUSCULA: 'La contraseña debe incluir al menos una letra minúscula.',
   CONTRASENA_COMUN: 'Es una contraseña muy común. Elige otra menos predecible.',
   CONTRASENA_FILTRADA: 'Esta contraseña aparece en filtraciones públicas de datos. Elige otra.',
   CONTRASENA_CON_DATOS_PERSONALES:
