@@ -34,10 +34,16 @@ export interface ProductoAlta {
   descuento: number | null;
 }
 
-// Criterios con los que el backend filtra el catálogo propio. Los vacíos no se envían.
+// Criterios con los que el backend filtra el catálogo propio. Se combinan entre sí; los vacíos no se envían.
 export interface FiltroCatalogo {
   // Nombre completo o parcial del producto
   busqueda?: string;
+  idCategoria?: string;
+  // true solo los activos, false solo los inactivos, null todos
+  activo?: boolean | null;
+  // Rango de precio base, con los límites incluidos
+  precioMinimo?: number | null;
+  precioMaximo?: number | null;
 }
 
 // Token CSRF que devuelve /api/auth/csrf; el backend lo exige en las peticiones que modifican datos.
@@ -77,10 +83,19 @@ export class ProductoService {
   private apiBase = inject(API_URL);
 
   listarMios(filtro: FiltroCatalogo = {}): Observable<ProductoCatalogo[]> {
+    const valores = {
+      busqueda: filtro.busqueda?.trim(),
+      idCategoria: filtro.idCategoria,
+      activo: filtro.activo,
+      precioMinimo: filtro.precioMinimo,
+      precioMaximo: filtro.precioMaximo,
+    };
     let params = new HttpParams();
-    const busqueda = filtro.busqueda?.trim();
-    if (busqueda) {
-      params = params.set('busqueda', busqueda);
+    for (const [nombre, valor] of Object.entries(valores)) {
+      // false y 0 son filtros válidos: solo se descartan los vacíos
+      if (valor !== undefined && valor !== null && valor !== '') {
+        params = params.set(nombre, valor);
+      }
     }
     return this.http.get<ProductoCatalogo[]>(this.api, { params });
   }

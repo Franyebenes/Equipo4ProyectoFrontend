@@ -4,13 +4,16 @@ import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 
+import { Categoria } from '../../admin/categoria.service';
 import { ProductoCatalogo, ProductoService, formatearPrecio, mensajeErrorCatalogo } from '../producto.service';
 
-// Espera tras la última tecla antes de buscar: una petición al backend, no una por tecla
-const ESPERA_BUSQUEDA_MS = 300;
+// Espera tras la última tecla antes de pedir al backend: una petición, no una por tecla
+const ESPERA_ESCRITURA_MS = 300;
+
+export type FiltroEstado = '' | 'activos' | 'inactivos';
 
 // Listado del catálogo propio: solo los productos del vendedor de la sesión, siempre leídos del backend.
-// La búsqueda por nombre la hace el backend; el filtro por categoría se aplica sobre la lista recibida.
+// La búsqueda por nombre y los filtros (categoría, estado y rango de precio) los aplica el backend y se combinan.
 @Component({
   selector: 'app-mis-productos',
   imports: [RouterLink, FormsModule],
@@ -23,66 +26,125 @@ export class MisProductos implements OnInit {
   readonly formatearPrecio = formatearPrecio;
 
   productos = signal<ProductoCatalogo[]>([]);
+  categorias = signal<Categoria[]>([]);
   cargando = signal(false);
   error = signal('');
 
   busqueda = signal('');
-  categoriaFiltro = signal('');
+  idCategoria = signal('');
+  estado = signal<FiltroEstado>('');
+  precioMinimo = signal<number | null>(null);
+  precioMaximo = signal<number | null>(null);
 
-  private temporizadorBusqueda: ReturnType<typeof setTimeout> | undefined;
-  // Petición en curso: si llega otra búsqueda se cancela, para que una respuesta antigua no pise a la nueva
+  private temporizador: ReturnType<typeof setTimeout> | undefined;
+  // Petición en curso: si cambian los filtros se cancela, para que una respuesta antigua no pise a la nueva
   private peticion: Subscription | undefined;
 
-  // Categorías de los productos recibidos, sin repetir y en orden alfabético, para el desplegable
-  categoriasDisponibles = computed(() =>
-    [...new Set(this.productos().flatMap((p) => p.categorias))].sort((a, b) => a.localeCompare(b, 'es')),
+  hayFiltros = computed(
+    () =>
+      this.busqueda().trim() !== '' ||
+      this.idCategoria() !== '' ||
+      this.estado() !== '' ||
+      this.precioMinimo() != null ||
+      this.precioMaximo() != null,
   );
 
-  productosFiltrados = computed(() => {
-    const categoria = this.categoriaFiltro();
-    return this.productos().filter((p) => !categoria || p.categorias.includes(categoria));
+  // El rango de precio se comprueba antes de pedir nada al backend
+  errorFiltros = computed(() => {
+    const minimo = this.precioMinimo();
+    const maximo = this.precioMaximo();
+    if ((minimo != null && minimo < 0) || (maximo != null && maximo < 0)) {
+      return 'El precio no puede ser negativo.';
+    }
+    if (minimo != null && maximo != null && minimo > maximo) {
+      return 'El precio mínimo no puede ser mayor que el máximo.';
+    }
+    return '';
   });
-
-  hayFiltros = computed(() => this.busqueda().trim() !== '' || this.categoriaFiltro() !== '');
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
-      clearTimeout(this.temporizadorBusqueda);
+      clearTimeout(this.temporizador);
       this.peticion?.unsubscribe();
     });
   }
 
   ngOnInit(): void {
+    // Todas las categorías (endpoint público del registro), para poder filtrar por cualquiera
+    this.productoService.listarCategorias().subscribe({
+      next: (lista) => this.categorias.set(lista),
+      error: () => this.categorias.set([]),
+    });
     this.cargar();
   }
 
   cargar(): void {
-    clearTimeout(this.temporizadorBusqueda);
+    clearTimeout(this.temporizador);
+    if (this.errorFiltros()) {
+      return;
+    }
     this.cargando.set(true);
     this.error.set('');
     this.peticion?.unsubscribe();
-    this.peticion = this.productoService.listarMios({ busqueda: this.busqueda() }).subscribe({
-      next: (lista) => {
-        this.productos.set(lista);
-        this.cargando.set(false);
-      },
-      error: (e: HttpErrorResponse) => {
-        this.cargando.set(false);
-        this.error.set(mensajeErrorCatalogo(e));
-      },
-    });
+    const estado = this.estado();
+    this.peticion = this.productoService
+      .listarMios({
+        busqueda: this.busqueda(),
+        idCategoria: this.idCategoria(),
+        activo: estado === '' ? null : estado === 'activos',
+        precioMinimo: this.precioMinimo(),
+        precioMaximo: this.precioMaximo(),
+      })
+      .subscribe({
+        next: (lista) => {
+          this.productos.set(lista);
+          this.cargando.set(false);
+        },
+        error: (e: HttpErrorResponse) => {
+          this.cargando.set(false);
+          this.error.set(mensajeErrorCatalogo(e));
+        },
+      });
   }
 
+  // Los campos de texto y de precio esperan a que se deje de escribir; los desplegables cargan al momento
   buscar(texto: string): void {
     this.busqueda.set(texto);
-    clearTimeout(this.temporizadorBusqueda);
-    this.temporizadorBusqueda = setTimeout(() => this.cargar(), ESPERA_BUSQUEDA_MS);
+    this.cargarAlDejarDeEscribir();
   }
 
-  // Vuelve a mostrar todo el catálogo
+  cambiarPrecioMinimo(precio: number | null): void {
+    this.precioMinimo.set(precio);
+    this.cargarAlDejarDeEscribir();
+  }
+
+  cambiarPrecioMaximo(precio: number | null): void {
+    this.precioMaximo.set(precio);
+    this.cargarAlDejarDeEscribir();
+  }
+
+  cambiarCategoria(idCategoria: string): void {
+    this.idCategoria.set(idCategoria);
+    this.cargar();
+  }
+
+  cambiarEstado(estado: FiltroEstado): void {
+    this.estado.set(estado);
+    this.cargar();
+  }
+
+  // Quita todos los filtros y vuelve a mostrar el catálogo completo
   limpiarFiltros(): void {
     this.busqueda.set('');
-    this.categoriaFiltro.set('');
+    this.idCategoria.set('');
+    this.estado.set('');
+    this.precioMinimo.set(null);
+    this.precioMaximo.set(null);
     this.cargar();
+  }
+
+  private cargarAlDejarDeEscribir(): void {
+    clearTimeout(this.temporizador);
+    this.temporizador = setTimeout(() => this.cargar(), ESPERA_ESCRITURA_MS);
   }
 }

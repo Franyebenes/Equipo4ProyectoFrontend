@@ -19,17 +19,39 @@
       </label>
       <label class="campo">
         Categoría
-        <select [ngModel]="categoriaFiltro()" (ngModelChange)="categoriaFiltro.set($event)">
-          <option value="">Todas las categorías</option>
-          @for (c of categoriasDisponibles(); track c) {
-            <option [value]="c">{{ c }}</option>
+        <select [ngModel]="idCategoria()" (ngModelChange)="cambiarCategoria($event)">
+          <option value="">Todas</option>
+          @for (c of categorias(); track c.id) {
+            <option [value]="c.id">{{ c.nombre }}</option>
           }
         </select>
       </label>
-      @if (hayFiltros()) {
-        <button type="button" class="btn btn-ghost limpiar" (click)="limpiarFiltros()">Limpiar</button>
-      }
+      <label class="campo">
+        Estado
+        <select [ngModel]="estado()" (ngModelChange)="cambiarEstado($event)">
+          <option value="">Todos</option>
+          <option value="activos">Activos</option>
+          <option value="inactivos">Inactivos</option>
+        </select>
+      </label>
+      <label class="campo">
+        Precio mín. (€)
+        <input type="number" min="0" step="0.01" placeholder="Sin mínimo"
+               [ngModel]="precioMinimo()" (ngModelChange)="cambiarPrecioMinimo($event)">
+      </label>
+      <label class="campo">
+        Precio máx. (€)
+        <input type="number" min="0" step="0.01" placeholder="Sin máximo"
+               [ngModel]="precioMaximo()" (ngModelChange)="cambiarPrecioMaximo($event)">
+      </label>
+      <button type="button" class="btn btn-ghost limpiar" (click)="limpiarFiltros()" [disabled]="!hayFiltros()">
+        Limpiar filtros
+      </button>
     </div>
+
+    @if (errorFiltros()) {
+      <div class="aviso aviso-error" role="alert">{{ errorFiltros() }}</div>
+    }
 
     @if (error()) {
       <div class="aviso aviso-error" role="alert">{{ error() }}</div>
@@ -51,7 +73,7 @@
               @if (cargando() && productos().length === 0) {
                 <tr><td colspan="6" class="vacio">Cargando tus productos…</td></tr>
               } @else {
-                @for (p of productosFiltrados(); track p.id) {
+                @for (p of productos(); track p.id) {
                   <tr>
                     <td><strong>{{ p.nombre }}</strong></td>
                     <td class="muted">{{ p.categorias.join(', ') }}</td>
@@ -68,7 +90,7 @@
                   <tr>
                     <td colspan="6" class="vacio">
                       @if (hayFiltros()) {
-                        Ningún producto de tu catálogo coincide con la búsqueda.
+                        Ningún producto de tu catálogo coincide con la búsqueda y los filtros elegidos.
                         <button type="button" class="btn btn-ghost btn-sm" (click)="limpiarFiltros()">Ver todo el catálogo</button>
                       } @else {
                         Todavía no has dado de alta ningún producto. Cuando lo hagas, aparecerá aquí.
