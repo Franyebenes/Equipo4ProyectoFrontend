@@ -84,7 +84,16 @@
                     <td class="derecha">{{ formatearPrecio(p.precio) }}</td>
                     <td class="derecha">{{ p.stock }}</td>
                     <td>
-                      <span class="estado" [class.inactivo]="!p.visible">{{ p.visible ? 'Activo' : 'Inactivo' }}</span>
+                      <div class="chips-estado">
+                        <span class="estado" [class.inactivo]="!p.visible">
+                          {{ p.visible ? 'Activo' : 'Inactivo' }}
+                        </span>
+                        @if (p.stock === 0) {
+                          <span class="estado agotado" title="Sin stock: no disponible para la venta">
+                            Agotado
+                          </span>
+                        }
+                      </div>
                     </td>
                     <td class="col-acciones">
                       <div class="acciones">
@@ -108,7 +117,9 @@
                     <td colspan="6" class="vacio">
                       @if (hayFiltros()) {
                         Ningún producto de tu catálogo coincide con la búsqueda y los filtros elegidos.
-                        <button type="button" class="btn btn-ghost btn-sm" (click)="limpiarFiltros()">Ver todo el catálogo</button>
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="limpiarFiltros()">
+                          Ver todo el catálogo
+                        </button>
                       } @else {
                         Todavía no has dado de alta ningún producto. Cuando lo hagas, aparecerá aquí.
                       }

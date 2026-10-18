@@ -90,3 +90,10 @@ tbody tr + tr td {
   justify-content: flex-end;
   gap: 0.4rem;
 }
+
+/* Estado del producto y, si no tiene stock, «Agotado» */
+.chips-estado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}

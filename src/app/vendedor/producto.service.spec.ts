@@ -2,7 +2,15 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { ProductoAlta, ProductoCatalogo, ProductoService, mensajeEstadoCambiado } from './producto.service';
+import {
+  ProductoAlta,
+  ProductoCatalogo,
+  ProductoService,
+  mensajeEstadoCambiado,
+  mensajeStockActualizado,
+  textoStock,
+  validarStock,
+} from './producto.service';
 
 const URL_CATALOGO = 'http://localhost:8080/api/vendedor/productos';
 const URL_CSRF = 'http://localhost:8080/api/auth/csrf';
@@ -97,6 +105,19 @@ describe('ProductoService (peticiones que modifican datos)', () => {
     expect(respuesta?.visible).toBe(false);
   });
 
+  it('cambiarStock pide el token CSRF y envía un PATCH con la cantidad nueva', () => {
+    let respuesta: ProductoCatalogo | undefined;
+    servicio.cambiarStock('p1', 12).subscribe({ next: (producto) => (respuesta = producto) });
+
+    http.expectOne(URL_CSRF).flush({ token: 'token-3', headerName: 'X-XSRF-TOKEN' });
+    const peticion = http.expectOne(`${URL_CATALOGO}/p1/stock`);
+    expect(peticion.request.method).toBe('PATCH');
+    expect(peticion.request.headers.get('X-XSRF-TOKEN')).toBe('token-3');
+    expect(peticion.request.body).toEqual({ stock: 12 });
+    peticion.flush({ id: 'p1', nombre: 'Lámpara', stock: 12 });
+    expect(respuesta?.stock).toBe(12);
+  });
+
   it('crear también envía el token CSRF', () => {
     const alta: ProductoAlta = {
       nombre: 'Lámpara', descripcion: 'De pie', precio: 80, idCategorias: ['c1'], stock: 4,
@@ -125,6 +146,34 @@ describe('mensajeEstadoCambiado', () => {
   it('confirma que el producto deja de estar a la venta', () => {
     expect(mensajeEstadoCambiado(producto(false))).toBe(
       '«Lámpara» está inactivo: los clientes ya no pueden verlo ni comprarlo.',
+    );
+  });
+});
+
+describe('Gestión de stock: textos y validación', () => {
+  it('textoStock muestra la cantidad en singular, plural o «Sin stock»', () => {
+    expect(textoStock(0)).toBe('Sin stock');
+    expect(textoStock(1)).toBe('1 unidad');
+    expect(textoStock(12)).toBe('12 unidades');
+  });
+
+  it('validarStock acepta enteros no negativos', () => {
+    expect(validarStock(0)).toBe('');
+    expect(validarStock(25)).toBe('');
+  });
+
+  it('validarStock rechaza la cantidad vacía, negativa o con decimales', () => {
+    expect(validarStock(null)).toBe('Indica la cantidad de stock.');
+    expect(validarStock(-1)).toBe('El stock debe ser un número entero no negativo.');
+    expect(validarStock(2.5)).toBe('El stock debe ser un número entero no negativo.');
+  });
+
+  it('mensajeStockActualizado avisa de que sin stock no se puede vender', () => {
+    const producto = (stock: number) => ({ nombre: 'Lámpara', stock }) as ProductoCatalogo;
+    expect(mensajeStockActualizado(producto(3))).toBe('Stock de «Lámpara» actualizado: 3 unidades.');
+    expect(mensajeStockActualizado(producto(0))).toBe(
+      'Stock de «Lámpara» actualizado: sin stock. ' +
+        'No está disponible para la venta hasta que repongas unidades.',
     );
   });
 });
