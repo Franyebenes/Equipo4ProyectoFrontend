@@ -47,18 +47,34 @@ tbody tr + tr td {
 /* Buscador y filtro por categoría (mismo diseño que los filtros del listado de usuarios) */
 .filtros {
   display: grid;
-  grid-template-columns: minmax(240px, 2fr) minmax(180px, 1fr) auto;
+  grid-template-columns: minmax(200px, 2fr) repeat(4, minmax(120px, 1fr)) auto;
   align-items: end;
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
 
-/* Misma altura que los campos de al lado */
+/* Todos los campos y el botón con la misma altura, para que queden alineados */
+.filtros input,
+.filtros select,
 .filtros .limpiar {
-  min-height: 2.75rem;
+  height: 2.75rem;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 960px) {
+  .filtros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filtros .campo:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .filtros .limpiar {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 560px) {
   .filtros {
     grid-template-columns: 1fr;
   }

@@ -44,4 +44,27 @@ describe('ProductoService.listarMios', () => {
     expect(peticion.request.params.has('busqueda')).toBe(false);
     peticion.flush([]);
   });
+
+  it('envía todos los filtros juntos, incluidos false y 0, que son filtros válidos', () => {
+    servicio
+      .listarMios({ busqueda: 'bolso', idCategoria: 'c1', activo: false, precioMinimo: 0, precioMaximo: 50.5 })
+      .subscribe();
+
+    const peticion = http.expectOne((r) => r.url === URL_CATALOGO);
+    const params = peticion.request.params;
+    expect(params.get('busqueda')).toBe('bolso');
+    expect(params.get('idCategoria')).toBe('c1');
+    expect(params.get('activo')).toBe('false');
+    expect(params.get('precioMinimo')).toBe('0');
+    expect(params.get('precioMaximo')).toBe('50.5');
+    peticion.flush([]);
+  });
+
+  it('no envía los filtros vacíos (categoría, estado o precios sin elegir)', () => {
+    servicio.listarMios({ idCategoria: '', activo: null, precioMinimo: null, precioMaximo: undefined }).subscribe();
+
+    const peticion = http.expectOne((r) => r.url === URL_CATALOGO);
+    expect(peticion.request.params.keys()).toEqual([]);
+    peticion.flush([]);
+  });
 });
