@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, switchMap } from 'rxjs';
 import { Categoria } from '../admin/categoria.service';
 
@@ -32,6 +32,12 @@ export interface ProductoAlta {
   activo: boolean;
   // Porcentaje de descuento (0-100) o null si no tiene
   descuento: number | null;
+}
+
+// Criterios con los que el backend filtra el catálogo propio. Los vacíos no se envían.
+export interface FiltroCatalogo {
+  // Nombre completo o parcial del producto
+  busqueda?: string;
 }
 
 // Token CSRF que devuelve /api/auth/csrf; el backend lo exige en las peticiones que modifican datos.
@@ -70,8 +76,13 @@ export class ProductoService {
   private api = `${inject(API_URL)}/api/vendedor/productos`;
   private apiBase = inject(API_URL);
 
-  listarMios(): Observable<ProductoCatalogo[]> {
-    return this.http.get<ProductoCatalogo[]>(this.api);
+  listarMios(filtro: FiltroCatalogo = {}): Observable<ProductoCatalogo[]> {
+    let params = new HttpParams();
+    const busqueda = filtro.busqueda?.trim();
+    if (busqueda) {
+      params = params.set('busqueda', busqueda);
+    }
+    return this.http.get<ProductoCatalogo[]>(this.api, { params });
   }
 
   obtenerMio(id: string): Observable<ProductoCatalogo> {
