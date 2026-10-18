@@ -14,8 +14,26 @@
             <h1>{{ p.nombre }}</h1>
             <p class="sub">{{ p.categorias.join(' · ') }}</p>
           </div>
-          <span class="estado" [class.inactivo]="!p.visible">{{ p.visible ? 'Activo' : 'Inactivo' }}</span>
+          <div class="cabecera-estado">
+            <span class="estado" [class.inactivo]="!p.visible">{{ p.visible ? 'Activo' : 'Inactivo' }}</span>
+            <button type="button" class="btn btn-ghost" (click)="alternarEstado(p)" [disabled]="cambiandoEstado()">
+              @if (cambiandoEstado()) {
+                Guardando…
+              } @else if (p.visible) {
+                Desactivar producto
+              } @else {
+                Activar producto
+              }
+            </button>
+          </div>
         </header>
+
+        @if (exito()) {
+          <div class="aviso aviso-ok" role="status">{{ exito() }}</div>
+        }
+        @if (errorEstado()) {
+          <div class="aviso aviso-error" role="alert">{{ errorEstado() }}</div>
+        }
 
         <div class="card ficha">
           <!-- Sin foto se muestra la imagen por defecto -->
