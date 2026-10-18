@@ -83,3 +83,10 @@ tbody tr + tr td {
 .vacio .btn {
   margin-left: 0.5rem;
 }
+
+/* Botones de cada fila (Activar/Desactivar y Ver detalle) */
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}

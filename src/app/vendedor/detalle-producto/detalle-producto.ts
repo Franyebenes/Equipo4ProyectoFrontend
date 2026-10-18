@@ -8,6 +8,7 @@ import {
   ProductoService,
   formatearPrecio,
   mensajeErrorCatalogo,
+  mensajeEstadoCambiado,
 } from '../producto.service';
 
 // Detalle de un producto del catálogo propio. Se pide al backend al entrar, así que muestra su estado actual.
@@ -27,6 +28,9 @@ export class DetalleProducto implements OnInit {
   producto = signal<ProductoCatalogo | null>(null);
   cargando = signal(true);
   error = signal('');
+  exito = signal('');
+  errorEstado = signal('');
+  cambiandoEstado = signal(false);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
@@ -38,6 +42,24 @@ export class DetalleProducto implements OnInit {
       error: (e: HttpErrorResponse) => {
         this.cargando.set(false);
         this.error.set(mensajeErrorCatalogo(e));
+      },
+    });
+  }
+
+  // Activar/Desactivar producto: la ficha muestra al momento el estado que devuelve el backend
+  alternarEstado(producto: ProductoCatalogo): void {
+    this.exito.set('');
+    this.errorEstado.set('');
+    this.cambiandoEstado.set(true);
+    this.productoService.cambiarEstado(producto.id, !producto.visible).subscribe({
+      next: (actualizado) => {
+        this.cambiandoEstado.set(false);
+        this.producto.set(actualizado);
+        this.exito.set(mensajeEstadoCambiado(actualizado));
+      },
+      error: (e: HttpErrorResponse) => {
+        this.cambiandoEstado.set(false);
+        this.errorEstado.set(mensajeErrorCatalogo(e));
       },
     });
   }

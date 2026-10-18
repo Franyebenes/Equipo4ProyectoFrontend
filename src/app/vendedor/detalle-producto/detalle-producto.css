@@ -62,3 +62,10 @@
   line-height: 1.6;
   white-space: pre-line;
 }
+
+/* Estado actual y botón para activar o desactivar el producto */
+.cabecera-estado {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}

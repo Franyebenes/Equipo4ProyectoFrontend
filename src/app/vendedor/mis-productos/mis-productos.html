@@ -53,6 +53,10 @@
       <div class="aviso aviso-error" role="alert">{{ errorFiltros() }}</div>
     }
 
+    @if (exito()) {
+      <div class="aviso aviso-ok" role="status">{{ exito() }}</div>
+    }
+
     @if (error()) {
       <div class="aviso aviso-error" role="alert">{{ error() }}</div>
     } @else {
@@ -83,7 +87,20 @@
                       <span class="estado" [class.inactivo]="!p.visible">{{ p.visible ? 'Activo' : 'Inactivo' }}</span>
                     </td>
                     <td class="col-acciones">
-                      <a [routerLink]="['/vendedor/productos', p.id]" class="btn btn-ghost btn-sm">Ver detalle</a>
+                      <div class="acciones">
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="alternarEstado(p)"
+                                [disabled]="cambiandoEstado() === p.id"
+                                [attr.aria-label]="(p.visible ? 'Desactivar ' : 'Activar ') + p.nombre">
+                          @if (cambiandoEstado() === p.id) {
+                            Guardando…
+                          } @else if (p.visible) {
+                            Desactivar
+                          } @else {
+                            Activar
+                          }
+                        </button>
+                        <a [routerLink]="['/vendedor/productos', p.id]" class="btn btn-ghost btn-sm">Ver detalle</a>
+                      </div>
                     </td>
                   </tr>
                 } @empty {

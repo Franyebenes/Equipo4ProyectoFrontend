@@ -5,7 +5,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 
 import { Categoria } from '../../admin/categoria.service';
-import { ProductoCatalogo, ProductoService, formatearPrecio, mensajeErrorCatalogo } from '../producto.service';
+import {
+  ProductoCatalogo,
+  ProductoService,
+  formatearPrecio,
+  mensajeErrorCatalogo,
+  mensajeEstadoCambiado,
+} from '../producto.service';
 
 // Espera tras la última tecla antes de pedir al backend: una petición, no una por tecla
 const ESPERA_ESCRITURA_MS = 300;
@@ -29,6 +35,9 @@ export class MisProductos implements OnInit {
   categorias = signal<Categoria[]>([]);
   cargando = signal(false);
   error = signal('');
+  exito = signal('');
+  // Id del producto cuyo estado se está cambiando (desactiva su botón mientras tanto)
+  cambiandoEstado = signal<string | null>(null);
 
   busqueda = signal('');
   idCategoria = signal('');
@@ -131,6 +140,24 @@ export class MisProductos implements OnInit {
   cambiarEstado(estado: FiltroEstado): void {
     this.estado.set(estado);
     this.cargar();
+  }
+
+  // Activar/Desactivar producto. Después se recarga la lista, que respeta los filtros (p. ej. «Solo activos»).
+  alternarEstado(producto: ProductoCatalogo): void {
+    this.exito.set('');
+    this.error.set('');
+    this.cambiandoEstado.set(producto.id);
+    this.productoService.cambiarEstado(producto.id, !producto.visible).subscribe({
+      next: (actualizado) => {
+        this.cambiandoEstado.set(null);
+        this.exito.set(mensajeEstadoCambiado(actualizado));
+        this.cargar();
+      },
+      error: (e: HttpErrorResponse) => {
+        this.cambiandoEstado.set(null);
+        this.error.set(mensajeErrorCatalogo(e));
+      },
+    });
   }
 
   // Quita todos los filtros y vuelve a mostrar el catálogo completo

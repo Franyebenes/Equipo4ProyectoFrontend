@@ -69,10 +69,17 @@ export function mensajeErrorCatalogo(e: HttpErrorResponse): string {
     case 401:
       return 'Tu sesión ha caducado. Inicia sesión de nuevo.';
     case 403:
-      return 'Solo los vendedores pueden consultar su catálogo de productos.';
+      return 'Solo los vendedores pueden gestionar su catálogo de productos.';
     default:
       return e.error?.mensaje ?? 'Ha ocurrido un error. Inténtalo de nuevo.';
   }
+}
+
+// Confirmación tras activar o desactivar un producto
+export function mensajeEstadoCambiado(producto: ProductoCatalogo): string {
+  return producto.visible
+    ? `«${producto.nombre}» está activo: vuelve a estar visible y disponible para los clientes.`
+    : `«${producto.nombre}» está inactivo: los clientes ya no pueden verlo ni comprarlo.`;
 }
 
 // Catálogo propio del vendedor de la sesión: el backend sabe quién es por la cookie de sesión.
@@ -108,12 +115,22 @@ export class ProductoService {
     return this.http.get<Categoria[]>(`${this.apiBase}/api/registro/categorias`);
   }
 
-  // HU15.1 - Pide el token CSRF y despues envia el alta con el en la cabecera.
+  // HU15.1 - Alta de producto
   crear(datos: ProductoAlta): Observable<ProductoCatalogo> {
-    return this.http.get<TokenCsrf>(`${this.apiBase}/api/auth/csrf`).pipe(
-      switchMap((csrf) =>
-        this.http.post<ProductoCatalogo>(this.api, datos, { headers: { [csrf.headerName]: csrf.token } }),
-      ),
+    return this.conCsrf((cabeceras) => this.http.post<ProductoCatalogo>(this.api, datos, { headers: cabeceras }));
+  }
+
+  // Activar/Desactivar producto: devuelve el producto con su estado nuevo
+  cambiarEstado(id: string, activo: boolean): Observable<ProductoCatalogo> {
+    return this.conCsrf((cabeceras) =>
+      this.http.patch<ProductoCatalogo>(`${this.api}/${id}/estado`, { activo }, { headers: cabeceras }),
     );
+  }
+
+  // Las peticiones que modifican datos llevan el token CSRF: se pide y se envía en la cabecera que indica el backend
+  private conCsrf<T>(peticion: (cabeceras: Record<string, string>) => Observable<T>): Observable<T> {
+    return this.http
+      .get<TokenCsrf>(`${this.apiBase}/api/auth/csrf`)
+      .pipe(switchMap((csrf) => peticion({ [csrf.headerName]: csrf.token })));
   }
 }
