@@ -208,3 +208,9 @@
   color: var(--coral, #e7552c);
   font-weight: 700;
 }
+.enlace-carrito { display: inline-flex; align-items: center; gap: .4rem; }
+.contador-carrito {
+  min-width: 1.4rem; padding: 0 .4rem; border-radius: 999px;
+  background: #ff6b4a; color: #fff; font-size: .8rem; font-weight: 700;
+  line-height: 1.4rem; text-align: center;
+}
