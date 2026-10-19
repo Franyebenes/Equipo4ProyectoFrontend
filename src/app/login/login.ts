@@ -42,6 +42,8 @@ export class Login {
   readonly segundosRestantes = signal(0);
   // Botón del ojo: muestra u oculta la contraseña.
   readonly verContrasena = signal(false);
+  // Aviso de que la contraseña se acaba de restablecer (la pantalla de restablecimiento llega aquí con ese dato).
+  readonly contrasenaRestablecida = signal(history.state?.restablecida === true);
 
   private temporizador: ReturnType<typeof setInterval> | undefined;
 

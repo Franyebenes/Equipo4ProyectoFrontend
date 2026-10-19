@@ -33,6 +33,7 @@ const MENSAJES: Record<string, string> = {
   CONTRASENA_FILTRADA: 'Esta contraseña aparece en filtraciones públicas de datos. Elige otra.',
   CONTRASENA_CON_DATOS_PERSONALES:
     'No uses tu nombre, apellidos, correo, nombre comercial ni «esibuy» en la contraseña.',
+  ENLACE_INVALIDO: 'El enlace no es válido o ha caducado. Solicita uno nuevo.',
 };
 
 const SIN_CARACTERES_PELIGROSOS = 'No uses los caracteres < > { } $.';

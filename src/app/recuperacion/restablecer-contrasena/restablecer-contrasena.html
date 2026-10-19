@@ -1,0 +1,126 @@
+<section class="acceso">
+  <div class="tarjeta">
+    @if (enlaceInvalido()) {
+      <p class="ceja">Recuperar acceso</p>
+      <h2>Enlace no válido</h2>
+      <p class="intro">
+        Este enlace no es válido o ha caducado. Los enlaces valen 15 minutos y solo pueden usarse una vez.
+      </p>
+      <a routerLink="/recuperar-contrasena" class="btn btn-coral btn-ancho">Solicitar un enlace nuevo</a>
+      <p class="cambio-via">
+        <a routerLink="/login">Volver al inicio de sesión</a>
+      </p>
+    } @else {
+      <p class="ceja">Recuperar acceso</p>
+      <h2>Elige una contraseña nueva</h2>
+      <p class="intro">Cuando la guardes, podrás iniciar sesión con ella. Las sesiones abiertas se cerrarán.</p>
+
+      <!-- Icono del ojo, común a los dos campos de contraseña. -->
+      <ng-template #iconoOjo let-visible>
+        @if (visible) {
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M2 10C4 6.5 6.8 4.5 10 4.5S16 6.5 18 10C16 13.5 13.2 15.5 10 15.5S4 13.5 2 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            <circle cx="10" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M3.5 3.5 16.5 16.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        } @else {
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M2 10C4 6.5 6.8 4.5 10 4.5S16 6.5 18 10C16 13.5 13.2 15.5 10 15.5S4 13.5 2 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            <circle cx="10" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+          </svg>
+        }
+      </ng-template>
+
+      <!-- Errores de un campo, con el id al que apunta aria-describedby. -->
+      <ng-template #errorDe let-campo>
+        @let mensajes = mensajesError(campo);
+        @if (mensajes.length > 0) {
+          <div [id]="'error-' + campo">
+            @for (mensaje of mensajes; track mensaje) {
+              <p class="error-campo">{{ mensaje }}</p>
+            }
+          </div>
+        }
+      </ng-template>
+
+      <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+        <div class="campo-grupo">
+          <label class="campo">
+            Contraseña nueva
+            <span class="entrada con-ojo">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              </svg>
+              <input
+                id="contrasena"
+                type="password" [attr.type]="verContrasena() ? 'text' : 'password'"
+                formControlName="contrasena"
+                autocomplete="new-password"
+                placeholder="Mínimo 12 caracteres"
+                [attr.aria-invalid]="ariaInvalid('contrasena')"
+                [attr.aria-describedby]="ariaDescribedby('contrasena')"
+              />
+              <button
+                type="button"
+                class="ver-contrasena"
+                (click)="verContrasena.set(!verContrasena())"
+                [attr.aria-label]="verContrasena() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <ng-container *ngTemplateOutlet="iconoOjo; context: { $implicit: verContrasena() }" />
+              </button>
+            </span>
+          </label>
+          <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'contrasena' }" />
+        </div>
+        <p class="pista">
+          Usa al menos 12 caracteres, con mayúsculas, minúsculas, un número y un carácter especial (como - _ . ! @ #).
+          No uses tu nombre, apellidos ni tu correo.
+        </p>
+
+        <div class="campo-grupo">
+          <label class="campo">
+            Repite la contraseña
+            <span class="entrada con-ojo">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              </svg>
+              <input
+                id="repetirContrasena"
+                type="password" [attr.type]="verRepetirContrasena() ? 'text' : 'password'"
+                formControlName="repetirContrasena"
+                autocomplete="new-password"
+                placeholder="Vuelve a escribirla"
+                [attr.aria-invalid]="ariaInvalid('repetirContrasena')"
+                [attr.aria-describedby]="ariaDescribedby('repetirContrasena')"
+              />
+              <button
+                type="button"
+                class="ver-contrasena"
+                (click)="verRepetirContrasena.set(!verRepetirContrasena())"
+                [attr.aria-label]="verRepetirContrasena() ? 'Ocultar la contraseña repetida' : 'Mostrar la contraseña repetida'"
+              >
+                <ng-container *ngTemplateOutlet="iconoOjo; context: { $implicit: verRepetirContrasena() }" />
+              </button>
+            </span>
+          </label>
+          <ng-container *ngTemplateOutlet="errorDe; context: { $implicit: 'repetirContrasena' }" />
+        </div>
+
+        @if (error(); as mensajeError) {
+          <p class="error" role="alert">{{ mensajeError }}</p>
+        }
+
+        <button type="submit" class="btn btn-coral btn-ancho" [disabled]="enviando()">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.5 8h11M9.5 4.5 13.5 8l-4 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          {{ enviando() ? 'Guardando...' : 'Guardar contraseña nueva' }}
+        </button>
+      </form>
+
+      <p class="cambio-via">
+        <a routerLink="/login">Volver al inicio de sesión</a>
+      </p>
+    }
+  </div>
+</section>
