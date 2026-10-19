@@ -67,6 +67,10 @@ export class AuthService {
       this._usuario.set(usuario);
     } catch {
       this._usuario.set(null);
+      // Sin sesión, el token CSRF que se tuviera guardado era de una sesión que ya no existe (caducada, cerrada o
+      // invalidada por un cambio de contraseña): el backend lo rechazaría con un 401 que parecería "credenciales
+      // incorrectas" al iniciar sesión. Se descarta para pedir uno nuevo.
+      this.csrf = null;
     }
   }
 

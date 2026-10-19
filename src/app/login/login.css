@@ -147,6 +147,29 @@ form {
   border-radius: 0.85rem;
 }
 
+.exito {
+  margin: 0 0 0.9rem;
+  padding: 0.85rem 0.95rem;
+  background: #e7f4ea;
+  border-radius: 0.85rem;
+  color: #1f5d2c;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.olvido {
+  justify-self: end;
+  color: var(--coral);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.olvido:hover,
+.olvido:focus-visible {
+  text-decoration: underline;
+}
+
 .btn-ancho:disabled {
   opacity: 0.6;
   cursor: not-allowed;

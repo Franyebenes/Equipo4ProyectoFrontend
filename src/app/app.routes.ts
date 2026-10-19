@@ -17,6 +17,17 @@ export const routes: Routes = [
   { path: '', component: Home, canActivate: [portadaGuard] },
   { path: 'login', component: Login },
   { path: 'registro', component: Registro },
+  // Recuperación de contraseña: pública. El enlace del correo lleva a restablecer-contrasena#token=...
+  {
+    path: 'recuperar-contrasena',
+    loadComponent: () =>
+      import('./recuperacion/solicitar-recuperacion/solicitar-recuperacion').then((m) => m.SolicitarRecuperacion),
+  },
+  {
+    path: 'restablecer-contrasena',
+    loadComponent: () =>
+      import('./recuperacion/restablecer-contrasena/restablecer-contrasena').then((m) => m.RestablecerContrasena),
+  },
   { path: 'cliente', component: Cliente, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
    {
     path: 'admin',

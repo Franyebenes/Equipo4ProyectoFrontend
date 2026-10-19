@@ -1,9 +1,13 @@
-<!-- Formulario de acceso centrado. Sin panel decorativo ni recuperar contraseña (sprint 2). -->
+<!-- Formulario de acceso centrado, sin panel decorativo. -->
 <section class="acceso">
   <div class="tarjeta">
     <p class="ceja">Acceso seguro</p>
     <h2>Bienvenido de nuevo</h2>
     <p class="intro">Identifícate para acceder al área que corresponde a tu cuenta.</p>
+
+    @if (contrasenaRestablecida()) {
+      <p class="exito" role="status">Contraseña restablecida. Ya puedes iniciar sesión con la nueva.</p>
+    }
 
     <form (submit)="enviar($event)">
       <label class="campo">
@@ -50,6 +54,8 @@
           <span class="error-campo">{{ mensaje }}</span>
         }
       </label>
+
+      <a class="olvido" routerLink="/recuperar-contrasena">¿Has olvidado tu contraseña?</a>
 
       <!-- Sin "recordar este dispositivo": el backend no lo admite (la sesión caduca por inactividad). -->
       @if (error(); as mensajeError) {
