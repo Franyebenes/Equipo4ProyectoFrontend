@@ -12,6 +12,7 @@ import { Login } from './login/login';
 import { Home } from './home/home';
 import { Cliente } from './cliente/cliente';
 import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
+import { MetodosPago } from './cliente/metodos-pago/metodos-pago';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 
 export const routes: Routes = [
@@ -31,6 +32,7 @@ export const routes: Routes = [
   },
   { path: 'cliente', component: Cliente, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+    { path: 'metodos-pago', component: MetodosPago, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],
