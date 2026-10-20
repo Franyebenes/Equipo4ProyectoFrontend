@@ -11,6 +11,7 @@ import { Registro } from './registro/registro';
 import { Login } from './login/login';
 import { Home } from './home/home';
 import { Cliente } from './cliente/cliente';
+import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 
 export const routes: Routes = [
@@ -29,7 +30,8 @@ export const routes: Routes = [
       import('./recuperacion/restablecer-contrasena/restablecer-contrasena').then((m) => m.RestablecerContrasena),
   },
   { path: 'cliente', component: Cliente, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
-   {
+  { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],
     children: [
@@ -49,5 +51,4 @@ export const routes: Routes = [
       { path: 'productos/:id', component: DetalleProducto },
     ],
   },
-  
 ];

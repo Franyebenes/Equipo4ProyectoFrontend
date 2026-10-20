@@ -13,6 +13,14 @@
       @if (auth.usuario()?.rol === 'VENDEDOR') {
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mi catálogo</a>
       }
+      @if (esCliente()) {
+        <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito">
+          🛒 Carrito
+          @if (carrito.numeroArticulos() > 0) {
+            <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
+          }
+        </a>
+      }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
       } @else if (!esCliente()) {
@@ -59,6 +67,14 @@
       @if (auth.usuario()?.rol === 'VENDEDOR') {
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mi catálogo</a>
       }
+      @if (esCliente()) {
+        <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito" (click)="cerrarMenu()">
+          🛒 Carrito
+          @if (carrito.numeroArticulos() > 0) {
+            <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
+          }
+        </a>
+      }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
       } @else if (!esCliente()) {
@@ -98,7 +114,6 @@
 <!-- Home, login y registro se pintan aquí según la ruta. -->
 <router-outlet />
 
-<!-- Ventanas informativas de la cabecera (Cómo funciona, Seguridad y Ayuda). -->
 <!-- Ventanas informativas de la cabecera (Cómo funciona, Seguridad y Ayuda). -->
 @switch (ventanaAbierta()) {
   @case ('como-funciona') {

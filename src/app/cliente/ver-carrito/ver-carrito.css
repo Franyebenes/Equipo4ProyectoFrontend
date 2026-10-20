@@ -1,0 +1,48 @@
+.carrito { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+h1 { margin-bottom: 1.5rem; }
+.estado, .vacio { text-align: center; padding: 2rem 0; }
+.error { background: #fdecea; color: #b3261e; padding: .75rem 1rem; border-radius: 8px; }
+
+.lineas { list-style: none; padding: 0; margin: 0; }
+.linea {
+  display: grid;
+  grid-template-columns: 72px 1fr auto auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+.linea img, .sin-imagen { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; background: #f2f2f2; }
+.no-disponible { opacity: .55; }
+
+.info { display: flex; flex-direction: column; gap: .25rem; }
+.nombre { font-weight: 600; }
+.aviso { color: #b3261e; font-size: .85rem; }
+.precio s { color: #888; margin-right: .35rem; }
+
+.cantidad { display: flex; align-items: center; gap: .5rem; }
+.cantidad button {
+  width: 32px; height: 32px; border: 1px solid #ccc; border-radius: 50%;
+  background: #fff; cursor: pointer; font-size: 1.1rem; line-height: 1;
+}
+.cantidad button:disabled { opacity: .4; cursor: not-allowed; }
+
+.subtotal { font-weight: 600; min-width: 80px; text-align: right; }
+.eliminar { background: none; border: none; color: #b3261e; cursor: pointer; }
+.eliminar:disabled { opacity: .4; }
+
+.resumen {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 1.5rem; font-size: 1.2rem;
+}
+.pagar {
+  display: block; width: 100%; margin-top: 1rem; padding: .9rem;
+  border: none; border-radius: 8px; background: #222; color: #fff; font-size: 1rem;
+}
+.pagar:disabled { opacity: .5; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+  .linea { grid-template-columns: 56px 1fr; }
+  .linea img, .sin-imagen { width: 56px; height: 56px; }
+  .cantidad, .subtotal, .eliminar { grid-column: 2; justify-self: start; }
+}
