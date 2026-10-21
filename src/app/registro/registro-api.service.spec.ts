@@ -32,9 +32,16 @@ describe('RegistroApiService', () => {
         telefono: null,
         contrasena: 'una-contrasena-de-prueba',
         repetirContrasena: 'una-contrasena-de-prueba',
+        codigoDosFactores: '123456',
         fechaNacimiento: '2000-05-15',
       };
-      const respuesta = { id: '1', email: 'ana.garcia@gmail.com', nombre: 'Ana', mensaje: 'ok' };
+      const respuesta = {
+        id: '1',
+        email: 'ana.garcia@gmail.com',
+        nombre: 'Ana',
+        mensaje: 'ok',
+        codigosRecuperacion: ['ABCD-EFGH-IJKL-MNOP'],
+      };
       let recibida: unknown;
 
       servicio.registrar(solicitud).subscribe((r) => (recibida = r));
@@ -57,6 +64,7 @@ describe('RegistroApiService', () => {
       telefono: '699887766',
       contrasena: 'una-contrasena-de-prueba',
       repetirContrasena: 'una-contrasena-de-prueba',
+        codigoDosFactores: '123456',
       nombreComercial: 'Tienda Norte',
       categoriaPrincipalId: '64b7f0c2a1b2c3d4e5f60718',
     };
@@ -66,6 +74,19 @@ describe('RegistroApiService', () => {
     const peticion = httpTesting.expectOne(URL_REGISTRO);
     expect(peticion.request.body).toEqual(solicitud);
     peticion.flush({}, { status: 201, statusText: 'Created' });
+  });
+
+  it('pide el QR del 2FA con solo el correo, antes de registrar', () => {
+    const activacion = { uri: 'otpauth://totp/ESIBuy:ana?secret=ABC', secreto: 'ABC' };
+    let recibida: unknown;
+
+    servicio.prepararDosFactores('ana.garcia@gmail.com').subscribe((a) => (recibida = a));
+
+    const peticion = httpTesting.expectOne('http://localhost:8080/api/auth/registro/2fa');
+    expect(peticion.request.method).toBe('POST');
+    expect(peticion.request.body).toEqual({ email: 'ana.garcia@gmail.com' });
+    peticion.flush(activacion);
+    expect(recibida).toEqual(activacion);
   });
 
   it('pide las categorías por GET', () => {

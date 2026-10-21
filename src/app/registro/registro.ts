@@ -10,7 +10,9 @@ import {
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Categoria, RespuestaRegistro, SolicitudRegistro } from './registro-api';
+import { CodigosRecuperacion } from '../seguridad/codigos-recuperacion';
+import { QrDosFactores } from '../seguridad/qr-dos-factores';
+import { ActivacionRegistro, Categoria, RespuestaRegistro, SolicitudRegistro } from './registro-api';
 import { RegistroApiService } from './registro-api.service';
 import { mensajeDe } from './registro-mensajes';
 import {
@@ -22,6 +24,9 @@ import {
   telefonoOpcional,
   textoObligatorio,
 } from './registro-validadores';
+
+// Pasos del registro: los datos; el QR del 2FA con su primer código; y los códigos de recuperación (se ven una sola vez).
+type FaseRegistro = 'datos' | 'verificacion' | 'codigos';
 
 // Tipos de rol que se ven en el mockup de registro.
 type RolRegistro = 'cliente' | 'vendedor';
@@ -61,14 +66,19 @@ const TEXTOS_ERROR = {
   servicioNoDisponible:
     'No podemos comprobar tu correo ahora mismo. Inténtalo de nuevo en unos minutos.',
   errorInesperado: 'Se ha producido un error inesperado. Inténtalo de nuevo más tarde.',
+  activacionNoVigente:
+    'El código QR ha caducado o se han agotado los intentos. Pulsa «Continuar» para obtener uno nuevo.',
   // El backend responde igual esté o no registrado el email, para no revelar qué cuentas existen.
   noCompletado: 'No se ha podido completar el registro con los datos proporcionados.',
 } as const;
 
-// Página de registro de clientes y vendedores. Envía el formulario a POST /api/auth/registro.
+// Página de registro de clientes y vendedores, en tres pasos. El 2FA (TOTP) es obligatorio y se configura aquí:
+//  1. Datos. Al continuar se pide el QR (POST /api/auth/registro/2fa); aún no se crea ninguna cuenta.
+//  2. Verificación. Se escanea el QR y se escribe el primer código; con él se envía el registro (POST /api/auth/registro).
+//  3. Códigos de recuperación, que se muestran una sola vez hasta confirmar que se han guardado.
 @Component({
   selector: 'app-registro',
-  imports: [ReactiveFormsModule, NgTemplateOutlet, RouterLink],
+  imports: [ReactiveFormsModule, NgTemplateOutlet, RouterLink, QrDosFactores, CodigosRecuperacion],
   templateUrl: './registro.html',
   styleUrl: './registro.css',
 })
@@ -86,6 +96,13 @@ export class Registro {
   readonly errorGeneral = signal<ErrorGeneral | null>(null);
   readonly confirmacion = signal<RespuestaRegistro | null>(null);
   readonly esperaSegundos = signal(0);
+  readonly fase = signal<FaseRegistro>('datos');
+  readonly activacion = signal<ActivacionRegistro | null>(null);
+  readonly errorCodigo = signal<string | null>(null);
+  readonly codigosRecuperacion = signal<string[]>([]);
+  readonly codigosGuardados = signal(false);
+  // Primer código del 2FA (segundo paso). No va en el formulario de datos.
+  readonly codigo = this.fb.control('');
   readonly categorias = signal<Categoria[]>([]);
   readonly estadoCategorias = signal<'inicial' | 'cargando' | 'listo' | 'error'>('inicial');
   readonly avatares = AVATARES;
@@ -117,9 +134,16 @@ export class Registro {
   );
 
   private temporizador: ReturnType<typeof setInterval> | null = null;
+  private cuentaCreada: RespuestaRegistro | null = null;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.detenerEspera());
+    inject(DestroyRef).onDestroy(() => {
+      this.detenerEspera();
+      // Nada del secreto ni de los códigos queda en memoria al salir de la página
+      this.activacion.set(null);
+      this.codigosRecuperacion.set([]);
+      this.cuentaCreada = null;
+    });
   }
 
   elegirAvatar(id: string): void {
@@ -198,15 +222,69 @@ export class Registro {
       this.enfocarPrimerError();
       return;
     }
+    // Primer paso: el QR del 2FA. La cuenta se crea en el segundo, con el código.
     this.enviando.set(true);
-    this.api.registrar(this.construirSolicitud()).subscribe({
+    this.api.prepararDosFactores(this.form.controls.email.value.trim()).subscribe({
+      next: (activacion) => this.alPrepararse(activacion),
+      error: (error: unknown) => this.alFallar(error),
+    });
+  }
+
+  // Segundo paso: con el primer código de la aplicación autenticadora se crea la cuenta.
+  verificar(evento: Event): void {
+    evento.preventDefault();
+    if (this.enviando() || this.esperaSegundos() > 0) {
+      return;
+    }
+    this.errorGeneral.set(null);
+    this.errorCodigo.set(null);
+    const codigo = this.codigo.value.trim();
+    if (codigo === '') {
+      this.errorCodigo.set(mensajeDe('codigoDosFactores', 'OBLIGATORIO'));
+      this.enfocarCodigo();
+      return;
+    }
+    this.enviando.set(true);
+    this.api.registrar(this.construirSolicitud(codigo)).subscribe({
       next: (respuesta) => this.alRegistrar(respuesta),
       error: (error: unknown) => this.alFallar(error),
     });
   }
 
+  // Vuelve a los datos para corregirlos; al continuar se pide un QR nuevo.
+  volverALosDatos(): void {
+    this.errorGeneral.set(null);
+    this.errorCodigo.set(null);
+    this.activacion.set(null);
+    this.fase.set('datos');
+  }
+
+  // Los códigos de recuperación ya están guardados: se pasa a la confirmación y se olvidan.
+  continuar(): void {
+    this.confirmacion.set(this.cuentaCreada);
+    this.cuentaCreada = null;
+    this.codigosRecuperacion.set([]);
+    this.codigosGuardados.set(false);
+    this.cdr.detectChanges();
+    this.host.nativeElement.querySelector<HTMLElement>('.confirmacion h2')?.focus();
+  }
+
+  private alPrepararse(activacion: ActivacionRegistro): void {
+    this.enviando.set(false);
+    this.activacion.set(activacion);
+    this.codigo.reset('');
+    this.errorCodigo.set(null);
+    this.fase.set('verificacion');
+    this.enfocarCodigo();
+  }
+
+  private enfocarCodigo(): void {
+    this.cdr.detectChanges();
+    this.host.nativeElement.querySelector<HTMLElement>('#codigoDosFactores')?.focus();
+  }
+
   // Solo viajan los campos de su tipo de cuenta: el backend rechaza los que no le corresponden.
-  private construirSolicitud(): SolicitudRegistro {
+  private construirSolicitud(codigoDosFactores: string): SolicitudRegistro {
     const valores = this.form.getRawValue();
     const telefono = valores.telefono.trim();
     const avatar = valores.avatar.trim();
@@ -221,6 +299,7 @@ export class Registro {
       // La contraseña no se recorta: los espacios forman parte de ella.
       contrasena: valores.contrasena,
       repetirContrasena: valores.repetirContrasena,
+      codigoDosFactores,
     };
     if (this.rol() === 'vendedor') {
       return {
@@ -238,14 +317,19 @@ export class Registro {
   }
 
   private alRegistrar(respuesta: RespuestaRegistro): void {
-    this.confirmacion.set(respuesta);
+    // Antes de la confirmación, los códigos de recuperación: se ven una sola vez
+    this.cuentaCreada = respuesta;
+    this.codigosRecuperacion.set(respuesta.codigosRecuperacion);
+    this.codigosGuardados.set(false);
     this.enviando.set(false);
     this.intentado.set(false);
+    this.activacion.set(null);
+    this.codigo.reset('');
     // Vacía el formulario, contraseñas incluidas, ahora que ya no hace falta.
     this.form.reset();
-    // El formulario era largo y la confirmación es corta: el foco la trae a la vista y la anuncia.
+    this.fase.set('codigos');
     this.cdr.detectChanges();
-    this.host.nativeElement.querySelector<HTMLElement>('.confirmacion h2')?.focus();
+    this.host.nativeElement.querySelector<HTMLElement>('.codigos-registro h2')?.focus();
   }
 
   private alFallar(error: unknown): void {
@@ -263,6 +347,9 @@ export class Registro {
         this.alFallarValidacion(cuerpo['errores']);
         break;
       case 409:
+        // Hay que cambiar algo de los datos: se vuelve a ellos
+        this.fase.set('datos');
+        this.activacion.set(null);
         this.errorGeneral.set({ texto: TEXTOS_ERROR.noCompletado });
         break;
       case 429:
@@ -293,7 +380,32 @@ export class Registro {
       return;
     }
     const sinCampo: string[] = [];
+    const deCodigo = this.codigosDe(errores, 'codigoDosFactores');
+    if (this.fase() === 'verificacion' && deCodigo.length > 0) {
+      if (deCodigo.includes('ACTIVACION_NO_VIGENTE')) {
+        // El secreto caducó o se agotaron los intentos: hay que pedir otro QR desde los datos
+        this.volverALosDatos();
+        this.errorGeneral.set({ texto: TEXTOS_ERROR.activacionNoVigente });
+        return;
+      }
+      if (Object.keys(errores).length === 1) {
+        // Solo falla el código: se queda en este paso para reintentarlo
+        this.errorCodigo.set([...new Set(deCodigo.map((c) => mensajeDe('codigoDosFactores', c)))].join(' '));
+        this.enfocarCodigo();
+        return;
+      }
+    }
+    if (this.fase() === 'verificacion') {
+      // Fallan los datos: se vuelve a ellos para corregirlos
+      this.fase.set('datos');
+      this.activacion.set(null);
+      // Al volver a pintarse, cada campo se enlaza con su control y borraría los errores puestos a mano: se pinta antes
+      this.cdr.detectChanges();
+    }
     for (const [campo, valor] of Object.entries(errores)) {
+      if (campo === 'codigoDosFactores') {
+        continue;
+      }
       const codigos = Array.isArray(valor)
         ? valor.filter((codigo): codigo is string => typeof codigo === 'string')
         : [];
@@ -310,6 +422,11 @@ export class Registro {
       texto: sinCampo.length > 0 ? sinCampo.join(' ') : TEXTOS_ERROR.revisaCampos,
     });
     this.enfocarPrimerError();
+  }
+
+  private codigosDe(errores: object, campo: string): string[] {
+    const valor = (errores as Record<string, unknown>)[campo];
+    return Array.isArray(valor) ? valor.filter((c): c is string => typeof c === 'string') : [];
   }
 
   // Quita los errores que puso el servidor en el intento anterior: si siguen mal, volverá a decirlo.

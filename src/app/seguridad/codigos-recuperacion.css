@@ -1,0 +1,40 @@
+.codigos {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.5rem 1rem;
+  border-radius: 0.85rem;
+  background: var(--cream);
+}
+
+.codigos code {
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+}
+
+.guardado {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.error {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 0.85rem;
+  background: #fdecea;
+  color: #a3281c;
+  font-size: 0.82rem;
+  font-weight: 600;
+}

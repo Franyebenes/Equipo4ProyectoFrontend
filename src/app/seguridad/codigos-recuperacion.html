@@ -1,0 +1,16 @@
+<ul class="codigos" aria-label="Códigos de recuperación">
+  @for (c of codigos(); track c) {
+    <li><code>{{ c }}</code></li>
+  }
+</ul>
+@if (error(); as mensajeError) {
+  <p class="error" role="alert">{{ mensajeError }}</p>
+}
+<div class="acciones">
+  <button type="button" class="btn btn-ghost" (click)="copiar()">{{ copiado() ? 'Copiados' : 'Copiar' }}</button>
+  <button type="button" class="btn btn-ghost" (click)="descargar()">Descargar</button>
+</div>
+<label class="guardado">
+  <input type="checkbox" [checked]="marcado()" (change)="alternarGuardados()" />
+  He guardado mis códigos de recuperación
+</label>

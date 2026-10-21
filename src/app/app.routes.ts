@@ -7,8 +7,6 @@ import { EditarCategoria } from './admin/editar-categoria/editar-categoria';
 import { MisProductos } from './vendedor/mis-productos/mis-productos';
 import { DetalleProducto } from './vendedor/detalle-producto/detalle-producto';
 import { portadaGuard, rolGuard, sinAdminGuard } from './core/rol.guard';
-import { Registro } from './registro/registro';
-import { Login } from './login/login';
 import { Home } from './home/home';
 import { Cliente } from './cliente/cliente';
 import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
@@ -16,8 +14,9 @@ import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 
 export const routes: Routes = [
   { path: '', component: Home, canActivate: [portadaGuard] },
-  { path: 'login', component: Login },
-  { path: 'registro', component: Registro },
+  // El login se carga bajo demanda: con el segundo paso de la verificacion en dos pasos ya no cabe en el bundle inicial
+  { path: 'login', loadComponent: () => import('./login/login').then((m) => m.Login) },
+  { path: 'registro', loadComponent: () => import('./registro/registro').then((m) => m.Registro) },
   // Recuperación de contraseña: pública. El enlace del correo lleva a restablecer-contrasena#token=...
   {
     path: 'recuperar-contrasena',
@@ -28,6 +27,12 @@ export const routes: Routes = [
     path: 'restablecer-contrasena',
     loadComponent: () =>
       import('./recuperacion/restablecer-contrasena/restablecer-contrasena').then((m) => m.RestablecerContrasena),
+  },
+  // Seguridad de la cuenta (verificación en dos pasos): para cualquier usuario con sesión. Carga perezosa.
+  {
+    path: 'cuenta/seguridad',
+    canActivate: [rolGuard('CLIENTE', 'PREMIUM', 'VENDEDOR', 'ADMIN')],
+    loadComponent: () => import('./seguridad/seguridad-cuenta').then((m) => m.SeguridadCuenta),
   },
   { path: 'cliente', component: Cliente, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
