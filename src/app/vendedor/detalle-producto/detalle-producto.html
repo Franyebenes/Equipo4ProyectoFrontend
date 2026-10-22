@@ -55,7 +55,7 @@
               <dt>Descuento</dt>
               <dd>
                 @if (p.descuento) {
-                  {{ p.descuento }} % · {{ precioConDescuento(p, p.descuento) }}
+                  {{ p.descuento }} % · {{ formatearPrecioConDescuento(p.precio, p.descuento) }}
                 } @else {
                   Sin descuento
                 }
@@ -64,7 +64,9 @@
             @if (p.descuentoPremium) {
               <div>
                 <dt>Descuento Premium</dt>
-                <dd>{{ p.descuentoPremium }} % · {{ precioConDescuento(p, p.descuentoPremium) }}</dd>
+                <dd>
+                  {{ p.descuentoPremium }} % · {{ formatearPrecioConDescuento(p.precio, p.descuentoPremium) }}
+                </dd>
               </div>
             }
             <div>
@@ -91,11 +93,12 @@
               <button type="button" class="btn btn-ghost btn-cantidad" aria-label="Quitar una unidad"
                       (click)="ajustarStock(-1)" [disabled]="(nuevoStock() ?? 0) <= 0">−</button>
               <div class="campo">
-                <input type="number" min="0" step="1" aria-label="Unidades disponibles"
+                <input type="number" min="0" [max]="stockMaximo" step="1" aria-label="Unidades disponibles"
                        [ngModel]="nuevoStock()" (ngModelChange)="nuevoStock.set($event)">
               </div>
               <button type="button" class="btn btn-ghost btn-cantidad" (click)="ajustarStock(1)"
-                      aria-label="Añadir una unidad">+</button>
+                      aria-label="Añadir una unidad"
+                      [disabled]="(nuevoStock() ?? 0) >= stockMaximo">+</button>
               <button type="button" class="btn btn-crear" (click)="guardarStock(p)"
                       [disabled]="guardandoStock() || stockSinCambios()">
                 @if (guardandoStock()) {

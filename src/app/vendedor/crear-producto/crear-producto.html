@@ -33,7 +33,7 @@
           </label>
           <label class="campo">
             Stock *
-            <input name="stock" type="number" min="0" step="1" [(ngModel)]="stock">
+            <input name="stock" type="number" min="0" [max]="stockMaximo" step="1" [(ngModel)]="stock">
           </label>
           <label class="campo">
             Descuento (%)

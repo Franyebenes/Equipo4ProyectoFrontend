@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
@@ -7,12 +7,15 @@ import {
   ProductoAlta,
   ProductoCatalogo,
   ProductoService,
+  STOCK_MAXIMO,
+  formatearPrecioConDescuento,
   idsDeCategorias,
   mensajeConfirmarEliminacion,
   mensajeEstadoCambiado,
   mensajeProductoEliminado,
   mensajeProductoModificado,
   mensajeStockActualizado,
+  stockActualDelConflicto,
   textoStock,
   validarStock,
 } from './producto.service';
@@ -110,13 +113,14 @@ describe('ProductoService (peticiones que modifican datos)', () => {
     expect(respuesta?.visible).toBe(false);
   });
 
-  it('cambiarStock pide el token CSRF y envía un PATCH con la cantidad nueva', () => {
+  it('cambiarStock pide el token CSRF y envía un PATCH con la cantidad nueva y la que se veía', () => {
     let respuesta: ProductoCatalogo | undefined;
-    servicio.cambiarStock('p1', 12).subscribe({ next: (producto) => (respuesta = producto) });
+    servicio.cambiarStock('p1', 12, 4).subscribe({ next: (producto) => (respuesta = producto) });
 
     http.expectOne(URL_CSRF).flush({ token: 'token-3', headerName: 'X-XSRF-TOKEN' });
-    const peticion = http.expectOne(`${URL_CATALOGO}/p1/stock`);
+    const peticion = http.expectOne((r) => r.url === `${URL_CATALOGO}/p1/stock`);
     expect(peticion.request.method).toBe('PATCH');
+    expect(peticion.request.params.get('stockAnterior')).toBe('4');
     expect(peticion.request.headers.get('X-XSRF-TOKEN')).toBe('token-3');
     expect(peticion.request.body).toEqual({ stock: 12 });
     peticion.flush({ id: 'p1', nombre: 'Lámpara', stock: 12 });
@@ -141,11 +145,12 @@ describe('ProductoService (peticiones que modifican datos)', () => {
       stock: 12, imagen: null, activo: false, descuento: 20,
     };
     let respuesta: ProductoCatalogo | undefined;
-    servicio.modificar('p1', cambios).subscribe({ next: (producto) => (respuesta = producto) });
+    servicio.modificar('p1', cambios, 4).subscribe({ next: (producto) => (respuesta = producto) });
 
     http.expectOne(URL_CSRF).flush({ token: 'token-5', headerName: 'X-XSRF-TOKEN' });
-    const peticion = http.expectOne(`${URL_CATALOGO}/p1`);
+    const peticion = http.expectOne((r) => r.url === `${URL_CATALOGO}/p1`);
     expect(peticion.request.method).toBe('PUT');
+    expect(peticion.request.params.get('stockAnterior')).toBe('4');
     expect(peticion.request.headers.get('X-XSRF-TOKEN')).toBe('token-5');
     expect(peticion.request.body).toEqual(cambios);
     peticion.flush({ id: 'p1', nombre: 'Lámpara LED', precio: 95.5 });
@@ -196,6 +201,19 @@ describe('Gestión de stock: textos y validación', () => {
     expect(validarStock(25)).toBe('');
   });
 
+  it('validarStock acepta hasta el máximo y rechaza más unidades', () => {
+    expect(validarStock(STOCK_MAXIMO)).toBe('');
+    expect(validarStock(STOCK_MAXIMO + 1)).toBe('El stock no puede superar 1.000.000 unidades.');
+  });
+
+  it('stockActualDelConflicto da la cantidad actual solo si el stock cambió mientras se editaba', () => {
+    const error = (status: number, cuerpo: unknown) => ({ status, error: cuerpo }) as HttpErrorResponse;
+    const conflicto = error(409, { mensaje: 'El stock ha cambiado…', stockActual: 3 });
+    expect(stockActualDelConflicto(conflicto)).toBe(3);
+    expect(stockActualDelConflicto(error(409, { mensaje: 'Otro conflicto' }))).toBe(null);
+    expect(stockActualDelConflicto(error(400, { stockActual: 3 }))).toBe(null);
+  });
+
   it('validarStock rechaza la cantidad vacía, negativa o con decimales', () => {
     expect(validarStock(null)).toBe('Indica la cantidad de stock.');
     expect(validarStock(-1)).toBe('El stock debe ser un número entero no negativo.');
@@ -242,5 +260,13 @@ describe('Modificar producto: textos y categorías', () => {
     expect(idsDeCategorias(['Iluminación', 'Hogar'], categorias)).toEqual(['c1', 'c2']);
     // Una categoría que ya no existe no se marca
     expect(idsDeCategorias(['Borrada'], categorias)).toEqual([]);
+  });
+});
+
+describe('formatearPrecioConDescuento', () => {
+  it('aplica el porcentaje al precio base', () => {
+    // Intl separa los euros con un espacio duro antes del símbolo
+    expect(formatearPrecioConDescuento(95.5, 20).replace(/\s/g, ' ')).toBe('76,40 €');
+    expect(formatearPrecioConDescuento(80, 0).replace(/\s/g, ' ')).toBe('80,00 €');
   });
 });

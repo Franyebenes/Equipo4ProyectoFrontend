@@ -61,9 +61,10 @@
       <div class="aviso aviso-error" role="alert">{{ errorAccion() }}</div>
     }
 
+    <!-- Con un rango de precio no válido no se muestra la lista: no correspondería a los filtros -->
     @if (error()) {
       <div class="aviso aviso-error" role="alert">{{ error() }}</div>
-    } @else {
+    } @else if (!errorFiltros()) {
       <div class="card">
         <div class="tabla-scroll">
           <table>
@@ -85,7 +86,16 @@
                   <tr>
                     <td><strong>{{ p.nombre }}</strong></td>
                     <td class="muted">{{ p.categorias.join(', ') }}</td>
-                    <td class="derecha">{{ formatearPrecio(p.precio) }}</td>
+                    <td class="derecha">
+                      {{ formatearPrecio(p.precio) }}
+                      <!-- Con descuento: el porcentaje y, al pasar el ratón, lo que pagan los clientes -->
+                      @if (p.descuento) {
+                        <span class="precio-descuento"
+                              [title]="'Precio con descuento: ' + formatearPrecioConDescuento(p.precio, p.descuento)">
+                          −{{ p.descuento }} %
+                        </span>
+                      }
+                    </td>
                     <td class="derecha">{{ p.stock }}</td>
                     <td>
                       <div class="chips-estado">

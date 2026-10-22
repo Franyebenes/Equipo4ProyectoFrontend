@@ -98,6 +98,17 @@ tbody tr + tr td {
   padding-inline: 0.5rem;
 }
 
+/* Descuento debajo del precio (el precio final se ve al pasar el ratón y en la ficha) */
+.precio-descuento {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--coral);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: help;
+}
+
 /* Estado del producto y, si no tiene stock, «Agotado» */
 .chips-estado {
   display: flex;
