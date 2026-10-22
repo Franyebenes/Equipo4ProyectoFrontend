@@ -44,7 +44,8 @@
 
         <div class="card ficha">
           <!-- Sin foto se muestra la imagen por defecto -->
-          <img class="imagen" [src]="p.imagen || imagenPorDefecto" [alt]="p.imagen ? p.nombre : 'Producto sin imagen'">
+          <img class="imagen" [src]="urlImagen(p.imagen) || imagenPorDefecto"
+               [alt]="p.imagen ? p.nombre : 'Producto sin imagen'">
 
           <dl class="datos">
             <div>

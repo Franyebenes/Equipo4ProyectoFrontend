@@ -83,7 +83,7 @@ export class MisProductos implements OnInit {
   });
 
   constructor() {
-    // Aviso que deja el detalle al volver al listado tras eliminar un producto
+    // Aviso que dejan el alta de producto y el detalle (tras eliminar un producto) al volver aquí
     const exito = inject(Router).currentNavigation()?.extras.state?.['exito'];
     if (typeof exito === 'string') {
       this.exito.set(exito);

@@ -19,6 +19,7 @@ import {
   mensajeStockActualizado,
   stockActualDelConflicto,
   textoStock,
+  urlImagen,
   validarStock,
 } from '../producto.service';
 
@@ -36,6 +37,7 @@ export class DetalleProducto implements OnInit {
 
   readonly formatearPrecio = formatearPrecio;
   readonly formatearPrecioConDescuento = formatearPrecioConDescuento;
+  readonly urlImagen = urlImagen;
   readonly stockMaximo = STOCK_MAXIMO;
   readonly imagenPorDefecto = IMAGEN_POR_DEFECTO;
   readonly textoStock = textoStock;
@@ -89,6 +91,11 @@ export class DetalleProducto implements OnInit {
     this.productoService.cambiarEstado(producto.id, !producto.visible).subscribe({
       next: (actualizado) => {
         this.cambiandoEstado.set(false);
+        // El stock puede haber cambiado por las reservas de los carritos: si el vendedor no estaba
+        // editando la cantidad, el campo de «Gestionar stock» se pone al día con la actual
+        if (this.nuevoStock() === producto.stock) {
+          this.nuevoStock.set(actualizado.stock);
+        }
         this.producto.set(actualizado);
         this.exito.set(mensajeEstadoCambiado(actualizado));
       },

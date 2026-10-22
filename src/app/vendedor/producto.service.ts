@@ -59,6 +59,27 @@ export const IMAGEN_POR_DEFECTO = '/producto-sin-imagen.svg';
 // Máximo de unidades en stock (el mismo límite que el backend)
 export const STOCK_MAXIMO = 1_000_000;
 
+// Tipo de imagen según cómo empieza su base64 (la firma del fichero)
+const FIRMAS_IMAGEN: [string, string][] = [
+  ['/9j/', 'image/jpeg'],
+  ['iVBOR', 'image/png'],
+  ['UklGR', 'image/webp'],
+];
+
+// Imagen lista para un <img>. El formulario la guarda como data URL, pero puede haber productos
+// con la imagen solo en base64, sin el prefijo «data:» (el carrito también los admite): se les
+// añade el prefijo con su tipo. Al guardar el producto desde el formulario ya queda bien guardada.
+export function urlImagen(imagen: string | null): string | null {
+  if (!imagen) {
+    return null;
+  }
+  if (/^(data|https?):/.test(imagen)) {
+    return imagen;
+  }
+  const tipo = FIRMAS_IMAGEN.find(([firma]) => imagen.startsWith(firma))?.[1] ?? 'image/png';
+  return `data:${tipo};base64,${imagen}`;
+}
+
 const FORMATO_EUROS = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
 export function formatearPrecio(precio: number): string {
@@ -137,6 +158,17 @@ export function mensajeConfirmarEliminacion(producto: ProductoCatalogo): string 
   return (
     `¿Seguro que quieres eliminar «${producto.nombre}» de tu catálogo? ` +
     'Se borrará definitivamente y los clientes dejarán de verlo. Esta acción no se puede deshacer.'
+  );
+}
+
+// Confirmación tras dar de alta un producto; si se creó inactivo, recuerda que no lo ven
+export function mensajeProductoCreado(producto: ProductoCatalogo): string {
+  if (producto.visible) {
+    return `«${producto.nombre}» se ha añadido a tu catálogo.`;
+  }
+  return (
+    `«${producto.nombre}» se ha añadido a tu catálogo como inactivo: ` +
+    'los clientes no lo verán hasta que lo actives.'
   );
 }
 
