@@ -100,6 +100,12 @@ tbody tr + tr td {
   padding-inline: 0.5rem;
 }
 
+/* Las filas se alinean por la primera línea: el precio y el precio con descuento quedan a la misma
+   altura que el resto de datos aunque debajo vaya el porcentaje */
+tbody td {
+  vertical-align: baseline;
+}
+
 /* El nombre no se parte mientras quepa: si falta sitio, se parten antes las categorías */
 .col-nombre {
   min-width: 9rem;
