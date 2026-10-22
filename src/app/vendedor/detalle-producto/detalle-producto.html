@@ -19,6 +19,9 @@
             @if (p.stock === 0) {
               <span class="estado agotado">Agotado</span>
             }
+            <a [routerLink]="['/vendedor/productos', p.id, 'editar']" class="btn btn-crear">
+              Editar producto
+            </a>
             <button type="button" class="btn btn-ghost" (click)="alternarEstado(p)" [disabled]="cambiandoEstado()">
               @if (cambiandoEstado()) {
                 Guardando…

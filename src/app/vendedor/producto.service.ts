@@ -20,18 +20,24 @@ export interface ProductoCatalogo {
   visible: boolean;
 }
 
-// HU15.1 - Datos para dar de alta un producto (ProductoAltaDTO en el backend).
-export interface ProductoAlta {
+// Modificar producto - Datos que el vendedor puede editar (ProductoModificacionDTO en el backend).
+// Sustituyen a los guardados. El stock y el estado no van aquí: se cambian desde la ficha del producto.
+export interface ProductoModificacion {
   nombre: string;
   descripcion: string;
   precio: number;
   idCategorias: string[];
-  stock: number;
   imagen: string | null;
-  // true = visible para los clientes (campo "visible" del producto)
-  activo: boolean;
   // Porcentaje de descuento (0-100) o null si no tiene
   descuento: number | null;
+}
+
+// HU15.1 - Datos para dar de alta un producto (ProductoAltaDTO en el backend): los editables, el stock
+// y el estado.
+export interface ProductoAlta extends ProductoModificacion {
+  stock: number;
+  // true = visible para los clientes (campo "visible" del producto)
+  activo: boolean;
 }
 
 // Criterios con los que el backend filtra el catálogo propio. Se combinan entre sí; los vacíos no se envían.
@@ -125,6 +131,17 @@ export function mensajeProductoEliminado(producto: ProductoCatalogo): string {
   return `«${producto.nombre}» se ha eliminado de tu catálogo.`;
 }
 
+// Confirmación tras guardar los cambios de un producto
+export function mensajeProductoModificado(producto: ProductoCatalogo): string {
+  return `Cambios guardados: «${producto.nombre}» se ha actualizado en tu catálogo.`;
+}
+
+// El producto trae sus categorías por nombre y el formulario las marca por id. Los nombres de las
+// categorías son únicos, así que se pueden traducir. Las que ya no existen no se marcan.
+export function idsDeCategorias(nombres: string[], categorias: Categoria[]): string[] {
+  return categorias.filter((c) => nombres.includes(c.nombre)).map((c) => c.id);
+}
+
 // Catálogo propio del vendedor de la sesión: el backend sabe quién es por la cookie de sesión.
 @Injectable({ providedIn: 'root' })
 export class ProductoService {
@@ -161,6 +178,13 @@ export class ProductoService {
   // HU15.1 - Alta de producto
   crear(datos: ProductoAlta): Observable<ProductoCatalogo> {
     return this.conCsrf((cabeceras) => this.http.post<ProductoCatalogo>(this.api, datos, { headers: cabeceras }));
+  }
+
+  // Modificar producto: sustituye los datos editables y devuelve el producto actualizado
+  modificar(id: string, datos: ProductoModificacion): Observable<ProductoCatalogo> {
+    return this.conCsrf((cabeceras) =>
+      this.http.put<ProductoCatalogo>(`${this.api}/${id}`, datos, { headers: cabeceras }),
+    );
   }
 
   // Activar/Desactivar producto: devuelve el producto con su estado nuevo

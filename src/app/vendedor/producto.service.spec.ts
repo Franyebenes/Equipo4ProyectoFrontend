@@ -2,13 +2,17 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
+import { Categoria } from '../admin/categoria.service';
 import {
   ProductoAlta,
   ProductoCatalogo,
+  ProductoModificacion,
   ProductoService,
+  idsDeCategorias,
   mensajeConfirmarEliminacion,
   mensajeEstadoCambiado,
   mensajeProductoEliminado,
+  mensajeProductoModificado,
   mensajeStockActualizado,
   textoStock,
   validarStock,
@@ -132,6 +136,26 @@ describe('ProductoService (peticiones que modifican datos)', () => {
     expect(terminado).toBe(true);
   });
 
+  it('modificar pide el token CSRF y envía un PUT solo con los datos editables', () => {
+    const cambios: ProductoModificacion = {
+      nombre: 'Lámpara LED', descripcion: 'Luz cálida', precio: 95.5, idCategorias: ['c1', 'c2'],
+      imagen: null, descuento: 20,
+    };
+    let respuesta: ProductoCatalogo | undefined;
+    servicio.modificar('p1', cambios).subscribe({ next: (producto) => (respuesta = producto) });
+
+    http.expectOne(URL_CSRF).flush({ token: 'token-5', headerName: 'X-XSRF-TOKEN' });
+    const peticion = http.expectOne(`${URL_CATALOGO}/p1`);
+    expect(peticion.request.method).toBe('PUT');
+    expect(peticion.request.headers.get('X-XSRF-TOKEN')).toBe('token-5');
+    // Sin stock ni estado: el backend rechaza los campos que no se editan aquí
+    expect(peticion.request.body).toEqual(cambios);
+    expect(Object.keys(peticion.request.body)).not.toContain('stock');
+    expect(Object.keys(peticion.request.body)).not.toContain('activo');
+    peticion.flush({ id: 'p1', nombre: 'Lámpara LED', precio: 95.5 });
+    expect(respuesta?.nombre).toBe('Lámpara LED');
+  });
+
   it('crear también envía el token CSRF', () => {
     const alta: ProductoAlta = {
       nombre: 'Lámpara', descripcion: 'De pie', precio: 80, idCategorias: ['c1'], stock: 4,
@@ -203,5 +227,24 @@ describe('Eliminar producto: textos', () => {
 
   it('confirma la eliminación nombrando el producto', () => {
     expect(mensajeProductoEliminado(producto)).toBe('«Lámpara» se ha eliminado de tu catálogo.');
+  });
+});
+
+describe('Modificar producto: textos y categorías', () => {
+  it('confirma los cambios nombrando el producto', () => {
+    expect(mensajeProductoModificado({ nombre: 'Lámpara LED' } as ProductoCatalogo)).toBe(
+      'Cambios guardados: «Lámpara LED» se ha actualizado en tu catálogo.',
+    );
+  });
+
+  it('idsDeCategorias marca las categorías del producto por su nombre', () => {
+    const categorias: Categoria[] = [
+      { id: 'c1', nombre: 'Hogar', descripcion: '' },
+      { id: 'c2', nombre: 'Iluminación', descripcion: '' },
+      { id: 'c3', nombre: 'Moda', descripcion: '' },
+    ];
+    expect(idsDeCategorias(['Iluminación', 'Hogar'], categorias)).toEqual(['c1', 'c2']);
+    // Una categoría que ya no existe no se marca
+    expect(idsDeCategorias(['Borrada'], categorias)).toEqual([]);
   });
 });
