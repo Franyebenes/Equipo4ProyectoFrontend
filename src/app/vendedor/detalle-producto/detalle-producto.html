@@ -1,6 +1,8 @@
 <section class="admin-page">
   <div class="bar">
-    <a routerLink="/vendedor/productos" class="volver">← Volver a mi catálogo</a>
+    <a routerLink="/vendedor/productos" [queryParams]="filtrosCatalogo()" class="volver">
+      ← Volver a mi catálogo
+    </a>
 
     @if (cargando()) {
       <div class="card ficha"><p class="muted">Cargando producto…</p></div>

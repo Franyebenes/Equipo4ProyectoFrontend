@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { DialogoConfirmacion } from '../../admin/dialogo-confirmacion/dialogo-confirmacion';
+import { FiltrosCatalogo } from '../filtros-catalogo';
 
 import {
   IMAGEN_POR_DEFECTO,
@@ -38,6 +39,8 @@ export class DetalleProducto implements OnInit {
   readonly formatearPrecio = formatearPrecio;
   readonly formatearPrecioConDescuento = formatearPrecioConDescuento;
   readonly urlImagen = urlImagen;
+  // Al volver a Mi catálogo se recuperan los filtros que tenía
+  readonly filtrosCatalogo = inject(FiltrosCatalogo).ultimos;
   readonly stockMaximo = STOCK_MAXIMO;
   readonly imagenPorDefecto = IMAGEN_POR_DEFECTO;
   readonly textoStock = textoStock;
@@ -127,6 +130,7 @@ export class DetalleProducto implements OnInit {
         this.eliminando.set(false);
         this.confirmandoEliminacion.set(false);
         void this.router.navigate(['/vendedor/productos'], {
+          queryParams: this.filtrosCatalogo(),
           state: { exito: mensajeProductoEliminado(producto) },
         });
       },
