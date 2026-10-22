@@ -113,6 +113,18 @@ export function mensajeStockActualizado(producto: ProductoCatalogo): string {
   return `Stock de «${producto.nombre}» actualizado: ${textoStock(producto.stock)}.`;
 }
 
+// Texto del diálogo que pide confirmación antes de eliminar
+export function mensajeConfirmarEliminacion(producto: ProductoCatalogo): string {
+  return (
+    `¿Seguro que quieres eliminar «${producto.nombre}» de tu catálogo? ` +
+    'Se borrará definitivamente y los clientes dejarán de verlo. Esta acción no se puede deshacer.'
+  );
+}
+
+export function mensajeProductoEliminado(producto: ProductoCatalogo): string {
+  return `«${producto.nombre}» se ha eliminado de tu catálogo.`;
+}
+
 // Catálogo propio del vendedor de la sesión: el backend sabe quién es por la cookie de sesión.
 @Injectable({ providedIn: 'root' })
 export class ProductoService {
@@ -166,6 +178,13 @@ export class ProductoService {
         { stock },
         { headers: cabeceras },
       ),
+    );
+  }
+
+  // Eliminar producto: lo borra definitivamente (el backend responde 204, sin cuerpo)
+  eliminar(id: string): Observable<void> {
+    return this.conCsrf((cabeceras) =>
+      this.http.delete<void>(`${this.api}/${id}`, { headers: cabeceras }),
     );
   }
 

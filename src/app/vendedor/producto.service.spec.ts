@@ -6,7 +6,9 @@ import {
   ProductoAlta,
   ProductoCatalogo,
   ProductoService,
+  mensajeConfirmarEliminacion,
   mensajeEstadoCambiado,
+  mensajeProductoEliminado,
   mensajeStockActualizado,
   textoStock,
   validarStock,
@@ -118,6 +120,18 @@ describe('ProductoService (peticiones que modifican datos)', () => {
     expect(respuesta?.stock).toBe(12);
   });
 
+  it('eliminar pide el token CSRF y envía un DELETE del producto', () => {
+    let terminado = false;
+    servicio.eliminar('p1').subscribe({ next: () => (terminado = true) });
+
+    http.expectOne(URL_CSRF).flush({ token: 'token-4', headerName: 'X-XSRF-TOKEN' });
+    const peticion = http.expectOne(`${URL_CATALOGO}/p1`);
+    expect(peticion.request.method).toBe('DELETE');
+    expect(peticion.request.headers.get('X-XSRF-TOKEN')).toBe('token-4');
+    peticion.flush(null, { status: 204, statusText: 'No Content' });
+    expect(terminado).toBe(true);
+  });
+
   it('crear también envía el token CSRF', () => {
     const alta: ProductoAlta = {
       nombre: 'Lámpara', descripcion: 'De pie', precio: 80, idCategorias: ['c1'], stock: 4,
@@ -175,5 +189,19 @@ describe('Gestión de stock: textos y validación', () => {
       'Stock de «Lámpara» actualizado: sin stock. ' +
         'No está disponible para la venta hasta que repongas unidades.',
     );
+  });
+});
+
+describe('Eliminar producto: textos', () => {
+  const producto = { nombre: 'Lámpara' } as ProductoCatalogo;
+
+  it('la confirmación nombra el producto y avisa de que no se puede deshacer', () => {
+    const mensaje = mensajeConfirmarEliminacion(producto);
+    expect(mensaje).toContain('«Lámpara»');
+    expect(mensaje).toContain('no se puede deshacer');
+  });
+
+  it('confirma la eliminación nombrando el producto', () => {
+    expect(mensajeProductoEliminado(producto)).toBe('«Lámpara» se ha eliminado de tu catálogo.');
   });
 });
