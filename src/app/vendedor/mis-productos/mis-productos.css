@@ -100,12 +100,19 @@ tbody tr + tr td {
   padding-inline: 0.5rem;
 }
 
-/* Columna Descuento: el porcentaje (el precio final se ve al pasar el ratón y en la ficha) */
-.con-descuento {
+/* El nombre no se parte mientras quepa: si falta sitio, se parten antes las categorías */
+.col-nombre {
+  min-width: 9rem;
+}
+
+/* Columna Dto.: debajo del precio con descuento, el porcentaje aplicado */
+.descuento-aplicado {
+  display: block;
+  margin-top: 0.15rem;
   color: var(--coral);
+  font-size: 0.78rem;
   font-weight: 700;
   white-space: nowrap;
-  cursor: help;
 }
 
 /* Estado del producto y, si no tiene stock, «Agotado» */

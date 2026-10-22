@@ -73,7 +73,7 @@
                 <th>Nombre</th>
                 <th>Categoría</th>
                 <th class="derecha">Precio</th>
-                <th class="derecha" title="Descuento">Dto.</th>
+                <th class="derecha" title="Precio con descuento">Dto.</th>
                 <th class="derecha">Stock</th>
                 <th>Estado</th>
                 <th class="col-acciones derecha">Acciones</th>
@@ -85,16 +85,14 @@
               } @else {
                 @for (p of productos(); track p.id) {
                   <tr>
-                    <td><strong>{{ p.nombre }}</strong></td>
+                    <td class="col-nombre"><strong>{{ p.nombre }}</strong></td>
                     <td class="muted">{{ p.categorias.join(', ') }}</td>
                     <td class="derecha">{{ formatearPrecio(p.precio) }}</td>
-                    <!-- El precio es el de venta sin descuento; el precio final se ve al pasar el ratón y en la ficha -->
+                    <!-- Precio es el de venta sin descuento; aquí, lo que pagan los clientes y el descuento aplicado -->
                     <td class="derecha">
                       @if (p.descuento) {
-                        <span class="con-descuento"
-                              [title]="'Precio con descuento: ' + formatearPrecioConDescuento(p.precio, p.descuento)">
-                          {{ p.descuento }} %
-                        </span>
+                        {{ formatearPrecioConDescuento(p.precio, p.descuento) }}
+                        <span class="descuento-aplicado">−{{ p.descuento }} %</span>
                       } @else {
                         <span class="muted" title="Sin descuento">—</span>
                       }
