@@ -1,16 +1,19 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 
 import { Categoria } from '../../admin/categoria.service';
+import { DialogoConfirmacion } from '../../admin/dialogo-confirmacion/dialogo-confirmacion';
 import {
   ProductoCatalogo,
   ProductoService,
   formatearPrecio,
+  mensajeConfirmarEliminacion,
   mensajeErrorCatalogo,
   mensajeEstadoCambiado,
+  mensajeProductoEliminado,
 } from '../producto.service';
 
 // Espera tras la última tecla antes de pedir al backend: una petición, no una por tecla
@@ -22,7 +25,7 @@ export type FiltroEstado = '' | 'activos' | 'inactivos';
 // La búsqueda por nombre y los filtros (categoría, estado y rango de precio) los aplica el backend y se combinan.
 @Component({
   selector: 'app-mis-productos',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, DialogoConfirmacion],
   templateUrl: './mis-productos.html',
   styleUrls: ['../../admin/admin-shared.css', '../vendedor-shared.css', './mis-productos.css'],
 })
@@ -30,14 +33,20 @@ export class MisProductos implements OnInit {
   private productoService = inject(ProductoService);
 
   readonly formatearPrecio = formatearPrecio;
+  readonly mensajeConfirmarEliminacion = mensajeConfirmarEliminacion;
 
   productos = signal<ProductoCatalogo[]>([]);
   categorias = signal<Categoria[]>([]);
   cargando = signal(false);
   error = signal('');
   exito = signal('');
+  // Error al activar, desactivar o eliminar: se muestra sin ocultar la lista
+  errorAccion = signal('');
   // Id del producto cuyo estado se está cambiando (desactiva su botón mientras tanto)
   cambiandoEstado = signal<string | null>(null);
+  // Producto pendiente de confirmar su eliminación (abre el diálogo)
+  productoAEliminar = signal<ProductoCatalogo | null>(null);
+  eliminando = signal(false);
 
   busqueda = signal('');
   idCategoria = signal('');
@@ -72,6 +81,11 @@ export class MisProductos implements OnInit {
   });
 
   constructor() {
+    // Aviso que deja el detalle al volver al listado tras eliminar un producto
+    const exito = inject(Router).currentNavigation()?.extras.state?.['exito'];
+    if (typeof exito === 'string') {
+      this.exito.set(exito);
+    }
     inject(DestroyRef).onDestroy(() => {
       clearTimeout(this.temporizador);
       this.peticion?.unsubscribe();
@@ -145,7 +159,7 @@ export class MisProductos implements OnInit {
   // Activar/Desactivar producto. Después se recarga la lista, que respeta los filtros (p. ej. «Solo activos»).
   alternarEstado(producto: ProductoCatalogo): void {
     this.exito.set('');
-    this.error.set('');
+    this.errorAccion.set('');
     this.cambiandoEstado.set(producto.id);
     this.productoService.cambiarEstado(producto.id, !producto.visible).subscribe({
       next: (actualizado) => {
@@ -155,7 +169,45 @@ export class MisProductos implements OnInit {
       },
       error: (e: HttpErrorResponse) => {
         this.cambiandoEstado.set(null);
-        this.error.set(mensajeErrorCatalogo(e));
+        this.errorAccion.set(mensajeErrorCatalogo(e));
+      },
+    });
+  }
+
+  // Eliminar producto: primero se pide confirmación; si se cancela, el producto no cambia
+  pedirEliminacion(producto: ProductoCatalogo): void {
+    this.exito.set('');
+    this.errorAccion.set('');
+    this.productoAEliminar.set(producto);
+  }
+
+  cancelarEliminacion(): void {
+    if (!this.eliminando()) {
+      this.productoAEliminar.set(null);
+    }
+  }
+
+  confirmarEliminacion(): void {
+    const producto = this.productoAEliminar();
+    if (!producto) {
+      return;
+    }
+    this.eliminando.set(true);
+    this.productoService.eliminar(producto.id).subscribe({
+      next: () => {
+        this.eliminando.set(false);
+        this.productoAEliminar.set(null);
+        this.exito.set(mensajeProductoEliminado(producto));
+        this.cargar();
+      },
+      error: (e: HttpErrorResponse) => {
+        this.eliminando.set(false);
+        this.productoAEliminar.set(null);
+        this.errorAccion.set(mensajeErrorCatalogo(e));
+        // Si ya no existe (p. ej. se eliminó desde otra pestaña), se recarga para que desaparezca de la lista
+        if (e.status === 404) {
+          this.cargar();
+        }
       },
     });
   }

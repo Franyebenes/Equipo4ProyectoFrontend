@@ -66,6 +66,7 @@
 /* Estado actual y botón para activar o desactivar el producto */
 .cabecera-estado {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
 }

@@ -28,14 +28,15 @@
                 Activar producto
               }
             </button>
+            <button type="button" class="btn btn-danger" (click)="pedirEliminacion()">Eliminar producto</button>
           </div>
         </header>
 
         @if (exito()) {
           <div class="aviso aviso-ok" role="status">{{ exito() }}</div>
         }
-        @if (errorEstado()) {
-          <div class="aviso aviso-error" role="alert">{{ errorEstado() }}</div>
+        @if (errorAccion()) {
+          <div class="aviso aviso-error" role="alert">{{ errorAccion() }}</div>
         }
 
         <div class="card ficha">
@@ -112,6 +113,17 @@
           <h2 class="seccion">Descripción</h2>
           <p class="descripcion">{{ p.descripcion || 'Este producto no tiene descripción.' }}</p>
         </div>
+
+        @if (confirmandoEliminacion()) {
+          <app-dialogo-confirmacion
+            titulo="Eliminar producto"
+            [mensaje]="mensajeConfirmarEliminacion(p)"
+            textoConfirmar="Eliminar"
+            textoProcesando="Eliminando…"
+            [procesando]="eliminando()"
+            (cancelar)="cancelarEliminacion()"
+            (confirmar)="confirmarEliminacion(p)" />
+        }
       }
     }
   </div>

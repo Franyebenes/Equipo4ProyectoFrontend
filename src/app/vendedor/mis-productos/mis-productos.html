@@ -57,6 +57,10 @@
       <div class="aviso aviso-ok" role="status">{{ exito() }}</div>
     }
 
+    @if (errorAccion()) {
+      <div class="aviso aviso-error" role="alert">{{ errorAccion() }}</div>
+    }
+
     @if (error()) {
       <div class="aviso aviso-error" role="alert">{{ error() }}</div>
     } @else {
@@ -109,6 +113,10 @@
                           }
                         </button>
                         <a [routerLink]="['/vendedor/productos', p.id]" class="btn btn-ghost btn-sm">Ver detalle</a>
+                        <button type="button" class="btn btn-danger btn-sm" (click)="pedirEliminacion(p)"
+                                [attr.aria-label]="'Eliminar ' + p.nombre">
+                          Eliminar
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -134,3 +142,14 @@
     }
   </div>
 </section>
+
+@if (productoAEliminar(); as producto) {
+  <app-dialogo-confirmacion
+    titulo="Eliminar producto"
+    [mensaje]="mensajeConfirmarEliminacion(producto)"
+    textoConfirmar="Eliminar"
+    textoProcesando="Eliminando…"
+    [procesando]="eliminando()"
+    (cancelar)="cancelarEliminacion()"
+    (confirmar)="confirmarEliminacion()" />
+}
