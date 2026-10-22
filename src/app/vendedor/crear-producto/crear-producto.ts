@@ -14,8 +14,10 @@ import {
   formatearPrecioConDescuento,
   idsDeCategorias,
   mensajeErrorCatalogo,
+  mensajeProductoCreado,
   mensajeProductoModificado,
   stockActualDelConflicto,
+  urlImagen,
   validarStock,
 } from '../producto.service';
 
@@ -154,13 +156,14 @@ export class CrearProducto implements OnInit {
       this.guardarCambios(this.idProducto, datos);
       return;
     }
-    this.productoService
-      .crear(datos)
-      .subscribe({
-        // Vuelve al listado, donde ya aparece el producto nuevo
-        next: () => void this.router.navigateByUrl('/vendedor/productos'),
-        error: (e: HttpErrorResponse) => this.mostrarErrorAlGuardar(e),
-      });
+    this.productoService.crear(datos).subscribe({
+      // Vuelve al listado, donde ya aparece el producto nuevo, con un mensaje de confirmación
+      next: (producto) =>
+        void this.router.navigate(['/vendedor/productos'], {
+          state: { exito: mensajeProductoCreado(producto) },
+        }),
+      error: (e: HttpErrorResponse) => this.mostrarErrorAlGuardar(e),
+    });
   }
 
   // Modificar producto: tras guardar vuelve a la ficha, con los datos nuevos y la confirmación
@@ -197,7 +200,7 @@ export class CrearProducto implements OnInit {
     this.stockAnterior = producto.stock;
     this.activo = producto.visible;
     this.idCategorias.set(idsDeCategorias(producto.categorias, categorias));
-    this.imagen.set(producto.imagen);
+    this.imagen.set(urlImagen(producto.imagen));
   }
 
   // Mismas reglas que el backend, en el alta y al editar. Devuelve el error o '' si se puede guardar.

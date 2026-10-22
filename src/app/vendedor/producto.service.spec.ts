@@ -12,11 +12,13 @@ import {
   idsDeCategorias,
   mensajeConfirmarEliminacion,
   mensajeEstadoCambiado,
+  mensajeProductoCreado,
   mensajeProductoEliminado,
   mensajeProductoModificado,
   mensajeStockActualizado,
   stockActualDelConflicto,
   textoStock,
+  urlImagen,
   validarStock,
 } from './producto.service';
 
@@ -268,5 +270,41 @@ describe('formatearPrecioConDescuento', () => {
     // Intl separa los euros con un espacio duro antes del símbolo
     expect(formatearPrecioConDescuento(95.5, 20).replace(/\s/g, ' ')).toBe('76,40 €');
     expect(formatearPrecioConDescuento(80, 0).replace(/\s/g, ' ')).toBe('80,00 €');
+  });
+});
+
+describe('Alta de producto: confirmación', () => {
+  it('confirma el alta nombrando el producto', () => {
+    const producto = { nombre: 'Lámpara', visible: true } as ProductoCatalogo;
+    expect(mensajeProductoCreado(producto)).toBe('«Lámpara» se ha añadido a tu catálogo.');
+  });
+
+  it('si se creó inactivo, recuerda que los clientes no lo ven', () => {
+    const producto = { nombre: 'Lámpara', visible: false } as ProductoCatalogo;
+    expect(mensajeProductoCreado(producto)).toBe(
+      '«Lámpara» se ha añadido a tu catálogo como inactivo: ' +
+        'los clientes no lo verán hasta que lo actives.',
+    );
+  });
+});
+
+describe('urlImagen', () => {
+  it('deja igual las imágenes que ya son una data URL o una dirección web', () => {
+    const dataUrl = 'data:image/webp;base64,UklGRhYAAABXRUJQ';
+    expect(urlImagen(dataUrl)).toBe(dataUrl);
+    expect(urlImagen('https://ejemplo.com/foto.png')).toBe('https://ejemplo.com/foto.png');
+  });
+
+  it('añade el prefijo con su tipo a las guardadas solo en base64', () => {
+    expect(urlImagen('/9j/4AAQSkZJRg==')).toBe('data:image/jpeg;base64,/9j/4AAQSkZJRg==');
+    expect(urlImagen('iVBORw0KGgo=')).toBe('data:image/png;base64,iVBORw0KGgo=');
+    expect(urlImagen('UklGRhYAAABXRUJQ')).toBe('data:image/webp;base64,UklGRhYAAABXRUJQ');
+    // Si no se reconoce el tipo, como el carrito: PNG
+    expect(urlImagen('AAAA')).toBe('data:image/png;base64,AAAA');
+  });
+
+  it('sin imagen devuelve null (se muestra la imagen por defecto)', () => {
+    expect(urlImagen(null)).toBe(null);
+    expect(urlImagen('')).toBe(null);
   });
 });
