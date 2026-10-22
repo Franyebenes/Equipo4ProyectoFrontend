@@ -7,9 +7,11 @@ table {
   border-collapse: collapse;
 }
 
+/* Con la columna de descuento hay siete columnas: algo menos de margen para que quepan sin
+   partir los nombres */
 th,
 td {
-  padding: 0.85rem 1.25rem;
+  padding: 0.85rem 1rem;
   text-align: left;
   vertical-align: middle;
 }
@@ -96,6 +98,27 @@ tbody tr + tr td {
 .acciones .btn {
   min-width: 6.25rem;
   padding-inline: 0.5rem;
+}
+
+/* Las filas se alinean por la primera línea: el precio y el precio con descuento quedan a la misma
+   altura que el resto de datos aunque debajo vaya el porcentaje */
+tbody td {
+  vertical-align: baseline;
+}
+
+/* El nombre no se parte mientras quepa: si falta sitio, se parten antes las categorías */
+.col-nombre {
+  min-width: 9rem;
+}
+
+/* Columna Dto.: debajo del precio con descuento, el porcentaje aplicado */
+.descuento-aplicado {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--coral);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 /* Estado del producto y, si no tiene stock, «Agotado» */

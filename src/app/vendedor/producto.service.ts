@@ -56,10 +56,18 @@ interface TokenCsrf {
 // Imagen que se muestra cuando el producto no tiene foto (está en public/)
 export const IMAGEN_POR_DEFECTO = '/producto-sin-imagen.svg';
 
+// Máximo de unidades en stock (el mismo límite que el backend)
+export const STOCK_MAXIMO = 1_000_000;
+
 const FORMATO_EUROS = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
 export function formatearPrecio(precio: number): string {
   return FORMATO_EUROS.format(precio);
+}
+
+// Precio que pagan los clientes con un descuento en porcentaje
+export function formatearPrecioConDescuento(precio: number, descuento: number): string {
+  return formatearPrecio(precio * (1 - descuento / 100));
 }
 
 // Mensajes para el vendedor. El 401 además lo gestiona el interceptor (vuelve al login).
@@ -100,7 +108,17 @@ export function validarStock(stock: number | null): string {
   if (!Number.isInteger(stock) || stock < 0) {
     return 'El stock debe ser un número entero no negativo.';
   }
+  if (stock > STOCK_MAXIMO) {
+    return 'El stock no puede superar 1.000.000 unidades.';
+  }
   return '';
+}
+
+// Si el backend responde 409 porque el stock cambió mientras se editaba (p. ej. un cliente reservó
+// unidades), devuelve la cantidad actual que envía; si el error es otro, null.
+export function stockActualDelConflicto(e: HttpErrorResponse): number | null {
+  const stockActual = e.status === 409 ? e.error?.stockActual : null;
+  return typeof stockActual === 'number' ? stockActual : null;
 }
 
 // Confirmación tras guardar el stock; con 0 avisa de que el producto deja de estar a la venta
@@ -175,10 +193,14 @@ export class ProductoService {
     return this.conCsrf((cabeceras) => this.http.post<ProductoCatalogo>(this.api, datos, { headers: cabeceras }));
   }
 
-  // Modificar producto: sustituye los datos editables y devuelve el producto actualizado
-  modificar(id: string, datos: ProductoAlta): Observable<ProductoCatalogo> {
+  // Modificar producto: sustituye los datos editables y devuelve el producto actualizado.
+  // stockAnterior es el stock que se cargó en el formulario: si ha cambiado, el backend no lo pisa.
+  modificar(id: string, datos: ProductoAlta, stockAnterior: number): Observable<ProductoCatalogo> {
     return this.conCsrf((cabeceras) =>
-      this.http.put<ProductoCatalogo>(`${this.api}/${id}`, datos, { headers: cabeceras }),
+      this.http.put<ProductoCatalogo>(`${this.api}/${id}`, datos, {
+        headers: cabeceras,
+        params: { stockAnterior },
+      }),
     );
   }
 
@@ -189,13 +211,14 @@ export class ProductoService {
     );
   }
 
-  // Gestión de stock: fija las unidades disponibles y devuelve el producto actualizado
-  cambiarStock(id: string, stock: number): Observable<ProductoCatalogo> {
+  // Gestión de stock: fija las unidades disponibles y devuelve el producto actualizado.
+  // stockAnterior es la cantidad que estaba viendo el vendedor: si ha cambiado, el backend responde 409.
+  cambiarStock(id: string, stock: number, stockAnterior: number): Observable<ProductoCatalogo> {
     return this.conCsrf((cabeceras) =>
       this.http.patch<ProductoCatalogo>(
         `${this.api}/${id}/stock`,
         { stock },
-        { headers: cabeceras },
+        { headers: cabeceras, params: { stockAnterior } },
       ),
     );
   }

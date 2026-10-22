@@ -10,6 +10,7 @@ import {
   ProductoCatalogo,
   ProductoService,
   formatearPrecio,
+  formatearPrecioConDescuento,
   mensajeConfirmarEliminacion,
   mensajeErrorCatalogo,
   mensajeEstadoCambiado,
@@ -33,6 +34,7 @@ export class MisProductos implements OnInit {
   private productoService = inject(ProductoService);
 
   readonly formatearPrecio = formatearPrecio;
+  readonly formatearPrecioConDescuento = formatearPrecioConDescuento;
   readonly mensajeConfirmarEliminacion = mensajeConfirmarEliminacion;
 
   productos = signal<ProductoCatalogo[]>([]);

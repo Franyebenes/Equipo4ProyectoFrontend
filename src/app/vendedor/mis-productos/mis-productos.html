@@ -61,9 +61,10 @@
       <div class="aviso aviso-error" role="alert">{{ errorAccion() }}</div>
     }
 
+    <!-- Con un rango de precio no válido no se muestra la lista: no correspondería a los filtros -->
     @if (error()) {
       <div class="aviso aviso-error" role="alert">{{ error() }}</div>
-    } @else {
+    } @else if (!errorFiltros()) {
       <div class="card">
         <div class="tabla-scroll">
           <table>
@@ -72,6 +73,7 @@
                 <th>Nombre</th>
                 <th>Categoría</th>
                 <th class="derecha">Precio</th>
+                <th class="derecha" title="Precio con descuento">Dto.</th>
                 <th class="derecha">Stock</th>
                 <th>Estado</th>
                 <th class="col-acciones derecha">Acciones</th>
@@ -79,13 +81,22 @@
             </thead>
             <tbody>
               @if (cargando() && productos().length === 0) {
-                <tr><td colspan="6" class="vacio">Cargando tus productos…</td></tr>
+                <tr><td colspan="7" class="vacio">Cargando tus productos…</td></tr>
               } @else {
                 @for (p of productos(); track p.id) {
                   <tr>
-                    <td><strong>{{ p.nombre }}</strong></td>
+                    <td class="col-nombre"><strong>{{ p.nombre }}</strong></td>
                     <td class="muted">{{ p.categorias.join(', ') }}</td>
                     <td class="derecha">{{ formatearPrecio(p.precio) }}</td>
+                    <!-- Precio es el de venta sin descuento; aquí, lo que pagan los clientes y el descuento aplicado -->
+                    <td class="derecha">
+                      @if (p.descuento) {
+                        {{ formatearPrecioConDescuento(p.precio, p.descuento) }}
+                        <span class="descuento-aplicado">−{{ p.descuento }} %</span>
+                      } @else {
+                        <span class="muted" title="Sin descuento">—</span>
+                      }
+                    </td>
                     <td class="derecha">{{ p.stock }}</td>
                     <td>
                       <div class="chips-estado">
@@ -124,7 +135,7 @@
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="6" class="vacio">
+                    <td colspan="7" class="vacio">
                       @if (hayFiltros()) {
                         Ningún producto de tu catálogo coincide con la búsqueda y los filtros elegidos.
                         <button type="button" class="btn btn-ghost btn-sm" (click)="limpiarFiltros()">

@@ -10,10 +10,13 @@ import {
   ProductoAlta,
   ProductoCatalogo,
   ProductoService,
-  formatearPrecio,
+  STOCK_MAXIMO,
+  formatearPrecioConDescuento,
   idsDeCategorias,
   mensajeErrorCatalogo,
   mensajeProductoModificado,
+  stockActualDelConflicto,
+  validarStock,
 } from '../producto.service';
 
 const PRECIO_MINIMO = 0;
@@ -44,6 +47,8 @@ export class CrearProducto implements OnInit {
   readonly rutaVolver =
     this.idProducto === null ? ['/vendedor/productos'] : ['/vendedor/productos', this.idProducto];
 
+  readonly stockMaximo = STOCK_MAXIMO;
+
   nombre = '';
   descripcion = '';
   precio: number | null = null;
@@ -51,6 +56,10 @@ export class CrearProducto implements OnInit {
   // Por defecto el producto se crea activo (visible para los clientes) y sin descuento
   activo = true;
   descuento: number | null = null;
+
+  // Al editar, stock que tenía el producto al cargar el formulario (para no pisar las reservas de los
+  // carritos)
+  private stockAnterior = 0;
 
   categorias = signal<Categoria[]>([]);
   idCategorias = signal<string[]>([]);
@@ -119,7 +128,7 @@ export class CrearProducto implements OnInit {
         || this.descuento < DESCUENTO_MINIMO || this.descuento > DESCUENTO_MAXIMO) {
       return '';
     }
-    return formatearPrecio(this.precio * (1 - this.descuento / 100));
+    return formatearPrecioConDescuento(this.precio, this.descuento);
   }
 
   guardar(): void {
@@ -156,12 +165,20 @@ export class CrearProducto implements OnInit {
 
   // Modificar producto: tras guardar vuelve a la ficha, con los datos nuevos y la confirmación
   private guardarCambios(id: string, datos: ProductoAlta): void {
-    this.productoService.modificar(id, datos).subscribe({
+    this.productoService.modificar(id, datos, this.stockAnterior).subscribe({
       next: (producto) =>
         void this.router.navigate(['/vendedor/productos', id], {
           state: { exito: mensajeProductoModificado(producto) },
         }),
-      error: (e: HttpErrorResponse) => this.mostrarErrorAlGuardar(e),
+      error: (e: HttpErrorResponse) => {
+        this.mostrarErrorAlGuardar(e);
+        // El stock cambió mientras se editaba: el mensaje indica la cantidad actual y, si el vendedor
+        // mantiene la suya, al volver a guardar se aplica
+        const stockActual = stockActualDelConflicto(e);
+        if (stockActual !== null) {
+          this.stockAnterior = stockActual;
+        }
+      },
     });
   }
 
@@ -177,6 +194,7 @@ export class CrearProducto implements OnInit {
     this.precio = producto.precio;
     this.descuento = producto.descuento;
     this.stock = producto.stock;
+    this.stockAnterior = producto.stock;
     this.activo = producto.visible;
     this.idCategorias.set(idsDeCategorias(producto.categorias, categorias));
     this.imagen.set(producto.imagen);
@@ -194,6 +212,11 @@ export class CrearProducto implements OnInit {
     }
     if (this.precio <= PRECIO_MINIMO || this.stock < STOCK_MINIMO || !Number.isInteger(this.stock)) {
       return 'El precio debe ser mayor que 0 y el stock un número entero no negativo.';
+    }
+    // Aquí solo puede fallar el máximo de unidades
+    const falloStock = validarStock(this.stock);
+    if (falloStock) {
+      return falloStock;
     }
     if (this.descuento != null && (this.descuento < DESCUENTO_MINIMO || this.descuento > DESCUENTO_MAXIMO)) {
       return 'El descuento debe estar entre 0 y 100 %.';

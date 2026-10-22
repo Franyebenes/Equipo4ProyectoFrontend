@@ -9,12 +9,15 @@ import {
   IMAGEN_POR_DEFECTO,
   ProductoCatalogo,
   ProductoService,
+  STOCK_MAXIMO,
   formatearPrecio,
+  formatearPrecioConDescuento,
   mensajeConfirmarEliminacion,
   mensajeErrorCatalogo,
   mensajeEstadoCambiado,
   mensajeProductoEliminado,
   mensajeStockActualizado,
+  stockActualDelConflicto,
   textoStock,
   validarStock,
 } from '../producto.service';
@@ -32,6 +35,8 @@ export class DetalleProducto implements OnInit {
   private router = inject(Router);
 
   readonly formatearPrecio = formatearPrecio;
+  readonly formatearPrecioConDescuento = formatearPrecioConDescuento;
+  readonly stockMaximo = STOCK_MAXIMO;
   readonly imagenPorDefecto = IMAGEN_POR_DEFECTO;
   readonly textoStock = textoStock;
   readonly mensajeConfirmarEliminacion = mensajeConfirmarEliminacion;
@@ -126,12 +131,12 @@ export class DetalleProducto implements OnInit {
     });
   }
 
-  // Botones − y +: suman o restan una unidad sin bajar de 0
+  // Botones − y +: suman o restan una unidad sin bajar de 0 ni pasar del máximo
   ajustarStock(unidades: number): void {
     this.exitoStock.set('');
     this.errorStock.set('');
     const actual = this.nuevoStock() ?? 0;
-    this.nuevoStock.set(Math.max(0, Math.trunc(actual) + unidades));
+    this.nuevoStock.set(Math.min(STOCK_MAXIMO, Math.max(0, Math.trunc(actual) + unidades)));
   }
 
   guardarStock(producto: ProductoCatalogo): void {
@@ -143,7 +148,8 @@ export class DetalleProducto implements OnInit {
       return;
     }
     this.guardandoStock.set(true);
-    this.productoService.cambiarStock(producto.id, stock).subscribe({
+    // Se envía también la cantidad que estaba viendo, para no pisar las reservas de los carritos
+    this.productoService.cambiarStock(producto.id, stock, producto.stock).subscribe({
       next: (actualizado) => {
         this.guardandoStock.set(false);
         this.producto.set(actualizado);
@@ -153,11 +159,13 @@ export class DetalleProducto implements OnInit {
       error: (e: HttpErrorResponse) => {
         this.guardandoStock.set(false);
         this.errorStock.set(mensajeErrorCatalogo(e));
+        // El stock cambió mientras tanto: la ficha muestra la cantidad actual y la nueva sigue en el
+        // campo, así que si el vendedor la mantiene, al volver a guardar se aplica
+        const stockActual = stockActualDelConflicto(e);
+        if (stockActual !== null) {
+          this.producto.set({ ...producto, stock: stockActual });
+        }
       },
     });
-  }
-
-  precioConDescuento(producto: ProductoCatalogo, descuento: number): string {
-    return formatearPrecio(producto.precio * (1 - descuento / 100));
   }
 }
