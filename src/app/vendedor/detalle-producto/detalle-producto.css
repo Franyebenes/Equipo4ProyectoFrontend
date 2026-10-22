@@ -69,3 +69,42 @@
   align-items: center;
   gap: 0.75rem;
 }
+
+.nota-agotado {
+  display: block;
+  margin-top: 0.15rem;
+  color: #9a3412;
+  font-size: 0.8rem;
+}
+
+/* Gestión de stock: − cantidad + y Guardar */
+.gestion-stock {
+  margin-bottom: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line, #e6e1d8);
+}
+
+.ayuda-stock {
+  margin: 0 0 0.85rem;
+}
+
+.stock-controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.stock-controles .campo input {
+  width: 6.5rem;
+  text-align: center;
+}
+
+.btn-cantidad {
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+}

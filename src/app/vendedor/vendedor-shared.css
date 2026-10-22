@@ -30,3 +30,9 @@
 .btn-crear:hover {
   filter: brightness(0.93);
 }
+
+/* Sin stock: el producto no está disponible para la venta */
+.estado.agotado {
+  background: var(--coral-soft, #fde8e1);
+  color: #9a3412;
+}

@@ -82,6 +82,37 @@ export function mensajeEstadoCambiado(producto: ProductoCatalogo): string {
     : `«${producto.nombre}» está inactivo: los clientes ya no pueden verlo ni comprarlo.`;
 }
 
+// Unidades disponibles en texto: «Sin stock», «1 unidad», «12 unidades»
+export function textoStock(stock: number): string {
+  if (stock === 0) {
+    return 'Sin stock';
+  }
+  return stock === 1 ? '1 unidad' : `${stock} unidades`;
+}
+
+// Comprueba la cantidad antes de enviarla (mismas reglas que el backend).
+// Devuelve el error o '' si es válida.
+export function validarStock(stock: number | null): string {
+  if (stock == null) {
+    return 'Indica la cantidad de stock.';
+  }
+  if (!Number.isInteger(stock) || stock < 0) {
+    return 'El stock debe ser un número entero no negativo.';
+  }
+  return '';
+}
+
+// Confirmación tras guardar el stock; con 0 avisa de que el producto deja de estar a la venta
+export function mensajeStockActualizado(producto: ProductoCatalogo): string {
+  if (producto.stock === 0) {
+    return (
+      `Stock de «${producto.nombre}» actualizado: sin stock. ` +
+      'No está disponible para la venta hasta que repongas unidades.'
+    );
+  }
+  return `Stock de «${producto.nombre}» actualizado: ${textoStock(producto.stock)}.`;
+}
+
 // Catálogo propio del vendedor de la sesión: el backend sabe quién es por la cookie de sesión.
 @Injectable({ providedIn: 'root' })
 export class ProductoService {
@@ -124,6 +155,17 @@ export class ProductoService {
   cambiarEstado(id: string, activo: boolean): Observable<ProductoCatalogo> {
     return this.conCsrf((cabeceras) =>
       this.http.patch<ProductoCatalogo>(`${this.api}/${id}/estado`, { activo }, { headers: cabeceras }),
+    );
+  }
+
+  // Gestión de stock: fija las unidades disponibles y devuelve el producto actualizado
+  cambiarStock(id: string, stock: number): Observable<ProductoCatalogo> {
+    return this.conCsrf((cabeceras) =>
+      this.http.patch<ProductoCatalogo>(
+        `${this.api}/${id}/stock`,
+        { stock },
+        { headers: cabeceras },
+      ),
     );
   }
 

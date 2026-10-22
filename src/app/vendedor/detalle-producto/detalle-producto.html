@@ -16,6 +16,9 @@
           </div>
           <div class="cabecera-estado">
             <span class="estado" [class.inactivo]="!p.visible">{{ p.visible ? 'Activo' : 'Inactivo' }}</span>
+            @if (p.stock === 0) {
+              <span class="estado agotado">Agotado</span>
+            }
             <button type="button" class="btn btn-ghost" (click)="alternarEstado(p)" [disabled]="cambiandoEstado()">
               @if (cambiandoEstado()) {
                 Guardando…
@@ -62,13 +65,49 @@
             }
             <div>
               <dt>Stock</dt>
-              <dd>{{ p.stock === 0 ? 'Sin stock' : p.stock + (p.stock === 1 ? ' unidad' : ' unidades') }}</dd>
+              <dd>
+                {{ textoStock(p.stock) }}
+                @if (p.stock === 0) {
+                  <span class="nota-agotado">No disponible para la venta</span>
+                }
+              </dd>
             </div>
             <div>
               <dt>Estado</dt>
               <dd>{{ p.visible ? 'Activo: visible para los clientes' : 'Inactivo: oculto para los clientes' }}</dd>
             </div>
           </dl>
+
+          <section class="gestion-stock" aria-labelledby="titulo-stock">
+            <h2 id="titulo-stock" class="seccion">Gestionar stock</h2>
+            <p class="muted ayuda-stock">
+              Aumenta o disminuye las unidades disponibles y guarda el cambio.
+            </p>
+            <div class="stock-controles">
+              <button type="button" class="btn btn-ghost btn-cantidad" aria-label="Quitar una unidad"
+                      (click)="ajustarStock(-1)" [disabled]="(nuevoStock() ?? 0) <= 0">−</button>
+              <div class="campo">
+                <input type="number" min="0" step="1" aria-label="Unidades disponibles"
+                       [ngModel]="nuevoStock()" (ngModelChange)="nuevoStock.set($event)">
+              </div>
+              <button type="button" class="btn btn-ghost btn-cantidad" (click)="ajustarStock(1)"
+                      aria-label="Añadir una unidad">+</button>
+              <button type="button" class="btn btn-crear" (click)="guardarStock(p)"
+                      [disabled]="guardandoStock() || stockSinCambios()">
+                @if (guardandoStock()) {
+                  Guardando…
+                } @else {
+                  Guardar stock
+                }
+              </button>
+            </div>
+            @if (exitoStock()) {
+              <div class="aviso aviso-ok" role="status">{{ exitoStock() }}</div>
+            }
+            @if (errorStock()) {
+              <div class="aviso aviso-error" role="alert">{{ errorStock() }}</div>
+            }
+          </section>
 
           <h2 class="seccion">Descripción</h2>
           <p class="descripcion">{{ p.descripcion || 'Este producto no tiene descripción.' }}</p>
