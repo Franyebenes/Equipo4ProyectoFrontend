@@ -7,8 +7,8 @@ import { forkJoin } from 'rxjs';
 import { Categoria } from '../../admin/categoria.service';
 import { errorCaracteresNoPermitidos } from '../../core/caracteres-permitidos';
 import {
+  ProductoAlta,
   ProductoCatalogo,
-  ProductoModificacion,
   ProductoService,
   formatearPrecio,
   idsDeCategorias,
@@ -26,8 +26,7 @@ const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 
 // HU15.1 - Formulario para que el vendedor de alta un producto en su catalogo propio.
 // Modificar producto - El mismo formulario edita un producto existente (ruta productos/:id/editar),
-// con las mismas validaciones. Al editar no se muestran el stock ni el estado: se cambian desde la
-// ficha del producto.
+// con los mismos campos y validaciones. El stock y el estado también se pueden cambiar desde la ficha.
 @Component({
   selector: 'app-crear-producto',
   imports: [FormsModule, RouterLink],
@@ -125,19 +124,21 @@ export class CrearProducto implements OnInit {
 
   guardar(): void {
     const fallo = this.validar();
-    if (fallo || this.precio == null) {
+    if (fallo || this.precio == null || this.stock == null) {
       this.error.set(fallo);
       return;
     }
 
     this.guardando.set(true);
     this.error.set('');
-    const datos: ProductoModificacion = {
+    const datos: ProductoAlta = {
       nombre: this.nombre.trim(),
       descripcion: this.descripcion.trim(),
       precio: this.precio,
       idCategorias: this.idCategorias(),
+      stock: this.stock,
       imagen: this.imagen(),
+      activo: this.activo,
       descuento: this.descuento,
     };
     if (this.idProducto !== null) {
@@ -145,7 +146,7 @@ export class CrearProducto implements OnInit {
       return;
     }
     this.productoService
-      .crear({ ...datos, stock: this.stock ?? STOCK_MINIMO, activo: this.activo })
+      .crear(datos)
       .subscribe({
         // Vuelve al listado, donde ya aparece el producto nuevo
         next: () => void this.router.navigateByUrl('/vendedor/productos'),
@@ -154,7 +155,7 @@ export class CrearProducto implements OnInit {
   }
 
   // Modificar producto: tras guardar vuelve a la ficha, con los datos nuevos y la confirmación
-  private guardarCambios(id: string, datos: ProductoModificacion): void {
+  private guardarCambios(id: string, datos: ProductoAlta): void {
     this.productoService.modificar(id, datos).subscribe({
       next: (producto) =>
         void this.router.navigate(['/vendedor/productos', id], {
@@ -175,15 +176,15 @@ export class CrearProducto implements OnInit {
     this.descripcion = producto.descripcion ?? '';
     this.precio = producto.precio;
     this.descuento = producto.descuento;
+    this.stock = producto.stock;
+    this.activo = producto.visible;
     this.idCategorias.set(idsDeCategorias(producto.categorias, categorias));
     this.imagen.set(producto.imagen);
   }
 
-  // Mismas reglas que el backend. Devuelve el error o '' si se puede guardar.
-  // El stock solo se pide en el alta.
+  // Mismas reglas que el backend, en el alta y al editar. Devuelve el error o '' si se puede guardar.
   private validar(): string {
-    const faltaStock = !this.editando && this.stock == null;
-    if (!this.nombre.trim() || !this.descripcion.trim() || this.precio == null || faltaStock
+    if (!this.nombre.trim() || !this.descripcion.trim() || this.precio == null || this.stock == null
         || this.idCategorias().length === 0) {
       return 'Rellena todos los campos obligatorios (*).';
     }
@@ -191,12 +192,8 @@ export class CrearProducto implements OnInit {
     if (falloCaracteres) {
       return falloCaracteres;
     }
-    const stockValido = this.editando
-      || (this.stock != null && this.stock >= STOCK_MINIMO && Number.isInteger(this.stock));
-    if (this.precio <= PRECIO_MINIMO || !stockValido) {
-      return this.editando
-        ? 'El precio debe ser mayor que 0.'
-        : 'El precio debe ser mayor que 0 y el stock un número entero no negativo.';
+    if (this.precio <= PRECIO_MINIMO || this.stock < STOCK_MINIMO || !Number.isInteger(this.stock)) {
+      return 'El precio debe ser mayor que 0 y el stock un número entero no negativo.';
     }
     if (this.descuento != null && (this.descuento < DESCUENTO_MINIMO || this.descuento > DESCUENTO_MAXIMO)) {
       return 'El descuento debe estar entre 0 y 100 %.';

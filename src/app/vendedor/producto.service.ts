@@ -20,24 +20,19 @@ export interface ProductoCatalogo {
   visible: boolean;
 }
 
-// Modificar producto - Datos que el vendedor puede editar (ProductoModificacionDTO en el backend).
-// Sustituyen a los guardados. El stock y el estado no van aquí: se cambian desde la ficha del producto.
-export interface ProductoModificacion {
+// HU15.1 - Datos para dar de alta un producto (ProductoAltaDTO en el backend).
+// Modificar producto envía los mismos datos, que sustituyen a los guardados.
+export interface ProductoAlta {
   nombre: string;
   descripcion: string;
   precio: number;
   idCategorias: string[];
-  imagen: string | null;
-  // Porcentaje de descuento (0-100) o null si no tiene
-  descuento: number | null;
-}
-
-// HU15.1 - Datos para dar de alta un producto (ProductoAltaDTO en el backend): los editables, el stock
-// y el estado.
-export interface ProductoAlta extends ProductoModificacion {
   stock: number;
+  imagen: string | null;
   // true = visible para los clientes (campo "visible" del producto)
   activo: boolean;
+  // Porcentaje de descuento (0-100) o null si no tiene
+  descuento: number | null;
 }
 
 // Criterios con los que el backend filtra el catálogo propio. Se combinan entre sí; los vacíos no se envían.
@@ -181,7 +176,7 @@ export class ProductoService {
   }
 
   // Modificar producto: sustituye los datos editables y devuelve el producto actualizado
-  modificar(id: string, datos: ProductoModificacion): Observable<ProductoCatalogo> {
+  modificar(id: string, datos: ProductoAlta): Observable<ProductoCatalogo> {
     return this.conCsrf((cabeceras) =>
       this.http.put<ProductoCatalogo>(`${this.api}/${id}`, datos, { headers: cabeceras }),
     );

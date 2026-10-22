@@ -6,7 +6,6 @@ import { Categoria } from '../admin/categoria.service';
 import {
   ProductoAlta,
   ProductoCatalogo,
-  ProductoModificacion,
   ProductoService,
   idsDeCategorias,
   mensajeConfirmarEliminacion,
@@ -136,10 +135,10 @@ describe('ProductoService (peticiones que modifican datos)', () => {
     expect(terminado).toBe(true);
   });
 
-  it('modificar pide el token CSRF y envía un PUT solo con los datos editables', () => {
-    const cambios: ProductoModificacion = {
+  it('modificar pide el token CSRF y envía un PUT con los datos nuevos del producto', () => {
+    const cambios: ProductoAlta = {
       nombre: 'Lámpara LED', descripcion: 'Luz cálida', precio: 95.5, idCategorias: ['c1', 'c2'],
-      imagen: null, descuento: 20,
+      stock: 12, imagen: null, activo: false, descuento: 20,
     };
     let respuesta: ProductoCatalogo | undefined;
     servicio.modificar('p1', cambios).subscribe({ next: (producto) => (respuesta = producto) });
@@ -148,10 +147,7 @@ describe('ProductoService (peticiones que modifican datos)', () => {
     const peticion = http.expectOne(`${URL_CATALOGO}/p1`);
     expect(peticion.request.method).toBe('PUT');
     expect(peticion.request.headers.get('X-XSRF-TOKEN')).toBe('token-5');
-    // Sin stock ni estado: el backend rechaza los campos que no se editan aquí
     expect(peticion.request.body).toEqual(cambios);
-    expect(Object.keys(peticion.request.body)).not.toContain('stock');
-    expect(Object.keys(peticion.request.body)).not.toContain('activo');
     peticion.flush({ id: 'p1', nombre: 'Lámpara LED', precio: 95.5 });
     expect(respuesta?.nombre).toBe('Lámpara LED');
   });

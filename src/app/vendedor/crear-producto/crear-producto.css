@@ -118,12 +118,3 @@
   gap: 0.15rem;
   font-size: 0.9rem;
 }
-
-/* Modificar producto: aviso de que el stock y el estado se cambian desde la ficha */
-.nota-edicion {
-  margin: 0;
-  padding: 0.75rem 1rem;
-  border: 1px dashed var(--line);
-  border-radius: 0.9rem;
-  font-size: 0.9rem;
-}
