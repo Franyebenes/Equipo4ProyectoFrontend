@@ -113,6 +113,8 @@
                           }
                         </button>
                         <a [routerLink]="['/vendedor/productos', p.id]" class="btn btn-ghost btn-sm">Ver detalle</a>
+                        <a [routerLink]="['/vendedor/productos', p.id, 'editar']" class="btn btn-ghost btn-sm"
+                           [attr.aria-label]="'Editar ' + p.nombre">Editar</a>
                         <button type="button" class="btn btn-danger btn-sm" (click)="pedirEliminacion(p)"
                                 [attr.aria-label]="'Eliminar ' + p.nombre">
                           Eliminar

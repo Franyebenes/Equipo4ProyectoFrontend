@@ -48,6 +48,8 @@ export const routes: Routes = [
     children: [
       { path: 'productos', component: MisProductos },
       { path: 'productos/nuevo', component: CrearProducto },
+      // Modificar producto: el mismo formulario del alta, con los datos del producto
+      { path: 'productos/:id/editar', component: CrearProducto },
       { path: 'productos/:id', component: DetalleProducto },
     ],
   },

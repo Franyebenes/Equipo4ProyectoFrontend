@@ -1,11 +1,20 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 
 import { Categoria } from '../../admin/categoria.service';
 import { errorCaracteresNoPermitidos } from '../../core/caracteres-permitidos';
-import { ProductoService, formatearPrecio, mensajeErrorCatalogo } from '../producto.service';
+import {
+  ProductoAlta,
+  ProductoCatalogo,
+  ProductoService,
+  formatearPrecio,
+  idsDeCategorias,
+  mensajeErrorCatalogo,
+  mensajeProductoModificado,
+} from '../producto.service';
 
 const PRECIO_MINIMO = 0;
 const STOCK_MINIMO = 0;
@@ -16,6 +25,8 @@ const TAMANO_MAXIMO_IMAGEN = 1024 * 1024; // 1 MB
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 
 // HU15.1 - Formulario para que el vendedor de alta un producto en su catalogo propio.
+// Modificar producto - El mismo formulario edita un producto existente (ruta productos/:id/editar),
+// con los mismos campos y validaciones. El stock y el estado también se pueden cambiar desde la ficha.
 @Component({
   selector: 'app-crear-producto',
   imports: [FormsModule, RouterLink],
@@ -25,6 +36,13 @@ const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 export class CrearProducto implements OnInit {
   private productoService = inject(ProductoService);
   private router = inject(Router);
+
+  // Id del producto que se edita, o null si es un alta
+  readonly idProducto = inject(ActivatedRoute).snapshot.paramMap.get('id');
+  readonly editando = this.idProducto !== null;
+  // «Volver» y «Cancelar»: al catálogo en el alta y a la ficha del producto al editar
+  readonly rutaVolver =
+    this.idProducto === null ? ['/vendedor/productos'] : ['/vendedor/productos', this.idProducto];
 
   nombre = '';
   descripcion = '';
@@ -37,14 +55,35 @@ export class CrearProducto implements OnInit {
   categorias = signal<Categoria[]>([]);
   idCategorias = signal<string[]>([]);
   imagen = signal<string | null>(null);
+  // Al editar, el formulario espera a tener los datos actuales del producto
+  cargando = signal(this.editando);
+  errorCarga = signal('');
   guardando = signal(false);
   error = signal('');
 
   // Las categorias se piden al endpoint publico del registro (el de /api/admin es solo para el administrador)
   ngOnInit(): void {
-    this.productoService.listarCategorias().subscribe({
-      next: (lista) => this.categorias.set(lista),
-      error: (e: HttpErrorResponse) => this.error.set(mensajeErrorCatalogo(e)),
+    if (this.idProducto === null) {
+      this.productoService.listarCategorias().subscribe({
+        next: (lista) => this.categorias.set(lista),
+        error: (e: HttpErrorResponse) => this.error.set(mensajeErrorCatalogo(e)),
+      });
+      return;
+    }
+    // Si el producto no es del vendedor, el backend responde 404 y no se muestra el formulario
+    forkJoin({
+      categorias: this.productoService.listarCategorias(),
+      producto: this.productoService.obtenerMio(this.idProducto),
+    }).subscribe({
+      next: ({ categorias, producto }) => {
+        this.categorias.set(categorias);
+        this.rellenar(producto, categorias);
+        this.cargando.set(false);
+      },
+      error: (e: HttpErrorResponse) => {
+        this.cargando.set(false);
+        this.errorCarga.set(mensajeErrorCatalogo(e));
+      },
     });
   }
 
@@ -84,45 +123,81 @@ export class CrearProducto implements OnInit {
   }
 
   guardar(): void {
-    if (!this.nombre.trim() || !this.descripcion.trim() || this.precio == null || this.stock == null
-        || this.idCategorias().length === 0) {
-      this.error.set('Rellena todos los campos obligatorios (*).');
-      return;
-    }
-    const falloCaracteres = errorCaracteresNoPermitidos(this.nombre.trim(), this.descripcion.trim());
-    if (falloCaracteres) {
-      this.error.set(falloCaracteres);
-      return;
-    }
-    if (this.precio <= PRECIO_MINIMO || this.stock < STOCK_MINIMO || !Number.isInteger(this.stock)) {
-      this.error.set('El precio debe ser mayor que 0 y el stock un número entero no negativo.');
-      return;
-    }
-    if (this.descuento != null && (this.descuento < DESCUENTO_MINIMO || this.descuento > DESCUENTO_MAXIMO)) {
-      this.error.set('El descuento debe estar entre 0 y 100 %.');
+    const fallo = this.validar();
+    if (fallo || this.precio == null || this.stock == null) {
+      this.error.set(fallo);
       return;
     }
 
     this.guardando.set(true);
     this.error.set('');
+    const datos: ProductoAlta = {
+      nombre: this.nombre.trim(),
+      descripcion: this.descripcion.trim(),
+      precio: this.precio,
+      idCategorias: this.idCategorias(),
+      stock: this.stock,
+      imagen: this.imagen(),
+      activo: this.activo,
+      descuento: this.descuento,
+    };
+    if (this.idProducto !== null) {
+      this.guardarCambios(this.idProducto, datos);
+      return;
+    }
     this.productoService
-      .crear({
-        nombre: this.nombre.trim(),
-        descripcion: this.descripcion.trim(),
-        precio: this.precio,
-        idCategorias: this.idCategorias(),
-        stock: this.stock,
-        imagen: this.imagen(),
-        activo: this.activo,
-        descuento: this.descuento,
-      })
+      .crear(datos)
       .subscribe({
         // Vuelve al listado, donde ya aparece el producto nuevo
         next: () => void this.router.navigateByUrl('/vendedor/productos'),
-        error: (e: HttpErrorResponse) => {
-          this.guardando.set(false);
-          this.error.set(mensajeErrorCatalogo(e));
-        },
+        error: (e: HttpErrorResponse) => this.mostrarErrorAlGuardar(e),
       });
+  }
+
+  // Modificar producto: tras guardar vuelve a la ficha, con los datos nuevos y la confirmación
+  private guardarCambios(id: string, datos: ProductoAlta): void {
+    this.productoService.modificar(id, datos).subscribe({
+      next: (producto) =>
+        void this.router.navigate(['/vendedor/productos', id], {
+          state: { exito: mensajeProductoModificado(producto) },
+        }),
+      error: (e: HttpErrorResponse) => this.mostrarErrorAlGuardar(e),
+    });
+  }
+
+  private mostrarErrorAlGuardar(e: HttpErrorResponse): void {
+    this.guardando.set(false);
+    this.error.set(mensajeErrorCatalogo(e));
+  }
+
+  // Datos actuales del producto en el formulario (al editar)
+  private rellenar(producto: ProductoCatalogo, categorias: Categoria[]): void {
+    this.nombre = producto.nombre;
+    this.descripcion = producto.descripcion ?? '';
+    this.precio = producto.precio;
+    this.descuento = producto.descuento;
+    this.stock = producto.stock;
+    this.activo = producto.visible;
+    this.idCategorias.set(idsDeCategorias(producto.categorias, categorias));
+    this.imagen.set(producto.imagen);
+  }
+
+  // Mismas reglas que el backend, en el alta y al editar. Devuelve el error o '' si se puede guardar.
+  private validar(): string {
+    if (!this.nombre.trim() || !this.descripcion.trim() || this.precio == null || this.stock == null
+        || this.idCategorias().length === 0) {
+      return 'Rellena todos los campos obligatorios (*).';
+    }
+    const falloCaracteres = errorCaracteresNoPermitidos(this.nombre.trim(), this.descripcion.trim());
+    if (falloCaracteres) {
+      return falloCaracteres;
+    }
+    if (this.precio <= PRECIO_MINIMO || this.stock < STOCK_MINIMO || !Number.isInteger(this.stock)) {
+      return 'El precio debe ser mayor que 0 y el stock un número entero no negativo.';
+    }
+    if (this.descuento != null && (this.descuento < DESCUENTO_MINIMO || this.descuento > DESCUENTO_MAXIMO)) {
+      return 'El descuento debe estar entre 0 y 100 %.';
+    }
+    return '';
   }
 }

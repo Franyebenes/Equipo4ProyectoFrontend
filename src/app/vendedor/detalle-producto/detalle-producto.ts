@@ -53,6 +53,14 @@ export class DetalleProducto implements OnInit {
   errorStock = signal('');
   stockSinCambios = computed(() => this.nuevoStock() === this.producto()?.stock);
 
+  constructor() {
+    // Confirmación que deja el formulario al guardar los cambios del producto (Modificar producto)
+    const exito = this.router.currentNavigation()?.extras.state?.['exito'];
+    if (typeof exito === 'string') {
+      this.exito.set(exito);
+    }
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
     this.productoService.obtenerMio(id).subscribe({
