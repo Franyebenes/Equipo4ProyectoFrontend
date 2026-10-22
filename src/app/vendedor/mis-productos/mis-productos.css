@@ -7,9 +7,11 @@ table {
   border-collapse: collapse;
 }
 
+/* Con la columna de descuento hay siete columnas: algo menos de margen para que quepan sin
+   partir los nombres */
 th,
 td {
-  padding: 0.85rem 1.25rem;
+  padding: 0.85rem 1rem;
   text-align: left;
   vertical-align: middle;
 }
@@ -98,12 +100,9 @@ tbody tr + tr td {
   padding-inline: 0.5rem;
 }
 
-/* Descuento debajo del precio (el precio final se ve al pasar el ratón y en la ficha) */
-.precio-descuento {
-  display: block;
-  margin-top: 0.15rem;
+/* Columna Descuento: el porcentaje (el precio final se ve al pasar el ratón y en la ficha) */
+.con-descuento {
   color: var(--coral);
-  font-size: 0.78rem;
   font-weight: 700;
   white-space: nowrap;
   cursor: help;
