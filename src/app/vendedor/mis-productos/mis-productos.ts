@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 
@@ -16,14 +16,22 @@ import {
   mensajeEstadoCambiado,
   mensajeProductoEliminado,
 } from '../producto.service';
+import {
+  FiltroEstado,
+  FiltrosCatalogo,
+  ValoresFiltros,
+  filtrosAParametros,
+  filtrosDeParametros,
+  mismosParametros,
+} from '../filtros-catalogo';
 
 // Espera tras la última tecla antes de pedir al backend: una petición, no una por tecla
 const ESPERA_ESCRITURA_MS = 300;
 
-export type FiltroEstado = '' | 'activos' | 'inactivos';
-
 // Listado del catálogo propio: solo los productos del vendedor de la sesión, siempre leídos del backend.
 // La búsqueda por nombre y los filtros (categoría, estado y rango de precio) los aplica el backend y se combinan.
+// Los filtros se guardan en la dirección de la página, así que se conservan al recargar y al volver
+// de un producto.
 @Component({
   selector: 'app-mis-productos',
   imports: [RouterLink, FormsModule, DialogoConfirmacion],
@@ -32,6 +40,11 @@ export type FiltroEstado = '' | 'activos' | 'inactivos';
 })
 export class MisProductos implements OnInit {
   private productoService = inject(ProductoService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private filtrosCatalogo = inject(FiltrosCatalogo);
+  // La primera carga usa los filtros que ya trae la dirección: no hay que reescribirla
+  private iniciado = false;
 
   readonly formatearPrecio = formatearPrecio;
   readonly formatearPrecioConDescuento = formatearPrecioConDescuento;
@@ -84,7 +97,7 @@ export class MisProductos implements OnInit {
 
   constructor() {
     // Aviso que dejan el alta de producto y el detalle (tras eliminar un producto) al volver aquí
-    const exito = inject(Router).currentNavigation()?.extras.state?.['exito'];
+    const exito = this.router.currentNavigation()?.extras.state?.['exito'];
     if (typeof exito === 'string') {
       this.exito.set(exito);
     }
@@ -100,7 +113,15 @@ export class MisProductos implements OnInit {
       next: (lista) => this.categorias.set(lista),
       error: () => this.categorias.set([]),
     });
+    // Filtros que trae la dirección (al recargar o al volver desde un producto)
+    const filtros = filtrosDeParametros(this.route.snapshot.queryParamMap);
+    this.busqueda.set(filtros.busqueda);
+    this.idCategoria.set(filtros.idCategoria);
+    this.estado.set(filtros.estado);
+    this.precioMinimo.set(filtros.precioMinimo);
+    this.precioMaximo.set(filtros.precioMaximo);
     this.cargar();
+    this.iniciado = true;
   }
 
   cargar(): void {
@@ -108,6 +129,7 @@ export class MisProductos implements OnInit {
     if (this.errorFiltros()) {
       return;
     }
+    this.recordarFiltros();
     this.cargando.set(true);
     this.error.set('');
     this.peticion?.unsubscribe();
@@ -222,6 +244,30 @@ export class MisProductos implements OnInit {
     this.precioMinimo.set(null);
     this.precioMaximo.set(null);
     this.cargar();
+  }
+
+  // Guarda los filtros en la dirección (sin añadir una entrada al historial por cada cambio) y los
+  // recuerda para «Volver a mi catálogo» desde la ficha o el formulario
+  private recordarFiltros(): void {
+    const parametros = filtrosAParametros(this.valoresFiltros());
+    this.filtrosCatalogo.ultimos.set(parametros);
+    if (this.iniciado && !mismosParametros(parametros, this.route.snapshot.queryParams)) {
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: parametros,
+        replaceUrl: true,
+      });
+    }
+  }
+
+  private valoresFiltros(): ValoresFiltros {
+    return {
+      busqueda: this.busqueda(),
+      idCategoria: this.idCategoria(),
+      estado: this.estado(),
+      precioMinimo: this.precioMinimo(),
+      precioMaximo: this.precioMaximo(),
+    };
   }
 
   private cargarAlDejarDeEscribir(): void {

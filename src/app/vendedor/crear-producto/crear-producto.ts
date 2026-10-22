@@ -20,6 +20,7 @@ import {
   urlImagen,
   validarStock,
 } from '../producto.service';
+import { FiltrosCatalogo } from '../filtros-catalogo';
 
 const PRECIO_MINIMO = 0;
 const STOCK_MINIMO = 0;
@@ -48,6 +49,8 @@ export class CrearProducto implements OnInit {
   // «Volver» y «Cancelar»: al catálogo en el alta y a la ficha del producto al editar
   readonly rutaVolver =
     this.idProducto === null ? ['/vendedor/productos'] : ['/vendedor/productos', this.idProducto];
+  // En el alta, «Volver» y «Cancelar» recuperan los filtros que tenía Mi catálogo
+  readonly parametrosVolver = this.idProducto === null ? inject(FiltrosCatalogo).ultimos() : {};
 
   readonly stockMaximo = STOCK_MAXIMO;
 
@@ -157,7 +160,7 @@ export class CrearProducto implements OnInit {
       return;
     }
     this.productoService.crear(datos).subscribe({
-      // Vuelve al listado, donde ya aparece el producto nuevo, con un mensaje de confirmación
+      // Vuelve al listado sin filtros (para que se vea el producto nuevo) y con un mensaje
       next: (producto) =>
         void this.router.navigate(['/vendedor/productos'], {
           state: { exito: mensajeProductoCreado(producto) },

@@ -1,6 +1,6 @@
 <section class="admin-page">
   <div class="bar">
-    <a [routerLink]="rutaVolver" class="volver">
+    <a [routerLink]="rutaVolver" [queryParams]="parametrosVolver" class="volver">
       {{ editando ? '← Volver al producto' : '← Volver a mi catálogo' }}
     </a>
 
@@ -88,7 +88,9 @@
         </div>
 
         <div class="botones">
-          <a [routerLink]="rutaVolver" class="btn btn-ghost">Cancelar</a>
+          <a [routerLink]="rutaVolver" [queryParams]="parametrosVolver" class="btn btn-ghost">
+            Cancelar
+          </a>
           <button type="submit" class="btn btn-crear" [disabled]="guardando()">
             @if (guardando()) {
               Guardando…
