@@ -43,6 +43,16 @@
               <span class="ayuda">Precio con descuento: {{ precioFinal }}</span>
             }
           </label>
+          <label class="campo">
+            Descuento premium (%)
+            <input name="descuentoPremium" type="number" min="0" max="100" step="1" placeholder="Sin descuento"
+                   [(ngModel)]="descuentoPremium">
+            @if (precioPremium(); as precioPremium) {
+              <span class="ayuda">Precio para premium: {{ precioPremium }}</span>
+            } @else {
+              <span class="muted nota">Se aplica además del descuento para todos.</span>
+            }
+          </label>
         </div>
 
         <label class="interruptor">
@@ -51,6 +61,16 @@
             <strong>Producto activo</strong>
             <span class="muted">
               {{ activo ? 'Los clientes podrán verlo en el catálogo.' : 'Quedará oculto para los clientes.' }}
+            </span>
+          </span>
+        </label>
+
+        <label class="interruptor">
+          <input type="checkbox" name="soloPremium" [(ngModel)]="soloPremium">
+          <span>
+            <strong>Solo para clientes premium</strong>
+            <span class="muted">
+              {{ soloPremium ? 'Los clientes estándar no lo verán en el catálogo.' : 'Lo verán todos los clientes.' }}
             </span>
           </span>
         </label>

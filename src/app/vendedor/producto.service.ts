@@ -7,6 +7,7 @@ import { API_URL } from '../core/api';
 
 // Producto tal y como lo devuelve el backend en el catálogo propio del vendedor (ProductoCatalogoDTO).
 // precio es el precio base; los descuentos son porcentajes y pueden no existir. visible = producto activo.
+// soloPremium = solo lo ven los clientes premium.
 export interface ProductoCatalogo {
   id: string;
   nombre: string;
@@ -18,6 +19,7 @@ export interface ProductoCatalogo {
   descuentoPremium: number | null;
   stock: number;
   visible: boolean;
+  soloPremium: boolean;
 }
 
 // HU15.1 - Datos para dar de alta un producto (ProductoAltaDTO en el backend).
@@ -33,6 +35,10 @@ export interface ProductoAlta {
   activo: boolean;
   // Porcentaje de descuento (0-100) o null si no tiene
   descuento: number | null;
+  // Descuento adicional para clientes premium (0-100), o null si no tiene
+  descuentoPremium: number | null;
+  // true = solo lo ven los clientes premium
+  soloPremium: boolean;
 }
 
 // Criterios con los que el backend filtra el catálogo propio. Se combinan entre sí; los vacíos no se envían.
@@ -89,6 +95,26 @@ export function formatearPrecio(precio: number): string {
 // Precio que pagan los clientes con un descuento en porcentaje
 export function formatearPrecioConDescuento(precio: number, descuento: number): string {
   return formatearPrecio(precio * (1 - descuento / 100));
+}
+
+// Precio que paga el cliente: el mismo cálculo que PrecioProducto.precioFinal en el backend. Primero el
+// descuento para todos y, si es premium, sobre ese precio el descuento premium. Redondeado a céntimos.
+export function precioFinal(
+  precio: number,
+  descuento: number | null,
+  descuentoPremium: number | null,
+  clientePremium: boolean,
+): number {
+  let resultado = precio * (1 - (descuento ?? 0) / 100);
+  if (clientePremium) {
+    resultado *= 1 - (descuentoPremium ?? 0) / 100;
+  }
+  return Math.round(resultado * 100) / 100;
+}
+
+// Precio que pagan los clientes premium, con los dos descuentos aplicados
+export function formatearPrecioPremium(producto: ProductoCatalogo): string {
+  return formatearPrecio(precioFinal(producto.precio, producto.descuento, producto.descuentoPremium, true));
 }
 
 // Mensajes para el vendedor. El 401 además lo gestiona el interceptor (vuelve al login).
