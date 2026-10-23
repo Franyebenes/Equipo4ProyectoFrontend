@@ -118,3 +118,9 @@
   gap: 0.15rem;
   font-size: 0.9rem;
 }
+
+/* Explicación pequeña debajo del descuento premium */
+.nota {
+  font-size: 0.8rem;
+  font-weight: 600;
+}

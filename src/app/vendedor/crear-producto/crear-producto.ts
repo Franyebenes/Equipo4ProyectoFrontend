@@ -11,11 +11,13 @@ import {
   ProductoCatalogo,
   ProductoService,
   STOCK_MAXIMO,
+  formatearPrecio,
   formatearPrecioConDescuento,
   idsDeCategorias,
   mensajeErrorCatalogo,
   mensajeProductoCreado,
   mensajeProductoModificado,
+  precioFinal,
   stockActualDelConflicto,
   urlImagen,
   validarStock,
@@ -61,6 +63,9 @@ export class CrearProducto implements OnInit {
   // Por defecto el producto se crea activo (visible para los clientes) y sin descuento
   activo = true;
   descuento: number | null = null;
+  // Por defecto sin descuento premium y visible para todos los clientes
+  descuentoPremium: number | null = null;
+  soloPremium = false;
 
   // Al editar, stock que tenía el producto al cargar el formulario (para no pisar las reservas de los
   // carritos)
@@ -136,6 +141,16 @@ export class CrearProducto implements OnInit {
     return formatearPrecioConDescuento(this.precio, this.descuento);
   }
 
+  // Precio que verán los clientes premium (el descuento para todos y, además, el premium), o '' si no aplica
+  precioPremium(): string {
+    if (this.precio == null || this.precio <= PRECIO_MINIMO || !this.descuentoPremium
+        || !descuentoValido(this.descuentoPremium)) {
+      return '';
+    }
+    const descuento = this.descuento != null && descuentoValido(this.descuento) ? this.descuento : null;
+    return formatearPrecio(precioFinal(this.precio, descuento, this.descuentoPremium, true));
+  }
+
   guardar(): void {
     const fallo = this.validar();
     if (fallo || this.precio == null || this.stock == null) {
@@ -154,6 +169,8 @@ export class CrearProducto implements OnInit {
       imagen: this.imagen(),
       activo: this.activo,
       descuento: this.descuento,
+      descuentoPremium: this.descuentoPremium,
+      soloPremium: this.soloPremium,
     };
     if (this.idProducto !== null) {
       this.guardarCambios(this.idProducto, datos);
@@ -199,6 +216,8 @@ export class CrearProducto implements OnInit {
     this.descripcion = producto.descripcion ?? '';
     this.precio = producto.precio;
     this.descuento = producto.descuento;
+    this.descuentoPremium = producto.descuentoPremium;
+    this.soloPremium = producto.soloPremium ?? false;
     this.stock = producto.stock;
     this.stockAnterior = producto.stock;
     this.activo = producto.visible;
@@ -227,6 +246,13 @@ export class CrearProducto implements OnInit {
     if (this.descuento != null && (this.descuento < DESCUENTO_MINIMO || this.descuento > DESCUENTO_MAXIMO)) {
       return 'El descuento debe estar entre 0 y 100 %.';
     }
+    if (this.descuentoPremium != null && !descuentoValido(this.descuentoPremium)) {
+      return 'El descuento premium debe estar entre 0 y 100 %.';
+    }
     return '';
   }
+}
+
+function descuentoValido(descuento: number): boolean {
+  return descuento >= DESCUENTO_MINIMO && descuento <= DESCUENTO_MAXIMO;
 }

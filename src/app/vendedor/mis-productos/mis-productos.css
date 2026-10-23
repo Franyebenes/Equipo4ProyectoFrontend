@@ -100,8 +100,7 @@ tbody tr + tr td {
   padding-inline: 0.5rem;
 }
 
-/* Las filas se alinean por la primera línea: el precio y el precio con descuento quedan a la misma
-   altura que el resto de datos aunque debajo vaya el porcentaje */
+/* Las filas se alinean por la primera línea del texto */
 tbody td {
   vertical-align: baseline;
 }
@@ -111,19 +110,41 @@ tbody td {
   min-width: 9rem;
 }
 
-/* Columna Dto.: debajo del precio con descuento, el porcentaje aplicado */
-.descuento-aplicado {
-  display: block;
-  margin-top: 0.15rem;
-  color: var(--coral);
-  font-size: 0.78rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-/* Estado del producto y, si no tiene stock, «Agotado» */
+/* Estado del producto y, si es solo premium, la estrella: siempre en la misma línea */
 .chips-estado {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 0.3rem;
+}
+
+/* «Activo» e «Inactivo» con el mismo ancho, para que la estrella quede siempre en el mismo sitio */
+.chips-estado .estado {
+  min-width: 5.5rem;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Producto visible solo para clientes premium: estrella dorada con una P, junto a Activo/Inactivo */
+.insignia-premium {
+  display: inline-flex;
+}
+
+.insignia-premium svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.insignia-premium path {
+  fill: #f2b705;
+  stroke: #b8860b;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.insignia-premium text {
+  fill: #ffffff;
+  font-size: 8px;
+  font-weight: 800;
+  font-family: inherit;
 }
