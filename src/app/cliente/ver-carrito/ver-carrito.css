@@ -40,9 +40,30 @@ h1 { margin-bottom: 1.5rem; }
   border: none; border-radius: 8px; background: #222; color: #fff; font-size: 1rem;
 }
 .pagar:disabled { opacity: .5; cursor: not-allowed; }
+.btn-secundario {
+  display: inline-flex; align-items: center; padding: .7rem 1.2rem; border: 1px solid #ccc; border-radius: 8px;
+  background: #fff; color: #222; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+}
+.btn-secundario:disabled { opacity: .5; cursor: not-allowed; }
 
 @media (max-width: 600px) {
   .linea { grid-template-columns: 56px 1fr; }
   .linea img, .sin-imagen { width: 56px; height: 56px; }
   .cantidad, .subtotal, .eliminar { grid-column: 2; justify-self: start; }
+}
+
+/* HU-26: dirección de envío al tramitar el pedido */
+.envio { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e5e5; }
+.envio h2 { margin: 0 0 1rem; font-size: 1.1rem; }
+.envio label { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .9rem; font-size: .9rem; font-weight: 600; }
+.envio input { padding: .65rem .8rem; border: 1px solid #ccc; border-radius: 8px; font: inherit; font-weight: 400; }
+.envio-fila { display: grid; grid-template-columns: 1fr 160px; gap: 1rem; }
+.envio .error { margin: 0 0 .9rem; }
+.envio-botones { display: flex; gap: 1rem; align-items: center; }
+.envio-botones .pagar { margin-top: 0; }
+.envio-botones .btn-secundario { white-space: nowrap; }
+
+@media (max-width: 600px) {
+  .envio-fila { grid-template-columns: 1fr; gap: 0; }
+  .envio-botones { flex-direction: column-reverse; }
 }

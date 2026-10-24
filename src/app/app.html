@@ -21,6 +21,9 @@
           }
         </a>
       }
+      @if (esCliente()) {
+        <a routerLink="/pedidos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mis pedidos</a>
+      }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
       } @else if (!esCliente()) {
@@ -74,6 +77,9 @@
             <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
           }
         </a>
+      }
+      @if (esCliente()) {
+        <a routerLink="/pedidos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mis pedidos</a>
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>

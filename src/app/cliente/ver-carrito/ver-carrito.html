@@ -60,8 +60,43 @@
           <strong>{{ precio(c.total) }}</strong>
         </div>
 
-        <!-- HU-23: se activará cuando esté el pago -->
-        <button type="button" class="pagar" disabled>Tramitar pedido</button>
+        <!-- HU-26: el pago es simulado, solo se pide la dirección de envío -->
+        @if (!tramitando()) {
+          <button type="button" class="pagar" (click)="tramitar()">Tramitar pedido</button>
+        } @else {
+          <form class="envio" (ngSubmit)="confirmarPedido()">
+            <h2>Dirección de envío</h2>
+            <label>
+              Calle y número
+              <input type="text" name="calle" [ngModel]="calle()" (ngModelChange)="calle.set($event)"
+                     maxlength="150" autocomplete="street-address" required>
+            </label>
+            <div class="envio-fila">
+              <label>
+                Ciudad
+                <input type="text" name="ciudad" [ngModel]="ciudad()" (ngModelChange)="ciudad.set($event)"
+                       maxlength="80" autocomplete="address-level2" required>
+              </label>
+              <label>
+                Código postal
+                <input type="text" name="codigoPostal" [ngModel]="codigoPostal()"
+                       (ngModelChange)="codigoPostal.set($event)" inputmode="numeric" maxlength="5"
+                       autocomplete="postal-code" required>
+              </label>
+            </div>
+            @if (errorPedido()) {
+              <p class="error" role="alert">{{ errorPedido() }}</p>
+            }
+            <div class="envio-botones">
+              <button type="button" class="btn-secundario" (click)="cancelarTramite()" [disabled]="enviandoPedido()">
+                Volver al carrito
+              </button>
+              <button type="submit" class="pagar" [disabled]="enviandoPedido()">
+                {{ enviandoPedido() ? 'Realizando pedido…' : 'Confirmar y pagar ' + precio(c.total) }}
+              </button>
+            </div>
+          </form>
+        }
       }
     }
   }
