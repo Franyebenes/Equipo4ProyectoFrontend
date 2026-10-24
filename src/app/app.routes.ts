@@ -10,7 +10,7 @@ import { portadaGuard, rolGuard } from './core/rol.guard';
 import { Registro } from './registro/registro';
 import { Login } from './login/login';
 import { Home } from './home/home';
-import { Cliente } from './cliente/cliente';
+import { Catalogo } from './cliente/catalogo/catalogo';
 import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 
@@ -29,7 +29,8 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./recuperacion/restablecer-contrasena/restablecer-contrasena').then((m) => m.RestablecerContrasena),
   },
-  { path: 'cliente', component: Cliente, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  // HU-19: al iniciar sesión, el cliente llega al catálogo
+  { path: 'cliente', component: Catalogo, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   {
     path: 'admin',

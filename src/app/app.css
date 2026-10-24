@@ -209,6 +209,15 @@
   font-weight: 700;
 }
 .enlace-carrito { display: inline-flex; align-items: center; gap: .4rem; }
+/* El carrito, en la parte derecha de la cabecera: mismo aspecto que los enlaces del menú */
+.actions .enlace-carrito {
+  margin-right: 0.6rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.actions .enlace-carrito[aria-current='page'] { color: var(--coral); }
 .contador-carrito {
   min-width: 1.4rem; padding: 0 .4rem; border-radius: 999px;
   background: #ff6b4a; color: #fff; font-size: .8rem; font-weight: 700;

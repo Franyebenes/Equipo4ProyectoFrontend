@@ -14,12 +14,7 @@
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mi catálogo</a>
       }
       @if (esCliente()) {
-        <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito">
-          🛒 Carrito
-          @if (carrito.numeroArticulos() > 0) {
-            <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
-          }
-        </a>
+        <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page">Catálogo</a>
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
@@ -31,7 +26,14 @@
     </nav>
 
     <div class="actions">
-      <!-- Con sesión: usuario y cierre de sesión. Sin sesión: los destinos de autenticación. -->
+      @if (esCliente()) {
+        <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito">
+          🛒 Carrito
+          @if (carrito.numeroArticulos() > 0) {
+            <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
+          }
+        </a>
+      }
       @if (auth.usuario(); as usuario) {
         <span class="usuario" [attr.title]="usuario.email">
           @if (esAdmin() || esVendedor()) {
@@ -68,12 +70,7 @@
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mi catálogo</a>
       }
       @if (esCliente()) {
-        <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito" (click)="cerrarMenu()">
-          🛒 Carrito
-          @if (carrito.numeroArticulos() > 0) {
-            <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
-          }
-        </a>
+        <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Catálogo</a>
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>

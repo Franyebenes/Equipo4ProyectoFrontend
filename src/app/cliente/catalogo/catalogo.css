@@ -1,0 +1,265 @@
+.pagina {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2.5rem 0 3.5rem;
+}
+
+/* Título a la izquierda y buscador a la derecha; en pantallas estrechas, uno debajo del otro */
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  color: var(--coral);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.sub {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+}
+
+/* Buscador: campo y botón «Buscar» juntos (también busca al pulsar Intro) */
+.buscador {
+  display: flex;
+  gap: 0.5rem;
+  width: min(440px, 100%);
+}
+
+.buscador input {
+  flex: 1;
+  min-width: 0;
+  height: 2.9rem;
+  padding: 0 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+
+.buscador input:focus {
+  outline: 2px solid var(--coral);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.btn-buscar {
+  height: 2.9rem;
+  padding: 0 1.3rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--coral);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-buscar:hover {
+  background: var(--coral-hover);
+}
+
+.resumen,
+.estado {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.aviso-error {
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.9rem;
+  background: var(--coral-soft);
+  color: #9a3412;
+  font-weight: 600;
+}
+
+/* 4 tarjetas por fila; 2 en pantallas estrechas */
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 900px) {
+  .rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+/* Todas las fotos ocupan lo mismo (un cuadrado), sean horizontales, verticales o la imagen por defecto. La foto
+   se recorta para llenar el cuadrado; la imagen por defecto se ve entera, sobre el mismo color de fondo. */
+.foto {
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--cream);
+}
+
+.foto img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.foto img.sin-imagen {
+  object-fit: contain;
+}
+
+.info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem 1rem;
+}
+
+.nombre {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.categorias {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* El precio y los óvalos se quedan abajo aunque el nombre ocupe dos líneas */
+.precio {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: auto 0 0;
+  padding-top: 0.25rem;
+  font-size: 1.1rem;
+}
+
+.precio-original {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.ovalos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ovalo {
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.ovalo.disponible {
+  background: #e3efe4;
+  color: var(--ok);
+}
+
+.ovalo.poco-stock {
+  background: #fdebd3;
+  color: #b45309;
+}
+
+.ovalo.agotado {
+  background: #fde2e2;
+  color: #b91c1c;
+}
+
+.ovalo.premium {
+  border: 1px solid #b8860b;
+  background: #f6d365;
+  color: #5c4300;
+}
+
+.vacio {
+  grid-column: 1 / -1;
+  padding: 2.5rem 1rem;
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--muted);
+  text-align: center;
+}
+
+.vacio p {
+  margin: 0 0 1rem;
+}
+
+.btn-secundario,
+.paginacion button {
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+}
+
+.paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 2rem;
+}
+
+.paginacion .numero {
+  min-width: 2.6rem;
+}
+
+.paginacion .actual {
+  border-color: var(--coral);
+  background: var(--coral);
+  color: white;
+}
+
+.paginacion button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
