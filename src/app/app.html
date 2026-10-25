@@ -15,6 +15,18 @@
       }
       @if (esCliente()) {
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page">Catálogo</a>
+        <!-- Todavía sin hacer: cuando estén, pasan a ser enlaces como «Catálogo» -->
+        <span class="proximamente" title="Próximamente">Favoritos</span>
+        <span class="proximamente" title="Próximamente">Métodos de pago</span>
+      }
+      <!-- El carrito, siempre la última opción del cliente -->
+      @if (esCliente()) {
+        <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito">
+          🛒 Carrito
+          @if (carrito.numeroArticulos() > 0) {
+            <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
+          }
+        </a>
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
@@ -26,19 +38,9 @@
     </nav>
 
     <div class="actions">
-      @if (esCliente()) {
-        <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito">
-          🛒 Carrito
-          @if (carrito.numeroArticulos() > 0) {
-            <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
-          }
-        </a>
-      }
       @if (auth.usuario(); as usuario) {
         <span class="usuario" [attr.title]="usuario.email">
-          @if (esAdmin() || esVendedor()) {
-            <ng-container *ngTemplateOutlet="avatarUsuario" />
-          }
+          <ng-container *ngTemplateOutlet="avatarUsuario" />
           Hola, {{ usuario.nombre }}
         </span>
         <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
@@ -71,6 +73,16 @@
       }
       @if (esCliente()) {
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Catálogo</a>
+        <span class="proximamente" title="Próximamente">Favoritos</span>
+        <span class="proximamente" title="Próximamente">Métodos de pago</span>
+      }
+      @if (esCliente()) {
+        <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito" (click)="cerrarMenu()">
+          🛒 Carrito
+          @if (carrito.numeroArticulos() > 0) {
+            <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
+          }
+        </a>
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
@@ -81,9 +93,7 @@
       }
       @if (auth.usuario(); as usuario) {
         <span class="usuario">
-          @if (esAdmin() || esVendedor()) {
-            <ng-container *ngTemplateOutlet="avatarUsuario" />
-          }
+          <ng-container *ngTemplateOutlet="avatarUsuario" />
           Hola, {{ usuario.nombre }}
         </span>
         <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>

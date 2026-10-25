@@ -1,4 +1,5 @@
 <section class="carrito">
+  <a routerLink="/cliente" class="volver">← Seguir comprando</a>
   <h1>Mi carrito</h1>
 
   @if (cargando()) {
@@ -10,9 +11,9 @@
 
     @if (carrito(); as c) {
       @if (c.lineas.length === 0) {
+        <!-- Para volver al catálogo está siempre «Seguir comprando», arriba -->
         <div class="vacio">
           <p>Tu carrito está vacío.</p>
-          <a routerLink="/cliente" class="btn-secundario">Seguir comprando</a>
         </div>
       } @else {
         <ul class="lineas">
@@ -35,6 +36,9 @@
                   }
                   {{ precio(l.precioUnitario) }}
                 </span>
+                @if (errorDe(l); as mensaje) {
+                  <span class="error-linea" role="alert">{{ mensaje }}</span>
+                }
               </div>
 
               <div class="cantidad">
