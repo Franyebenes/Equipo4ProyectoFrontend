@@ -282,3 +282,127 @@ h1 {
   opacity: 0.45;
   cursor: default;
 }
+/* HU-20: navegación por categorías: las primeras como botones y el resto en «Más categorías» */
+.categorias-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.categorias-nav .etiqueta {
+  margin-right: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--coral);
+}
+
+.chip.elegida {
+  border-color: var(--coral);
+  background: var(--coral);
+  color: white;
+}
+
+/* ✕ en la categoría elegida: al pulsarla se quita */
+.chip .quitar {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.mas-categorias {
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  border: 1px dashed var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* HU-20: filtros por precio, valoración y disponibilidad, en una línea (se reparten si no caben) */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.filtro {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.etiqueta {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.filtro input[type='number'],
+.filtro select {
+  height: 2.3rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+
+.filtro input[type='number'] {
+  width: 5.5rem;
+}
+
+.filtro.disponibles {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filtro.disponibles input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--coral);
+}
+
+/* Valoración en la tarjeta: ★ 4,5 (12) */
+.valoracion {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.valoracion .estrella {
+  color: #e0a800;
+}
+
+.valoracion .muted {
+  color: var(--muted);
+  font-weight: 600;
+}
