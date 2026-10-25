@@ -17,7 +17,7 @@
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page">Catálogo</a>
         <!-- Todavía sin hacer: cuando estén, pasan a ser enlaces como «Catálogo» -->
         <span class="proximamente" title="Próximamente">Favoritos</span>
-        <span class="proximamente" title="Próximamente">Métodos de pago</span>
+        <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page">Métodos de pago</a>
       }
       <!-- El carrito, siempre la última opción del cliente -->
       @if (esCliente()) {
@@ -27,7 +27,6 @@
             <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
           }
         </a>
-        <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page">💳 Métodos de pago</a>
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
@@ -75,7 +74,7 @@
       @if (esCliente()) {
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Catálogo</a>
         <span class="proximamente" title="Próximamente">Favoritos</span>
-        <span class="proximamente" title="Próximamente">Métodos de pago</span>
+        <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Métodos de pago</a>
       }
       @if (esCliente()) {
         <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito" (click)="cerrarMenu()">
@@ -84,7 +83,6 @@
             <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
           }
         </a>
-        <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">💳 Métodos de pago</a>
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
