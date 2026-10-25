@@ -144,7 +144,7 @@ describe('ProductoService (peticiones que modifican datos)', () => {
   it('modificar pide el token CSRF y envía un PUT con los datos nuevos del producto', () => {
     const cambios: ProductoAlta = {
       nombre: 'Lámpara LED', descripcion: 'Luz cálida', precio: 95.5, idCategorias: ['c1', 'c2'],
-      stock: 12, imagen: null, activo: false, descuento: 20,
+      stock: 12, imagen: null, activo: false, descuento: 20, descuentoPremium: 5, soloPremium: true,
     };
     let respuesta: ProductoCatalogo | undefined;
     servicio.modificar('p1', cambios, 4).subscribe({ next: (producto) => (respuesta = producto) });
@@ -162,7 +162,7 @@ describe('ProductoService (peticiones que modifican datos)', () => {
   it('crear también envía el token CSRF', () => {
     const alta: ProductoAlta = {
       nombre: 'Lámpara', descripcion: 'De pie', precio: 80, idCategorias: ['c1'], stock: 4,
-      imagen: null, activo: true, descuento: null,
+      imagen: null, activo: true, descuento: null, descuentoPremium: null, soloPremium: false,
     };
     servicio.crear(alta).subscribe();
 
