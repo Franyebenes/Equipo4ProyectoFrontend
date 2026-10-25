@@ -13,6 +13,8 @@ import { Home } from './home/home';
 import { Cliente } from './cliente/cliente';
 import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
+import {VerPerfil} from './perfil/ver-perfil/ver-perfil';
+import { EditarPerfil } from './perfil/editar-perfil/editar-perfil';
 
 export const routes: Routes = [
   { path: '', component: Home, canActivate: [portadaGuard] },

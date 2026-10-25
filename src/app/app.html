@@ -34,9 +34,7 @@
       <!-- Con sesión: usuario y cierre de sesión. Sin sesión: los destinos de autenticación. -->
       @if (auth.usuario(); as usuario) {
         <span class="usuario" [attr.title]="usuario.email">
-          @if (esAdmin() || esVendedor()) {
-            <ng-container *ngTemplateOutlet="avatarUsuario" />
-          }
+          <ng-container *ngTemplateOutlet="avatarUsuario" />
           Hola, {{ usuario.nombre }}
         </span>
         <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
@@ -84,9 +82,7 @@
       }
       @if (auth.usuario(); as usuario) {
         <span class="usuario">
-          @if (esAdmin() || esVendedor()) {
-            <ng-container *ngTemplateOutlet="avatarUsuario" />
-          }
+          <ng-container *ngTemplateOutlet="avatarUsuario" />
           Hola, {{ usuario.nombre }}
         </span>
         <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
@@ -98,16 +94,12 @@
   }
 </header>
 
-<!-- Avatar del usuario en la cabecera: su imagen del catálogo o, si no tiene, la inicial de su nombre. -->
+<!-- Avatar del usuario en la cabecera: su imagen del catálogo o, si no tiene, la de por defecto. Lleva a su perfil. -->
 <ng-template #avatarUsuario>
-  @if (auth.usuario(); as usuario) {
-    <span class="avatar-usuario" aria-hidden="true">
-      @if (imagenAvatar(); as imagen) {
-        <img [src]="imagen" alt="">
-      } @else {
-        {{ inicial() }}
-      }
-    </span>
+  @if (auth.usuario()) {
+    <a class="avatar-usuario" routerLink="/perfil" ariaCurrentWhenActive="page" title="Mi perfil" (click)="cerrarMenu()">
+      <img [src]="imagenAvatar()" alt="Mi perfil">
+    </a>
   }
 </ng-template>
 

@@ -1,0 +1,125 @@
+<main class="pagina">
+  <section class="tarjeta" aria-labelledby="titulo-editar">
+    @if (perfil(); as p) {
+      <!-- Cabecera: vista previa del avatar elegido -->
+      <header class="cabecera">
+        <span class="avatar" aria-hidden="true">
+          <img [src]="imagenDe(formulario.controls.avatar.value, p)" alt="" width="96" height="96" />
+        </span>
+        <div>
+          <p class="ceja">Mi perfil</p>
+          <h1 id="titulo-editar">Editar perfil</h1>
+          <p class="intro">Actualiza tus datos. El correo no se puede cambiar.</p>
+        </div>
+      </header>
+
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+
+      <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+        <div class="campo-grupo">
+          <label class="campo" for="email">Correo</label>
+          <span class="entrada">
+            <input id="email" type="email" [value]="p.email" disabled />
+          </span>
+        </div>
+
+        <div class="dos-campos">
+          <div class="campo-grupo">
+            <label class="campo" for="nombre">Nombre</label>
+            <span class="entrada">
+              <input id="nombre" formControlName="nombre" autocomplete="given-name"
+                     [attr.aria-invalid]="invalido('nombre')" aria-describedby="error-nombre" />
+            </span>
+            @if (invalido('nombre')) {
+              <p class="error-campo" id="error-nombre">Obligatorio, máximo 50 caracteres, sin &lt; &gt; &#123; &#125; $</p>
+            }
+          </div>
+
+          <div class="campo-grupo">
+            <label class="campo" for="apellidos">Apellidos</label>
+            <span class="entrada">
+              <input id="apellidos" formControlName="apellidos" autocomplete="family-name"
+                     [attr.aria-invalid]="invalido('apellidos')" aria-describedby="error-apellidos" />
+            </span>
+            @if (invalido('apellidos')) {
+              <p class="error-campo" id="error-apellidos">Obligatorio, máximo 100 caracteres, sin &lt; &gt; &#123; &#125; $</p>
+            }
+          </div>
+
+          <div class="campo-grupo">
+            <label class="campo" for="telefono">Teléfono <span class="opcional">(opcional)</span></label>
+            <span class="entrada">
+              <input id="telefono" formControlName="telefono" inputmode="numeric" maxlength="9" autocomplete="tel"
+                     [attr.aria-invalid]="invalido('telefono')" aria-describedby="error-telefono" />
+            </span>
+            @if (invalido('telefono')) {
+              <p class="error-campo" id="error-telefono">Debe tener 9 dígitos</p>
+            }
+          </div>
+
+          @if (p.rol === 'CLIENTE' || p.rol === 'PREMIUM') {
+            <div class="campo-grupo">
+              <label class="campo" for="fechaNacimiento">Fecha de nacimiento</label>
+              <span class="entrada">
+                <input id="fechaNacimiento" type="date" formControlName="fechaNacimiento"
+                       [attr.aria-invalid]="tieneError('fechaNacimiento', 'MENOR_DE_EDAD') || tieneError('fechaNacimiento', 'FECHA_INVALIDA')"
+                       aria-describedby="error-fecha" />
+              </span>
+              @if (tieneError('fechaNacimiento', 'MENOR_DE_EDAD')) {
+                <p class="error-campo" id="error-fecha">Debes ser mayor de edad</p>
+              }
+              @if (tieneError('fechaNacimiento', 'FECHA_INVALIDA')) {
+                <p class="error-campo" id="error-fecha">La fecha no es válida</p>
+              }
+            </div>
+          }
+
+          @if (p.rol === 'VENDEDOR') {
+            <div class="campo-grupo">
+              <label class="campo" for="nombreComercial">Nombre comercial</label>
+              <span class="entrada">
+                <input id="nombreComercial" formControlName="nombreComercial" autocomplete="organization"
+                       [attr.aria-invalid]="invalido('nombreComercial')" aria-describedby="error-comercial" />
+              </span>
+              @if (invalido('nombreComercial')) {
+                <p class="error-campo" id="error-comercial">Obligatorio, máximo 80 caracteres</p>
+              }
+            </div>
+          }
+        </div>
+
+        <fieldset class="campo-grupo">
+          <legend class="campo">Avatar</legend>
+          <div class="lista-avatares">
+            @for (avatar of avataresDisponibles(); track avatar) {
+              <button
+                type="button"
+                class="opcion-avatar"
+                [class.elegido]="estaElegido(avatar, p)"
+                [attr.aria-pressed]="estaElegido(avatar, p)"
+                [attr.aria-label]="'Avatar ' + avatar"
+                (click)="elegirAvatar(avatar)"
+              >
+                <img [src]="imagenDe(avatar, p)" alt="" />
+              </button>
+            }
+          </div>
+        </fieldset>
+
+        <div class="acciones">
+          <a routerLink="/perfil" class="btn btn-ghost btn-lg">Cancelar</a>
+          <button type="submit" class="btn btn-coral btn-lg" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+    } @else if (error()) {
+      <p class="ceja">Mi perfil</p>
+      <p class="error" role="alert">{{ error() }}</p>
+    } @else {
+      <p class="cargando">Cargando tu perfil…</p>
+    }
+  </section>
+</main>
