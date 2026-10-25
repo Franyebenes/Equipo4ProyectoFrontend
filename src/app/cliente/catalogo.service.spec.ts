@@ -40,6 +40,29 @@ describe('CatalogoService.buscar (HU-19)', () => {
   });
 });
 
+describe('CatalogoService.obtener (HU-21)', () => {
+  let servicio: CatalogoService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    servicio = TestBed.inject(CatalogoService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => http.verify());
+
+  it('pide la ficha del producto por su id', () => {
+    servicio.obtener('p1').subscribe();
+
+    const peticion = http.expectOne(`${URL_CATALOGO}/p1`);
+    expect(peticion.request.method).toBe('GET');
+    peticion.flush({});
+  });
+});
+
 describe('tieneDescuento', () => {
   const producto = (precio: number, precioFinal: number) => ({ precio, precioFinal }) as ProductoCliente;
 

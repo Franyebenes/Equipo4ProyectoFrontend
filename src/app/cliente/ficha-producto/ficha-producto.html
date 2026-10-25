@@ -1,0 +1,118 @@
+<main class="pagina">
+  <a routerLink="/cliente" [queryParams]="parametrosVolver" class="volver">← Volver al catálogo</a>
+
+  @if (cargando()) {
+    <p class="estado">Cargando producto…</p>
+  } @else if (error()) {
+    <div class="aviso-error" role="alert">
+      <p>{{ error() }}</p>
+      <a routerLink="/cliente" class="btn-secundario">Ir al catálogo</a>
+    </div>
+  } @else if (producto(); as p) {
+    <article class="ficha">
+      <!-- Imagen: si el producto tiene foto, al pulsarla se ve a pantalla completa -->
+      <div class="galeria">
+        @if (p.imagen) {
+          <button type="button" class="foto ampliable" (click)="ampliarImagen()" aria-label="Ver la imagen en grande">
+            <img [src]="imagen()" [alt]="p.nombre">
+            <span class="lupa" aria-hidden="true">⤢ Ampliar</span>
+          </button>
+        } @else {
+          <div class="foto">
+            <img class="sin-imagen" [src]="imagen()" alt="Producto sin imagen">
+          </div>
+        }
+      </div>
+
+      <div class="info">
+        @if (p.categorias.length > 0) {
+          <p class="categorias">{{ p.categorias.join(' · ') }}</p>
+        }
+        <h1>{{ p.nombre }}</h1>
+
+        @if (p.numeroValoraciones > 0 && p.valoracionMedia !== null) {
+          <p class="resumen-valoraciones">
+            <span class="estrellas" [attr.aria-label]="formatearMedia(p.valoracionMedia) + ' de 5'">
+              @for (llena of estrellas(p.valoracionMedia); track $index) {
+                <span [class.llena]="llena">★</span>
+              }
+            </span>
+            {{ formatearMedia(p.valoracionMedia) }}
+            <span class="muted">({{ p.numeroValoraciones }})</span>
+          </p>
+        }
+
+        <div class="precio">
+          @if (p.precioFinal < p.precio) {
+            <s class="precio-original">{{ formatearPrecio(p.precio) }}</s>
+          }
+          <strong>{{ formatearPrecio(p.precioFinal) }}</strong>
+        </div>
+        @if (p.descuento || p.descuentoPremium) {
+          <ul class="descuentos">
+            @if (p.descuento) {
+              <li>−{{ p.descuento }} % para todos los clientes</li>
+            }
+            @if (p.descuentoPremium) {
+              @if (premium()) {
+                <li>Incluye tu descuento premium del {{ p.descuentoPremium }} %</li>
+              } @else {
+                <li>Con premium, un {{ p.descuentoPremium }} % más: {{ precioPremium(p) }}</li>
+              }
+            }
+          </ul>
+        }
+
+        <div class="ovalos">
+          <span class="ovalo {{ claseDisponibilidad(p) }}">{{ textoDisponibilidad[p.disponibilidad] }}</span>
+          @if (p.soloPremium) {
+            <span class="ovalo premium">Premium</span>
+          }
+        </div>
+
+        <!-- Comprar: el botón del carrito, o el motivo por el que no se puede -->
+        <div class="compra">
+          @if (motivoNoComprar()) {
+            <p class="no-disponible">{{ motivoNoComprar() }}</p>
+          } @else {
+            <div class="anadir">
+              <div class="selector-cantidad" role="group" aria-label="Unidades">
+                <button type="button" (click)="cambiarCantidad(-1)" [disabled]="cantidad() <= cantidadMinima"
+                        aria-label="Quitar una unidad">−</button>
+                <span aria-live="polite">{{ cantidad() }}</span>
+                <button type="button" (click)="cambiarCantidad(1)" [disabled]="cantidad() >= cantidadMaxima"
+                        aria-label="Añadir una unidad">+</button>
+              </div>
+              <app-boton-anadir-carrito [idProducto]="p.id" [cantidad]="cantidad()" />
+            </div>
+          }
+        </div>
+
+        <section>
+          <h2>Descripción</h2>
+          <p class="descripcion">{{ p.descripcion || 'Este producto no tiene descripción.' }}</p>
+        </section>
+
+        <section>
+          <h2>Valoraciones</h2>
+          @if (p.numeroValoraciones > 0 && p.valoracionMedia !== null) {
+            <p>
+              Puntuación media de {{ formatearMedia(p.valoracionMedia) }} sobre 5, con
+              {{ p.numeroValoraciones }} {{ p.numeroValoraciones === 1 ? 'valoración' : 'valoraciones' }}.
+            </p>
+          } @else {
+            <p class="muted">Este producto todavía no tiene valoraciones.</p>
+          }
+        </section>
+      </div>
+    </article>
+
+    @if (imagenAmpliada()) {
+      <div class="visor" role="dialog" aria-modal="true" [attr.aria-label]="'Imagen de ' + p.nombre"
+           (click)="cerrarImagen()">
+        <img [src]="imagen()" [alt]="p.nombre">
+        <button type="button" class="cerrar" (click)="cerrarImagen()" aria-label="Cerrar la imagen">✕</button>
+      </div>
+    }
+  }
+</main>

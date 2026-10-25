@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_URL } from '../core/api';
@@ -27,6 +27,30 @@ export interface Pagina<T> {
   tamano: number;
   totalElementos: number;
   totalPaginas: number;
+}
+
+// HU-21 Ficha del producto (ProductoDetalleDTO). descuento y descuentoPremium son porcentajes y pueden no existir.
+// valoracionMedia es null mientras el producto no tenga valoraciones.
+export interface ProductoDetalle {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  imagen: string | null;
+  categorias: string[];
+  precio: number;
+  precioFinal: number;
+  descuento: number | null;
+  descuentoPremium: number | null;
+  soloPremium: boolean;
+  disponibilidad: Disponibilidad;
+  valoracionMedia: number | null;
+  numeroValoraciones: number;
+}
+
+// Búsqueda y página del catálogo tal y como van en su dirección (?busqueda=…&pagina=2, la página empieza en 1)
+export interface ParametrosCatalogo {
+  busqueda?: string;
+  pagina?: number;
 }
 
 export const TEXTO_DISPONIBILIDAD: Record<Disponibilidad, string> = {
@@ -60,6 +84,9 @@ export class CatalogoService {
   private readonly http = inject(HttpClient);
   private readonly url = `${inject(API_URL)}/api/catalogo`;
 
+  // Última búsqueda y página del catálogo: la ficha vuelve a ellas con «Volver al catálogo»
+  readonly ultimosParametros = signal<ParametrosCatalogo>({});
+
   // Búsqueda por nombre completo o parcial (sin distinguir mayúsculas ni tildes). Vacía, todo el catálogo.
   buscar(busqueda: string, pagina: number): Observable<Pagina<ProductoCliente>> {
     let params = new HttpParams().set('pagina', pagina);
@@ -67,5 +94,10 @@ export class CatalogoService {
       params = params.set('busqueda', busqueda.trim());
     }
     return this.http.get<Pagina<ProductoCliente>>(this.url, { params });
+  }
+
+  // HU-21: siempre se pide al backend, así la ficha tiene los datos actuales del producto
+  obtener(id: string): Observable<ProductoDetalle> {
+    return this.http.get<ProductoDetalle>(`${this.url}/${encodeURIComponent(id)}`);
   }
 }

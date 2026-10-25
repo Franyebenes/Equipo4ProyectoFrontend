@@ -34,30 +34,33 @@
     <ul class="rejilla">
       @for (p of productos(); track p.id) {
         <li class="tarjeta">
-          <div class="foto">
-            <img [src]="urlImagen(p.imagen) || imagenPorDefecto" [alt]="p.imagen ? p.nombre : 'Producto sin imagen'"
-                 [class.sin-imagen]="!p.imagen" loading="lazy">
-          </div>
-          <div class="info">
-            <h2 class="nombre">{{ p.nombre }}</h2>
-            @if (p.categorias.length > 0) {
-              <p class="categorias">{{ p.categorias.join(' · ') }}</p>
-            }
-            <p class="precio">
-              @if (tieneDescuento(p)) {
-                <s class="precio-original">{{ formatearPrecio(p.precio) }}</s>
-              }
-              <strong>{{ formatearPrecio(p.precioFinal) }}</strong>
-            </p>
-            <div class="ovalos">
-              <span class="ovalo {{ claseDisponibilidad(p.disponibilidad) }}">
-                {{ textoDisponibilidad[p.disponibilidad] }}
-              </span>
-              @if (p.soloPremium) {
-                <span class="ovalo premium" title="Solo pueden comprarlo los clientes premium">Premium</span>
-              }
+          <!-- HU-21: toda la tarjeta lleva a la ficha del producto -->
+          <a class="enlace-ficha" [routerLink]="['/cliente/productos', p.id]">
+            <div class="foto">
+              <img [src]="urlImagen(p.imagen) || imagenPorDefecto" [alt]="p.imagen ? p.nombre : 'Producto sin imagen'"
+                   [class.sin-imagen]="!p.imagen" loading="lazy">
             </div>
-          </div>
+            <div class="info">
+              <h2 class="nombre">{{ p.nombre }}</h2>
+              @if (p.categorias.length > 0) {
+                <p class="categorias">{{ p.categorias.join(' · ') }}</p>
+              }
+              <p class="precio">
+                @if (tieneDescuento(p)) {
+                  <s class="precio-original">{{ formatearPrecio(p.precio) }}</s>
+                }
+                <strong>{{ formatearPrecio(p.precioFinal) }}</strong>
+              </p>
+              <div class="ovalos">
+                <span class="ovalo {{ claseDisponibilidad(p.disponibilidad) }}">
+                  {{ textoDisponibilidad[p.disponibilidad] }}
+                </span>
+                @if (p.soloPremium) {
+                  <span class="ovalo premium" title="Solo pueden comprarlo los clientes premium">Premium</span>
+                }
+              </div>
+            </div>
+          </a>
         </li>
       } @empty {
         <li class="vacio">

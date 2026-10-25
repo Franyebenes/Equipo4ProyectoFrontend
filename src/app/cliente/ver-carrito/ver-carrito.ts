@@ -47,6 +47,14 @@ export class VerCarrito implements OnInit {
     this.actualizar(linea, this.carritoService.eliminar(linea.idProducto));
   }
 
+  /** Error al cambiar la cantidad o eliminar: sale dentro de la línea de ese producto, no arriba del todo. */
+  readonly errorLinea = signal<{ idProducto: string; mensaje: string } | null>(null);
+
+  errorDe(linea: LineaCarrito): string | null {
+    const error = this.errorLinea();
+    return error?.idProducto === linea.idProducto ? error.mensaje : null;
+  }
+
   tieneDescuento(linea: LineaCarrito): boolean {
     return linea.precioUnitario < linea.precioOriginal;
   }
@@ -66,10 +74,15 @@ export class VerCarrito implements OnInit {
     peticion.subscribe({
       next: (c) => {
         this.carrito.set(c);
+        this.errorLinea.set(null);
         this.ocupado.set(null);
       },
       error: (e) => {
-        this.mostrarError(e);
+        const mensaje = e instanceof HttpErrorResponse ? e.error?.mensaje : null;
+        this.errorLinea.set({
+          idProducto: linea.idProducto,
+          mensaje: mensaje ?? 'No se ha podido actualizar este producto. Inténtalo de nuevo.',
+        });
         this.ocupado.set(null);
       },
     });

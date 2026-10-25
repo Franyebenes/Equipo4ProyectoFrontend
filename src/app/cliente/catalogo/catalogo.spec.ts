@@ -1,7 +1,9 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
-import { CatalogoService, Pagina, ProductoCliente } from '../catalogo.service';
+import { CatalogoService, Pagina, ParametrosCatalogo, ProductoCliente } from '../catalogo.service';
 import { Catalogo } from './catalogo';
 
 const TAZA: ProductoCliente = {
@@ -31,12 +33,21 @@ function pagina(contenido: ProductoCliente[], numero = 0, totalPaginas = 1): Pag
 
 describe('Catalogo (HU-19 Buscar productos)', () => {
   let buscar: ReturnType<typeof vi.fn>;
+  let ultimosParametros: ReturnType<typeof signal<ParametrosCatalogo>>;
 
-  function crear() {
+  function crear(parametrosUrl: Record<string, string> = {}) {
     TestBed.configureTestingModule({
       imports: [Catalogo],
-      providers: [{ provide: CatalogoService, useValue: { buscar } }],
+      providers: [
+        provideRouter([]),
+        { provide: CatalogoService, useValue: { buscar, ultimosParametros } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap(parametrosUrl), queryParams: parametrosUrl } },
+        },
+      ],
     });
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     const fixture = TestBed.createComponent(Catalogo);
     fixture.detectChanges();
     return fixture;
@@ -44,6 +55,7 @@ describe('Catalogo (HU-19 Buscar productos)', () => {
 
   beforeEach(() => {
     buscar = vi.fn().mockReturnValue(of(pagina([TAZA, RELOJ])));
+    ultimosParametros = signal<ParametrosCatalogo>({});
   });
 
   it('al entrar carga la primera página de todo el catálogo', () => {
@@ -129,5 +141,30 @@ describe('Catalogo (HU-19 Buscar productos)', () => {
     numeros[2].click();
 
     expect(buscar).toHaveBeenLastCalledWith('', 2);
+  });
+
+  it('HU-21: cada tarjeta lleva a la ficha de su producto', () => {
+    const enlaces: HTMLAnchorElement[] = Array.from(crear().nativeElement.querySelectorAll('a.enlace-ficha'));
+    expect(enlaces.map((a) => a.getAttribute('href'))).toEqual(['/cliente/productos/p1', '/cliente/productos/p2']);
+  });
+
+  it('carga la búsqueda y la página que trae la dirección (la página 2 de la dirección es la 1 del backend)', () => {
+    buscar.mockReturnValue(of(pagina([TAZA], 1, 3)));
+    const fixture = crear({ busqueda: 'taza', pagina: '2' });
+
+    expect(buscar).toHaveBeenCalledWith('taza', 1);
+    expect(fixture.componentInstance.busqueda()).toBe('taza');
+  });
+
+  it('recuerda la búsqueda y la página para volver desde la ficha', () => {
+    buscar.mockReturnValue(of(pagina([TAZA], 1, 3)));
+    crear({ busqueda: 'taza', pagina: '2' });
+
+    expect(ultimosParametros()).toEqual({ busqueda: 'taza', pagina: 2 });
+  });
+
+  it('sin búsqueda y en la primera página la dirección queda limpia', () => {
+    crear();
+    expect(ultimosParametros()).toEqual({});
   });
 });

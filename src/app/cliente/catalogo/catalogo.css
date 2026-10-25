@@ -113,13 +113,32 @@ h1 {
 }
 
 .tarjeta {
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--paper);
   box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Al pasar el ratón la tarjeta se levanta un poco: se puede pulsar para ver la ficha */
+.tarjeta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 44px rgb(25 26 23 / 14%);
+}
+
+.enlace-ficha {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.enlace-ficha:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: -2px;
+  border-radius: var(--radius);
 }
 
 /* Todas las fotos ocupan lo mismo (un cuadrado), sean horizontales, verticales o la imagen por defecto. La foto
