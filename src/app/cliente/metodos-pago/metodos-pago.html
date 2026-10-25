@@ -1,0 +1,82 @@
+<section class="metodos">
+  <h1>Mis métodos de pago</h1>
+
+  @if (aviso()) {
+    <p class="aviso" role="status">{{ aviso() }}</p>
+  }
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="estado">Cargando…</p>
+  } @else {
+    @if (metodos().length === 0) {
+      <p class="estado">Todavía no tienes ningún método de pago guardado.</p>
+    } @else {
+      <ul class="lista">
+        @for (m of metodos(); track m.id) {
+          <li class="tarjeta">
+            <span class="icono" aria-hidden="true">💳</span>
+            <div class="datos">
+              <span class="numero">•••• •••• •••• {{ m.ultimosDigitos }}</span>
+              <span class="detalle">{{ m.titular }} · Caduca {{ m.caducidad }}</span>
+            </div>
+            <button type="button" class="eliminar" (click)="eliminar(m)" [disabled]="eliminando() === m.id">
+              {{ eliminando() === m.id ? 'Eliminando…' : 'Eliminar' }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (mostrarFormulario()) {
+      <form class="formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+        <h2>Nueva tarjeta</h2>
+
+        <label>
+          Titular
+          <input formControlName="titular" autocomplete="cc-name" maxlength="100" />
+          @if (invalido('titular')) { <span class="campo-error">Indica el titular de la tarjeta.</span> }
+        </label>
+
+        <label>
+          Número de tarjeta
+          <input formControlName="numeroTarjeta" inputmode="numeric" autocomplete="cc-number"
+                 maxlength="23" placeholder="1234 5678 9012 3456" />
+          @if (invalido('numeroTarjeta')) { <span class="campo-error">Entre 12 y 19 dígitos.</span> }
+        </label>
+
+        <div class="fila">
+          <label>
+            Caducidad
+            <input formControlName="caducidad" autocomplete="cc-exp" maxlength="5" placeholder="MM/AA" />
+            @if (invalido('caducidad')) {
+              <span class="campo-error">
+                {{ formulario.controls.caducidad.hasError('caducada') ? 'La tarjeta está caducada.' : 'Formato MM/AA.' }}
+              </span>
+            }
+          </label>
+
+          <label>
+            CVV
+            <input formControlName="cvv" type="password" inputmode="numeric" autocomplete="cc-csc"
+                   maxlength="4" placeholder="123" />
+            @if (invalido('cvv')) { <span class="campo-error">3 o 4 dígitos.</span> }
+          </label>
+        </div>
+
+        <p class="nota">🔒 Solo guardamos los 4 últimos dígitos. El número completo y el CVV no se guardan nunca.</p>
+
+        <div class="botones">
+          <button type="button" class="btn-secundario" (click)="cancelar()">Cancelar</button>
+          <button type="submit" class="btn-principal" [disabled]="enviando()">
+            {{ enviando() ? 'Guardando…' : 'Guardar tarjeta' }}
+          </button>
+        </div>
+      </form>
+    } @else {
+      <button type="button" class="btn-principal anadir" (click)="abrirFormulario()">+ Añadir tarjeta</button>
+    }
+  }
+</section>

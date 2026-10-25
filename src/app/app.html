@@ -27,6 +27,7 @@
             <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
           }
         </a>
+        <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page">💳 Métodos de pago</a>
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
@@ -83,6 +84,7 @@
             <span class="contador-carrito">{{ carrito.numeroArticulos() }}</span>
           }
         </a>
+        <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">💳 Métodos de pago</a>
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>

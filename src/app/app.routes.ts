@@ -13,6 +13,7 @@ import { Home } from './home/home';
 import { Catalogo } from './cliente/catalogo/catalogo';
 import { FichaProducto } from './cliente/ficha-producto/ficha-producto';
 import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
+import { MetodosPago } from './cliente/metodos-pago/metodos-pago';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 
 export const routes: Routes = [
@@ -35,6 +36,7 @@ export const routes: Routes = [
   // HU-21: ficha de un producto del catálogo
   { path: 'cliente/productos/:id', component: FichaProducto, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+    { path: 'metodos-pago', component: MetodosPago, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],
