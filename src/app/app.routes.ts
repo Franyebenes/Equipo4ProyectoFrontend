@@ -14,6 +14,7 @@ import { Catalogo } from './cliente/catalogo/catalogo';
 import { FichaProducto } from './cliente/ficha-producto/ficha-producto';
 import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
 import { MetodosPago } from './cliente/metodos-pago/metodos-pago';
+import { Pagar } from './cliente/pagar/pagar';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 
 export const routes: Routes = [
@@ -37,6 +38,7 @@ export const routes: Routes = [
   { path: 'cliente/productos/:id', component: FichaProducto, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
     { path: 'metodos-pago', component: MetodosPago, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+      { path: 'pagar', component: Pagar, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],

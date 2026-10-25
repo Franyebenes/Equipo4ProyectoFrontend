@@ -54,3 +54,4 @@ h1 { margin-bottom: 1.5rem; }
   .linea img, .sin-imagen { width: 56px; height: 56px; }
   .cantidad, .subtotal, .eliminar { grid-column: 2; justify-self: start; }
 }
+a.pagar { text-align: center; text-decoration: none; cursor: pointer; opacity: 1; background: #ff6b4a; }
