@@ -1,0 +1,151 @@
+<main class="pagina">
+  <header class="cabecera">
+    <div>
+      <p class="eyebrow">Catálogo</p>
+      <h1>Encuentra lo que necesitas</h1>
+      @if (premium()) {
+        <p class="sub">Como cliente premium, los precios ya incluyen tu descuento.</p>
+      }
+    </div>
+    <!-- Busca al pulsar Intro o el botón «Buscar»; con el campo vacío, vuelve a todo el catálogo -->
+    <form class="buscador" role="search" (ngSubmit)="buscar()">
+      <input type="search" name="busqueda" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
+             placeholder="Buscar productos por nombre" aria-label="Buscar productos por nombre"
+             maxlength="100" autocomplete="off">
+      <button type="submit" class="btn-buscar">Buscar</button>
+    </form>
+  </header>
+
+  <!-- HU-20: navegación por categorías. Se pulsa una para verla y otra vez para quitarla (vuelven todas). -->
+  @if (categorias().length > 0) {
+    <nav class="categorias-nav" aria-label="Categorías">
+      <span class="etiqueta">Categorías</span>
+      @for (c of categoriasVisibles(); track c.id) {
+        @let elegida = filtros().idCategoria === c.id;
+        <button type="button" class="chip" [class.elegida]="elegida" [attr.aria-pressed]="elegida"
+                [attr.title]="elegida ? 'Quitar esta categoría' : null" (click)="alternarCategoria(c.id)">
+          {{ c.nombre }}
+          @if (elegida) {
+            <span class="quitar" aria-hidden="true">✕</span>
+          }
+        </button>
+      }
+      @if (categoriasDesplegable().length > 0) {
+        <select class="mas-categorias" aria-label="Más categorías" (change)="elegirDelDesplegable($event)">
+          <option value="">Más categorías…</option>
+          @for (c of categoriasDesplegable(); track c.id) {
+            <option [value]="c.id">{{ c.nombre }}</option>
+          }
+        </select>
+      }
+    </nav>
+  }
+
+  <!-- HU-20: filtros por precio, valoración y disponibilidad (se combinan entre sí y con la búsqueda) -->
+  <div class="filtros">
+    <div class="filtro precio" role="group" aria-label="Precio">
+      <span class="etiqueta">Precio (€)</span>
+      <input type="number" min="0" step="0.01" placeholder="Mín." aria-label="Precio mínimo"
+             [ngModel]="filtros().precioMinimo" (input)="escribirPrecio('precioMinimo', $event)"
+             (change)="confirmarPrecio('precioMinimo', $event)">
+      <span aria-hidden="true">–</span>
+      <input type="number" min="0" step="0.01" placeholder="Máx." aria-label="Precio máximo"
+             [ngModel]="filtros().precioMaximo" (input)="escribirPrecio('precioMaximo', $event)"
+             (change)="confirmarPrecio('precioMaximo', $event)">
+    </div>
+    <label class="filtro">
+      <span class="etiqueta">Valoración</span>
+      <select [ngModel]="filtros().valoracionMinima ?? ''" (ngModelChange)="cambiarValoracion($event)">
+        <option value="">Cualquiera</option>
+        @for (v of valoraciones; track v) {
+          <option [value]="v">{{ v }} ★ o más</option>
+        }
+      </select>
+    </label>
+    <label class="filtro disponibles">
+      <input type="checkbox" [ngModel]="filtros().soloDisponibles" (ngModelChange)="cambiarSoloDisponibles($event)">
+      Solo disponibles
+    </label>
+    @if (hayFiltros()) {
+      <button type="button" class="btn-secundario btn-sm" (click)="limpiarFiltros()">✕ Quitar filtros</button>
+    }
+  </div>
+
+  @if (errorFiltros()) {
+    <div class="aviso-error" role="alert">{{ errorFiltros() }}</div>
+  } @else if (error()) {
+    <div class="aviso-error" role="alert">{{ error() }}</div>
+  } @else if (cargando() && productos().length === 0 && totalElementos() === 0) {
+    <p class="estado">Cargando productos…</p>
+  } @else {
+    <!-- Con una búsqueda o filtros aplicados: cuántos hay y un botón para volver a todo el catálogo -->
+    @if (hayBusquedaOFiltros() && totalElementos() > 0) {
+      <div class="resumen" aria-live="polite">
+        <span>{{ textoResumen() }}</span>
+        <button type="button" class="btn-secundario btn-sm" (click)="verTodo()">✕ Ver todo el catálogo</button>
+      </div>
+    }
+
+    <ul class="rejilla">
+      @for (p of productos(); track p.id) {
+        <li class="tarjeta">
+          <!-- HU-21: toda la tarjeta lleva a la ficha del producto -->
+          <a class="enlace-ficha" [routerLink]="['/cliente/productos', p.id]">
+            <div class="foto">
+              <img [src]="urlImagen(p.imagen) || imagenPorDefecto" [alt]="p.imagen ? p.nombre : 'Producto sin imagen'"
+                   [class.sin-imagen]="!p.imagen" loading="lazy">
+            </div>
+            <div class="info">
+              <h2 class="nombre">{{ p.nombre }}</h2>
+              @if (p.categorias.length > 0) {
+                <p class="categorias">{{ p.categorias.join(' · ') }}</p>
+              }
+              <p class="precio">
+                @if (tieneDescuento(p)) {
+                  <s class="precio-original">{{ formatearPrecio(p.precio) }}</s>
+                }
+                <strong>{{ formatearPrecio(p.precioFinal) }}</strong>
+              </p>
+              @if (p.numeroValoraciones > 0 && p.valoracionMedia !== null) {
+                <p class="valoracion" [attr.aria-label]="formatearValoracion(p.valoracionMedia) + ' de 5 estrellas'">
+                  <span class="estrella" aria-hidden="true">★</span> {{ formatearValoracion(p.valoracionMedia) }}
+                  <span class="muted">({{ p.numeroValoraciones }})</span>
+                </p>
+              }
+              <div class="ovalos">
+                <span class="ovalo {{ claseDisponibilidad(p.disponibilidad) }}">
+                  {{ textoDisponibilidad[p.disponibilidad] }}
+                </span>
+                @if (p.soloPremium) {
+                  <span class="ovalo premium" title="Solo pueden comprarlo los clientes premium">Premium</span>
+                }
+              </div>
+            </div>
+          </a>
+        </li>
+      } @empty {
+        <li class="vacio">
+          @if (hayBusquedaOFiltros()) {
+            <p>{{ textoSinResultados() }}</p>
+            <button type="button" class="btn-secundario" (click)="verTodo()">Ver todo el catálogo</button>
+          } @else {
+            <p>Todavía no hay productos en el catálogo.</p>
+          }
+        </li>
+      }
+    </ul>
+
+    @if (totalPaginas() > 1) {
+      <nav class="paginacion" aria-label="Páginas del catálogo">
+        <button type="button" (click)="irAPagina(pagina() - 1)" [disabled]="pagina() === 0">← Anterior</button>
+        @for (n of paginas(); track n) {
+          <button type="button" class="numero" [class.actual]="n === pagina()"
+                  [attr.aria-current]="n === pagina() ? 'page' : null" (click)="irAPagina(n)">{{ n + 1 }}</button>
+        }
+        <button type="button" (click)="irAPagina(pagina() + 1)" [disabled]="pagina() === totalPaginas() - 1">
+          Siguiente →
+        </button>
+      </nav>
+    }
+  }
+</main>

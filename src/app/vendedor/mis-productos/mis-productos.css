@@ -7,9 +7,11 @@ table {
   border-collapse: collapse;
 }
 
+/* Con la columna de descuento hay siete columnas: algo menos de margen para que quepan sin
+   partir los nombres */
 th,
 td {
-  padding: 0.85rem 1.25rem;
+  padding: 0.85rem 1rem;
   text-align: left;
   vertical-align: middle;
 }
@@ -84,9 +86,65 @@ tbody tr + tr td {
   margin-left: 0.5rem;
 }
 
-/* Botones de cada fila (Activar/Desactivar y Ver detalle) */
+/* Botones de cada fila (Activar/Desactivar, Ver detalle, Editar y Eliminar) */
 .acciones {
   display: flex;
   justify-content: flex-end;
   gap: 0.4rem;
+}
+
+/* Todos con el mismo ancho, para que queden alineados de una fila a otra aunque el texto cambie
+   (Activar, Desactivar o Guardando…) */
+.acciones .btn {
+  min-width: 6.25rem;
+  padding-inline: 0.5rem;
+}
+
+/* Las filas se alinean por la primera línea del texto */
+tbody td {
+  vertical-align: baseline;
+}
+
+/* El nombre no se parte mientras quepa: si falta sitio, se parten antes las categorías */
+.col-nombre {
+  min-width: 9rem;
+}
+
+/* Estado del producto y, si es solo premium, la estrella: siempre en la misma línea */
+.chips-estado {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* «Activo» e «Inactivo» con el mismo ancho, para que la estrella quede siempre en el mismo sitio */
+.chips-estado .estado {
+  min-width: 5.5rem;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Producto visible solo para clientes premium: estrella dorada con una P, junto a Activo/Inactivo */
+.insignia-premium {
+  display: inline-flex;
+}
+
+.insignia-premium svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.insignia-premium path {
+  fill: #f2b705;
+  stroke: #b8860b;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.insignia-premium text {
+  fill: #ffffff;
+  font-size: 8px;
+  font-weight: 800;
+  font-family: inherit;
 }

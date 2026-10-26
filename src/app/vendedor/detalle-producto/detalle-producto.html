@@ -1,6 +1,8 @@
 <section class="admin-page">
   <div class="bar">
-    <a routerLink="/vendedor/productos" class="volver">← Volver a mi catálogo</a>
+    <a routerLink="/vendedor/productos" [queryParams]="filtrosCatalogo()" class="volver">
+      ← Volver a mi catálogo
+    </a>
 
     @if (cargando()) {
       <div class="card ficha"><p class="muted">Cargando producto…</p></div>
@@ -14,8 +16,11 @@
             <h1>{{ p.nombre }}</h1>
             <p class="sub">{{ p.categorias.join(' · ') }}</p>
           </div>
-          <div class="cabecera-estado">
-            <span class="estado" [class.inactivo]="!p.visible">{{ p.visible ? 'Activo' : 'Inactivo' }}</span>
+          <!-- El estado, el stock y la visibilidad se ven en los datos de la ficha: aquí solo las acciones -->
+          <div class="cabecera-acciones">
+            <a [routerLink]="['/vendedor/productos', p.id, 'editar']" class="btn btn-crear">
+              Editar producto
+            </a>
             <button type="button" class="btn btn-ghost" (click)="alternarEstado(p)" [disabled]="cambiandoEstado()">
               @if (cambiandoEstado()) {
                 Guardando…
@@ -25,54 +30,133 @@
                 Activar producto
               }
             </button>
+            <button type="button" class="btn btn-danger" (click)="pedirEliminacion()">Eliminar producto</button>
           </div>
         </header>
 
         @if (exito()) {
           <div class="aviso aviso-ok" role="status">{{ exito() }}</div>
         }
-        @if (errorEstado()) {
-          <div class="aviso aviso-error" role="alert">{{ errorEstado() }}</div>
+        @if (errorAccion()) {
+          <div class="aviso aviso-error" role="alert">{{ errorAccion() }}</div>
         }
 
         <div class="card ficha">
-          <!-- Sin foto se muestra la imagen por defecto -->
-          <img class="imagen" [src]="p.imagen || imagenPorDefecto" [alt]="p.imagen ? p.nombre : 'Producto sin imagen'">
+          <!-- Imagen a la izquierda y, a su derecha, los datos y la descripción -->
+          <div class="ficha-principal">
+            <!-- Sin foto se muestra la imagen por defecto -->
+            <img class="imagen" [src]="urlImagen(p.imagen) || imagenPorDefecto"
+                 [alt]="p.imagen ? p.nombre : 'Producto sin imagen'">
 
-          <dl class="datos">
-            <div>
-              <dt>Precio</dt>
-              <dd>{{ formatearPrecio(p.precio) }}</dd>
+            <div class="ficha-info">
+              <dl class="datos">
+                <div>
+                  <dt>Precio</dt>
+                  <dd>{{ formatearPrecio(p.precio) }}</dd>
+                </div>
+                <div>
+                  <dt>Descuento</dt>
+                  <dd>
+                    @if (p.descuento) {
+                      {{ p.descuento }} % · {{ formatearPrecioConDescuento(p.precio, p.descuento) }}
+                    } @else {
+                      Sin descuento
+                    }
+                  </dd>
+                </div>
+                <div>
+                  <dt>Descuento premium</dt>
+                  <dd>
+                    @if (p.descuentoPremium) {
+                      {{ p.descuentoPremium }} % · {{ formatearPrecioPremium(p) }}
+                      <span class="nota-precio">Precio para premium, con los dos descuentos</span>
+                    } @else {
+                      Sin descuento premium
+                    }
+                  </dd>
+                </div>
+                <div>
+                  <dt>Stock</dt>
+                  <dd>
+                    {{ textoStock(p.stock) }}
+                    @if (p.stock === 0) {
+                      <span class="nota-agotado">No disponible para la venta</span>
+                    }
+                  </dd>
+                </div>
+                <div>
+                  <dt>Estado</dt>
+                  <dd>{{ p.visible ? 'Activo: visible para los clientes' : 'Inactivo: oculto para los clientes' }}</dd>
+                </div>
+                <div>
+                  <dt>Visibilidad</dt>
+                  <dd class="con-insignia">
+                    <!-- Solo premium: la misma estrella dorada con una P que en Mi catálogo -->
+                    @if (p.soloPremium) {
+                      <span class="insignia-premium" title="Premium" role="img" aria-label="Premium">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M12 1.5l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.6l-6.4 3.5 1.4-7.1-5.3-5 7.2-.9z" />
+                          <text x="12" y="15.2" text-anchor="middle">P</text>
+                        </svg>
+                      </span>
+                      Solo clientes premium
+                    } @else {
+                      Todos los clientes
+                    }
+                  </dd>
+                </div>
+              </dl>
+
+              <h2 class="seccion">Descripción</h2>
+              <p class="descripcion">{{ p.descripcion || 'Este producto no tiene descripción.' }}</p>
             </div>
-            <div>
-              <dt>Descuento</dt>
-              <dd>
-                @if (p.descuento) {
-                  {{ p.descuento }} % · {{ precioConDescuento(p, p.descuento) }}
-                } @else {
-                  Sin descuento
-                }
-              </dd>
-            </div>
-            @if (p.descuentoPremium) {
-              <div>
-                <dt>Descuento Premium</dt>
-                <dd>{{ p.descuentoPremium }} % · {{ precioConDescuento(p, p.descuentoPremium) }}</dd>
+          </div>
+
+          <!-- Debajo, a todo el ancho, solo la gestión de stock -->
+          <section class="gestion-stock" aria-labelledby="titulo-stock">
+            <h2 id="titulo-stock" class="seccion">Gestionar stock</h2>
+            <p class="muted ayuda-stock">
+              Aumenta o disminuye las unidades disponibles y guarda el cambio.
+            </p>
+            <div class="stock-controles">
+              <button type="button" class="btn btn-ghost btn-cantidad" aria-label="Quitar una unidad"
+                      (click)="ajustarStock(-1)" [disabled]="(nuevoStock() ?? 0) <= 0">−</button>
+              <div class="campo">
+                <input type="number" min="0" [max]="stockMaximo" step="1" aria-label="Unidades disponibles"
+                       [ngModel]="nuevoStock()" (ngModelChange)="nuevoStock.set($event)">
               </div>
+              <button type="button" class="btn btn-ghost btn-cantidad" (click)="ajustarStock(1)"
+                      aria-label="Añadir una unidad"
+                      [disabled]="(nuevoStock() ?? 0) >= stockMaximo">+</button>
+              <button type="button" class="btn btn-crear" (click)="guardarStock(p)"
+                      [disabled]="guardandoStock() || stockSinCambios()">
+                @if (guardandoStock()) {
+                  Guardando…
+                } @else {
+                  Guardar stock
+                }
+              </button>
+            </div>
+            @if (exitoStock()) {
+              <div class="aviso aviso-ok" role="status">{{ exitoStock() }}</div>
             }
-            <div>
-              <dt>Stock</dt>
-              <dd>{{ p.stock === 0 ? 'Sin stock' : p.stock + (p.stock === 1 ? ' unidad' : ' unidades') }}</dd>
-            </div>
-            <div>
-              <dt>Estado</dt>
-              <dd>{{ p.visible ? 'Activo: visible para los clientes' : 'Inactivo: oculto para los clientes' }}</dd>
-            </div>
-          </dl>
+            @if (errorStock()) {
+              <div class="aviso aviso-error" role="alert">{{ errorStock() }}</div>
+            }
+          </section>
 
-          <h2 class="seccion">Descripción</h2>
-          <p class="descripcion">{{ p.descripcion || 'Este producto no tiene descripción.' }}</p>
         </div>
+
+        @if (confirmandoEliminacion()) {
+          <app-dialogo-confirmacion
+            titulo="Eliminar producto"
+            [mensaje]="mensajeConfirmarEliminacion(p)"
+            textoConfirmar="Eliminar"
+            textoProcesando="Eliminando…"
+            [procesando]="eliminando()"
+            (cancelar)="cancelarEliminacion()"
+            (confirmar)="confirmarEliminacion(p)" />
+        }
       }
     }
   </div>

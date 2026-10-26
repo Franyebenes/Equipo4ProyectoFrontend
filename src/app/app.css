@@ -209,6 +209,14 @@
   font-weight: 700;
 }
 .enlace-carrito { display: inline-flex; align-items: center; gap: .4rem; }
+/* Opciones del cliente que todavía no están hechas: se ven, pero apagadas y sin enlace */
+.proximamente {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 .contador-carrito {
   min-width: 1.4rem; padding: 0 .4rem; border-radius: 999px;
   background: #ff6b4a; color: #fff; font-size: .8rem; font-weight: 700;

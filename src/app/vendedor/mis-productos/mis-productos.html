@@ -57,9 +57,14 @@
       <div class="aviso aviso-ok" role="status">{{ exito() }}</div>
     }
 
+    @if (errorAccion()) {
+      <div class="aviso aviso-error" role="alert">{{ errorAccion() }}</div>
+    }
+
+    <!-- Con un rango de precio no válido no se muestra la lista: no correspondería a los filtros -->
     @if (error()) {
       <div class="aviso aviso-error" role="alert">{{ error() }}</div>
-    } @else {
+    } @else if (!errorFiltros()) {
       <div class="card">
         <div class="tabla-scroll">
           <table>
@@ -68,6 +73,7 @@
                 <th>Nombre</th>
                 <th>Categoría</th>
                 <th class="derecha">Precio</th>
+                <th class="derecha" title="Precio con descuento">Dto.</th>
                 <th class="derecha">Stock</th>
                 <th>Estado</th>
                 <th class="col-acciones derecha">Acciones</th>
@@ -75,16 +81,45 @@
             </thead>
             <tbody>
               @if (cargando() && productos().length === 0) {
-                <tr><td colspan="6" class="vacio">Cargando tus productos…</td></tr>
+                <tr><td colspan="7" class="vacio">Cargando tus productos…</td></tr>
               } @else {
                 @for (p of productos(); track p.id) {
                   <tr>
-                    <td><strong>{{ p.nombre }}</strong></td>
+                    <td class="col-nombre"><strong>{{ p.nombre }}</strong></td>
                     <td class="muted">{{ p.categorias.join(', ') }}</td>
                     <td class="derecha">{{ formatearPrecio(p.precio) }}</td>
-                    <td class="derecha">{{ p.stock }}</td>
+                    <!-- Precio es el de venta sin descuento; aquí, solo el precio final con el descuento ya aplicado.
+                         Los porcentajes (también el premium) se ven en el detalle del producto -->
+                    <td class="derecha">
+                      @if (p.descuento) {
+                        {{ formatearPrecioConDescuento(p.precio, p.descuento) }}
+                      } @else {
+                        <span class="muted" title="Sin descuento">—</span>
+                      }
+                    </td>
+                    <!-- Sin stock: en vez de 0 se indica directamente «Agotado» -->
+                    <td class="derecha">
+                      @if (p.stock === 0) {
+                        <span class="estado agotado" title="Sin stock: no disponible para la venta">Agotado</span>
+                      } @else {
+                        {{ p.stock }}
+                      }
+                    </td>
                     <td>
-                      <span class="estado" [class.inactivo]="!p.visible">{{ p.visible ? 'Activo' : 'Inactivo' }}</span>
+                      <div class="chips-estado">
+                        <span class="estado" [class.inactivo]="!p.visible">
+                          {{ p.visible ? 'Activo' : 'Inactivo' }}
+                        </span>
+                        <!-- Solo premium: estrella dorada con una P (distinta de la estrella de favoritos) -->
+                        @if (p.soloPremium) {
+                          <span class="insignia-premium" title="Premium" role="img" aria-label="Premium">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M12 1.5l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.6l-6.4 3.5 1.4-7.1-5.3-5 7.2-.9z" />
+                              <text x="12" y="15.2" text-anchor="middle">P</text>
+                            </svg>
+                          </span>
+                        }
+                      </div>
                     </td>
                     <td class="col-acciones">
                       <div class="acciones">
@@ -100,15 +135,23 @@
                           }
                         </button>
                         <a [routerLink]="['/vendedor/productos', p.id]" class="btn btn-ghost btn-sm">Ver detalle</a>
+                        <a [routerLink]="['/vendedor/productos', p.id, 'editar']" class="btn btn-ghost btn-sm"
+                           [attr.aria-label]="'Editar ' + p.nombre">Editar</a>
+                        <button type="button" class="btn btn-danger btn-sm" (click)="pedirEliminacion(p)"
+                                [attr.aria-label]="'Eliminar ' + p.nombre">
+                          Eliminar
+                        </button>
                       </div>
                     </td>
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="6" class="vacio">
+                    <td colspan="7" class="vacio">
                       @if (hayFiltros()) {
                         Ningún producto de tu catálogo coincide con la búsqueda y los filtros elegidos.
-                        <button type="button" class="btn btn-ghost btn-sm" (click)="limpiarFiltros()">Ver todo el catálogo</button>
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="limpiarFiltros()">
+                          Ver todo el catálogo
+                        </button>
                       } @else {
                         Todavía no has dado de alta ningún producto. Cuando lo hagas, aparecerá aquí.
                       }
@@ -123,3 +166,14 @@
     }
   </div>
 </section>
+
+@if (productoAEliminar(); as producto) {
+  <app-dialogo-confirmacion
+    titulo="Eliminar producto"
+    [mensaje]="mensajeConfirmarEliminacion(producto)"
+    textoConfirmar="Eliminar"
+    textoProcesando="Eliminando…"
+    [procesando]="eliminando()"
+    (cancelar)="cancelarEliminacion()"
+    (confirmar)="confirmarEliminacion()" />
+}

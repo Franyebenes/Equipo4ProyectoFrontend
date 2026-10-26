@@ -1,0 +1,299 @@
+.pagina {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 3.5rem;
+}
+
+.volver {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.volver:hover {
+  color: var(--ink);
+}
+
+.estado,
+.muted {
+  color: var(--muted);
+}
+
+.aviso-error {
+  padding: 1.25rem;
+  border-radius: 0.9rem;
+  background: var(--coral-soft);
+  color: #9a3412;
+  font-weight: 600;
+}
+
+.aviso-error p {
+  margin: 0 0 1rem;
+}
+
+/* Imagen a la izquierda y los datos a la derecha; en pantallas estrechas, uno debajo del otro */
+.ficha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 2.5rem;
+  padding: 2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 800px) {
+  .ficha {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.25rem;
+  }
+}
+
+.foto {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 1rem;
+  background: var(--cream);
+}
+
+.foto img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.foto img.sin-imagen {
+  object-fit: contain;
+}
+
+.ampliable {
+  cursor: zoom-in;
+}
+
+.lupa {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgb(25 26 23 / 65%);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.categorias {
+  margin: 0;
+  color: var(--coral);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+h2 {
+  margin: 0.75rem 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.resumen-valoraciones {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.estrellas {
+  color: var(--line);
+  letter-spacing: 0.05em;
+}
+
+.estrellas .llena {
+  color: #e0a800;
+}
+
+.precio {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 1.9rem;
+}
+
+.precio-original {
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.descuentos {
+  margin: -0.4rem 0 0;
+  padding: 0;
+  color: var(--coral);
+  font-size: 0.9rem;
+  font-weight: 700;
+  list-style: none;
+}
+
+.ovalos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ovalo {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.ovalo.disponible {
+  background: #e3efe4;
+  color: var(--ok);
+}
+
+.ovalo.poco-stock {
+  background: #fdebd3;
+  color: #b45309;
+}
+
+.ovalo.agotado {
+  background: #fde2e2;
+  color: #b91c1c;
+}
+
+.ovalo.premium {
+  border: 1px solid #b8860b;
+  background: #f6d365;
+  color: #5c4300;
+}
+
+.compra {
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+/* − cantidad + y el botón «Añadir al carrito» en la misma línea */
+.anadir {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.selector-cantidad {
+  display: inline-flex;
+  align-items: center;
+  height: 2.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+}
+
+.selector-cantidad button {
+  width: 2.6rem;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.selector-cantidad button:disabled {
+  color: var(--line);
+  cursor: default;
+}
+
+.selector-cantidad span {
+  min-width: 1.75rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.no-disponible {
+  margin: 0;
+  color: #9a3412;
+  font-weight: 700;
+}
+
+.descripcion {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+section p {
+  margin: 0;
+}
+
+.btn-secundario {
+  display: inline-block;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Imagen a pantalla completa: se cierra al pulsar fuera, con el botón o con Escape */
+.visor {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background: rgb(25 26 23 / 85%);
+  cursor: zoom-out;
+}
+
+.visor img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 0.75rem;
+  object-fit: contain;
+}
+
+.visor .cerrar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font-size: 1.1rem;
+  cursor: pointer;
+}

@@ -1,91 +1,127 @@
 <section class="admin-page">
   <div class="bar">
-    <a routerLink="/vendedor/productos" class="volver">← Volver a mi catálogo</a>
+    <a [routerLink]="rutaVolver" [queryParams]="parametrosVolver" class="volver">
+      {{ editando ? '← Volver al producto' : '← Volver a mi catálogo' }}
+    </a>
 
     <header class="page-head">
       <div>
         <p class="eyebrow">Mi catálogo</p>
-        <h1>Nuevo producto</h1>
+        <h1>{{ editando ? 'Editar producto' : 'Nuevo producto' }}</h1>
         <p class="sub">Los campos marcados con * son obligatorios.</p>
       </div>
     </header>
 
-    @if (error()) {
-      <div class="aviso aviso-error" role="alert">{{ error() }}</div>
-    }
+    @if (cargando()) {
+      <div class="card formulario"><p class="muted">Cargando producto…</p></div>
+    } @else if (errorCarga()) {
+      <div class="aviso aviso-error" role="alert">{{ errorCarga() }}</div>
+    } @else {
+      @if (error()) {
+        <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+      }
 
-    <form class="card formulario" (ngSubmit)="guardar()" novalidate>
-      <div class="grid">
-        <label class="campo">
-          Nombre *
-          <input name="nombre" [(ngModel)]="nombre" maxlength="100">
-        </label>
-        <label class="campo">
-          Precio (€) *
-          <input name="precio" type="number" min="0.01" step="0.01" [(ngModel)]="precio">
-        </label>
-        <label class="campo">
-          Stock *
-          <input name="stock" type="number" min="0" step="1" [(ngModel)]="stock">
-        </label>
-        <label class="campo">
-          Descuento (%)
-          <input name="descuento" type="number" min="0" max="100" step="1" placeholder="Sin descuento"
-                 [(ngModel)]="descuento">
-          @if (precioConDescuento(); as precioFinal) {
-            <span class="ayuda">Precio con descuento: {{ precioFinal }}</span>
-          }
-        </label>
-      </div>
+      <form class="card formulario" (ngSubmit)="guardar()" novalidate>
+        <div class="grid">
+          <label class="campo">
+            Nombre *
+            <input name="nombre" [(ngModel)]="nombre" maxlength="100">
+          </label>
+          <label class="campo">
+            Precio (€) *
+            <input name="precio" type="number" min="0.01" step="0.01" [(ngModel)]="precio">
+          </label>
+          <label class="campo">
+            Stock *
+            <input name="stock" type="number" min="0" [max]="stockMaximo" step="1" [(ngModel)]="stock">
+          </label>
+          <label class="campo">
+            Descuento (%)
+            <input name="descuento" type="number" min="0" max="100" step="1" placeholder="Sin descuento"
+                   [(ngModel)]="descuento">
+            @if (precioConDescuento(); as precioFinal) {
+              <span class="ayuda">Precio con descuento: {{ precioFinal }}</span>
+            }
+          </label>
+          <label class="campo">
+            Descuento premium (%)
+            <input name="descuentoPremium" type="number" min="0" max="100" step="1" placeholder="Sin descuento"
+                   [(ngModel)]="descuentoPremium">
+            @if (precioPremium(); as precioPremium) {
+              <span class="ayuda">Precio para premium: {{ precioPremium }}</span>
+            } @else {
+              <span class="muted nota">Se aplica además del descuento para todos.</span>
+            }
+          </label>
+        </div>
 
-      <label class="interruptor">
-        <input type="checkbox" name="activo" [(ngModel)]="activo">
-        <span>
-          <strong>Producto activo</strong>
-          <span class="muted">
-            {{ activo ? 'Los clientes podrán verlo en el catálogo.' : 'Quedará oculto para los clientes.' }}
+        <label class="interruptor">
+          <input type="checkbox" name="activo" [(ngModel)]="activo">
+          <span>
+            <strong>Producto activo</strong>
+            <span class="muted">
+              {{ activo ? 'Los clientes podrán verlo en el catálogo.' : 'Quedará oculto para los clientes.' }}
+            </span>
           </span>
-        </span>
-      </label>
+        </label>
 
-      <label class="campo">
-        Descripción *
-        <textarea name="descripcion" rows="4" maxlength="2000" [(ngModel)]="descripcion"></textarea>
-      </label>
+        <label class="interruptor">
+          <input type="checkbox" name="soloPremium" [(ngModel)]="soloPremium">
+          <span>
+            <strong>Solo para clientes premium</strong>
+            <span class="muted">
+              {{ soloPremium ? 'Los clientes estándar no lo verán en el catálogo.' : 'Lo verán todos los clientes.' }}
+            </span>
+          </span>
+        </label>
 
-      <fieldset class="campo categorias">
-        <legend>Categorías * <span class="muted">(elige una o varias)</span></legend>
-        <div class="chips">
-          @for (c of categorias(); track c.id) {
-            <label class="chip" [class.elegida]="idCategorias().includes(c.id)">
-              <input type="checkbox" [checked]="idCategorias().includes(c.id)" (change)="alternarCategoria(c.id)">
-              {{ c.nombre }}
-            </label>
-          } @empty {
-            <p class="muted">No hay categorías disponibles.</p>
+        <label class="campo">
+          Descripción *
+          <textarea name="descripcion" rows="4" maxlength="2000" [(ngModel)]="descripcion"></textarea>
+        </label>
+
+        <fieldset class="campo categorias">
+          <legend>Categorías * <span class="muted">(elige una o varias)</span></legend>
+          <div class="chips">
+            @for (c of categorias(); track c.id) {
+              <label class="chip" [class.elegida]="idCategorias().includes(c.id)">
+                <input type="checkbox" [checked]="idCategorias().includes(c.id)" (change)="alternarCategoria(c.id)">
+                {{ c.nombre }}
+              </label>
+            } @empty {
+              <p class="muted">No hay categorías disponibles.</p>
+            }
+          </div>
+        </fieldset>
+
+        <div class="campo">
+          Imagen
+          @if (imagen(); as src) {
+            <div class="vista-previa">
+              <img [src]="src" alt="Vista previa del producto">
+              <button type="button" class="btn btn-ghost btn-sm" (click)="quitarImagen()">Quitar imagen</button>
+            </div>
+          } @else {
+            <input type="file" accept="image/jpeg,image/png,image/webp" (change)="seleccionarImagen($event)">
+            <span class="muted">JPG, PNG o WEBP, de 1 MB como máximo.</span>
           }
         </div>
-      </fieldset>
 
-      <div class="campo">
-        Imagen
-        @if (imagen(); as src) {
-          <div class="vista-previa">
-            <img [src]="src" alt="Vista previa del producto">
-            <button type="button" class="btn btn-ghost btn-sm" (click)="quitarImagen()">Quitar imagen</button>
-          </div>
-        } @else {
-          <input type="file" accept="image/jpeg,image/png,image/webp" (change)="seleccionarImagen($event)">
-          <span class="muted">JPG, PNG o WEBP, de 1 MB como máximo.</span>
-        }
-      </div>
-
-      <div class="botones">
-        <a routerLink="/vendedor/productos" class="btn btn-ghost">Cancelar</a>
-        <button type="submit" class="btn btn-crear" [disabled]="guardando()">
-          {{ guardando() ? 'Guardando…' : 'Crear producto' }}
-        </button>
-      </div>
-    </form>
+        <div class="botones">
+          <a [routerLink]="rutaVolver" [queryParams]="parametrosVolver" class="btn btn-ghost">
+            Cancelar
+          </a>
+          <button type="submit" class="btn btn-crear" [disabled]="guardando()">
+            @if (guardando()) {
+              Guardando…
+            } @else if (editando) {
+              Guardar cambios
+            } @else {
+              Crear producto
+            }
+          </button>
+        </div>
+      </form>
+    }
   </div>
 </section>

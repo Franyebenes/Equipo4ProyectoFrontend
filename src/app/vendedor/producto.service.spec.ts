@@ -1,8 +1,26 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { ProductoAlta, ProductoCatalogo, ProductoService, mensajeEstadoCambiado } from './producto.service';
+import { Categoria } from '../admin/categoria.service';
+import {
+  ProductoAlta,
+  ProductoCatalogo,
+  ProductoService,
+  STOCK_MAXIMO,
+  formatearPrecioConDescuento,
+  idsDeCategorias,
+  mensajeConfirmarEliminacion,
+  mensajeEstadoCambiado,
+  mensajeProductoCreado,
+  mensajeProductoEliminado,
+  mensajeProductoModificado,
+  mensajeStockActualizado,
+  stockActualDelConflicto,
+  textoStock,
+  urlImagen,
+  validarStock,
+} from './producto.service';
 
 const URL_CATALOGO = 'http://localhost:8080/api/vendedor/productos';
 const URL_CSRF = 'http://localhost:8080/api/auth/csrf';
@@ -97,10 +115,54 @@ describe('ProductoService (peticiones que modifican datos)', () => {
     expect(respuesta?.visible).toBe(false);
   });
 
+  it('cambiarStock pide el token CSRF y envía un PATCH con la cantidad nueva y la que se veía', () => {
+    let respuesta: ProductoCatalogo | undefined;
+    servicio.cambiarStock('p1', 12, 4).subscribe({ next: (producto) => (respuesta = producto) });
+
+    http.expectOne(URL_CSRF).flush({ token: 'token-3', headerName: 'X-XSRF-TOKEN' });
+    const peticion = http.expectOne((r) => r.url === `${URL_CATALOGO}/p1/stock`);
+    expect(peticion.request.method).toBe('PATCH');
+    expect(peticion.request.params.get('stockAnterior')).toBe('4');
+    expect(peticion.request.headers.get('X-XSRF-TOKEN')).toBe('token-3');
+    expect(peticion.request.body).toEqual({ stock: 12 });
+    peticion.flush({ id: 'p1', nombre: 'Lámpara', stock: 12 });
+    expect(respuesta?.stock).toBe(12);
+  });
+
+  it('eliminar pide el token CSRF y envía un DELETE del producto', () => {
+    let terminado = false;
+    servicio.eliminar('p1').subscribe({ next: () => (terminado = true) });
+
+    http.expectOne(URL_CSRF).flush({ token: 'token-4', headerName: 'X-XSRF-TOKEN' });
+    const peticion = http.expectOne(`${URL_CATALOGO}/p1`);
+    expect(peticion.request.method).toBe('DELETE');
+    expect(peticion.request.headers.get('X-XSRF-TOKEN')).toBe('token-4');
+    peticion.flush(null, { status: 204, statusText: 'No Content' });
+    expect(terminado).toBe(true);
+  });
+
+  it('modificar pide el token CSRF y envía un PUT con los datos nuevos del producto', () => {
+    const cambios: ProductoAlta = {
+      nombre: 'Lámpara LED', descripcion: 'Luz cálida', precio: 95.5, idCategorias: ['c1', 'c2'],
+      stock: 12, imagen: null, activo: false, descuento: 20, descuentoPremium: 5, soloPremium: true,
+    };
+    let respuesta: ProductoCatalogo | undefined;
+    servicio.modificar('p1', cambios, 4).subscribe({ next: (producto) => (respuesta = producto) });
+
+    http.expectOne(URL_CSRF).flush({ token: 'token-5', headerName: 'X-XSRF-TOKEN' });
+    const peticion = http.expectOne((r) => r.url === `${URL_CATALOGO}/p1`);
+    expect(peticion.request.method).toBe('PUT');
+    expect(peticion.request.params.get('stockAnterior')).toBe('4');
+    expect(peticion.request.headers.get('X-XSRF-TOKEN')).toBe('token-5');
+    expect(peticion.request.body).toEqual(cambios);
+    peticion.flush({ id: 'p1', nombre: 'Lámpara LED', precio: 95.5 });
+    expect(respuesta?.nombre).toBe('Lámpara LED');
+  });
+
   it('crear también envía el token CSRF', () => {
     const alta: ProductoAlta = {
       nombre: 'Lámpara', descripcion: 'De pie', precio: 80, idCategorias: ['c1'], stock: 4,
-      imagen: null, activo: true, descuento: null,
+      imagen: null, activo: true, descuento: null, descuentoPremium: null, soloPremium: false,
     };
     servicio.crear(alta).subscribe();
 
@@ -126,5 +188,123 @@ describe('mensajeEstadoCambiado', () => {
     expect(mensajeEstadoCambiado(producto(false))).toBe(
       '«Lámpara» está inactivo: los clientes ya no pueden verlo ni comprarlo.',
     );
+  });
+});
+
+describe('Gestión de stock: textos y validación', () => {
+  it('textoStock muestra la cantidad en singular, plural o «Sin stock»', () => {
+    expect(textoStock(0)).toBe('Sin stock');
+    expect(textoStock(1)).toBe('1 unidad');
+    expect(textoStock(12)).toBe('12 unidades');
+  });
+
+  it('validarStock acepta enteros no negativos', () => {
+    expect(validarStock(0)).toBe('');
+    expect(validarStock(25)).toBe('');
+  });
+
+  it('validarStock acepta hasta el máximo y rechaza más unidades', () => {
+    expect(validarStock(STOCK_MAXIMO)).toBe('');
+    expect(validarStock(STOCK_MAXIMO + 1)).toBe('El stock no puede superar 1.000.000 unidades.');
+  });
+
+  it('stockActualDelConflicto da la cantidad actual solo si el stock cambió mientras se editaba', () => {
+    const error = (status: number, cuerpo: unknown) => ({ status, error: cuerpo }) as HttpErrorResponse;
+    const conflicto = error(409, { mensaje: 'El stock ha cambiado…', stockActual: 3 });
+    expect(stockActualDelConflicto(conflicto)).toBe(3);
+    expect(stockActualDelConflicto(error(409, { mensaje: 'Otro conflicto' }))).toBe(null);
+    expect(stockActualDelConflicto(error(400, { stockActual: 3 }))).toBe(null);
+  });
+
+  it('validarStock rechaza la cantidad vacía, negativa o con decimales', () => {
+    expect(validarStock(null)).toBe('Indica la cantidad de stock.');
+    expect(validarStock(-1)).toBe('El stock debe ser un número entero no negativo.');
+    expect(validarStock(2.5)).toBe('El stock debe ser un número entero no negativo.');
+  });
+
+  it('mensajeStockActualizado avisa de que sin stock no se puede vender', () => {
+    const producto = (stock: number) => ({ nombre: 'Lámpara', stock }) as ProductoCatalogo;
+    expect(mensajeStockActualizado(producto(3))).toBe('Stock de «Lámpara» actualizado: 3 unidades.');
+    expect(mensajeStockActualizado(producto(0))).toBe(
+      'Stock de «Lámpara» actualizado: sin stock. ' +
+        'No está disponible para la venta hasta que repongas unidades.',
+    );
+  });
+});
+
+describe('Eliminar producto: textos', () => {
+  const producto = { nombre: 'Lámpara' } as ProductoCatalogo;
+
+  it('la confirmación nombra el producto y avisa de que no se puede deshacer', () => {
+    const mensaje = mensajeConfirmarEliminacion(producto);
+    expect(mensaje).toContain('«Lámpara»');
+    expect(mensaje).toContain('no se puede deshacer');
+  });
+
+  it('confirma la eliminación nombrando el producto', () => {
+    expect(mensajeProductoEliminado(producto)).toBe('«Lámpara» se ha eliminado de tu catálogo.');
+  });
+});
+
+describe('Modificar producto: textos y categorías', () => {
+  it('confirma los cambios nombrando el producto', () => {
+    expect(mensajeProductoModificado({ nombre: 'Lámpara LED' } as ProductoCatalogo)).toBe(
+      'Cambios guardados: «Lámpara LED» se ha actualizado en tu catálogo.',
+    );
+  });
+
+  it('idsDeCategorias marca las categorías del producto por su nombre', () => {
+    const categorias: Categoria[] = [
+      { id: 'c1', nombre: 'Hogar', descripcion: '' },
+      { id: 'c2', nombre: 'Iluminación', descripcion: '' },
+      { id: 'c3', nombre: 'Moda', descripcion: '' },
+    ];
+    expect(idsDeCategorias(['Iluminación', 'Hogar'], categorias)).toEqual(['c1', 'c2']);
+    // Una categoría que ya no existe no se marca
+    expect(idsDeCategorias(['Borrada'], categorias)).toEqual([]);
+  });
+});
+
+describe('formatearPrecioConDescuento', () => {
+  it('aplica el porcentaje al precio base', () => {
+    // Intl separa los euros con un espacio duro antes del símbolo
+    expect(formatearPrecioConDescuento(95.5, 20).replace(/\s/g, ' ')).toBe('76,40 €');
+    expect(formatearPrecioConDescuento(80, 0).replace(/\s/g, ' ')).toBe('80,00 €');
+  });
+});
+
+describe('Alta de producto: confirmación', () => {
+  it('confirma el alta nombrando el producto', () => {
+    const producto = { nombre: 'Lámpara', visible: true } as ProductoCatalogo;
+    expect(mensajeProductoCreado(producto)).toBe('«Lámpara» se ha añadido a tu catálogo.');
+  });
+
+  it('si se creó inactivo, recuerda que los clientes no lo ven', () => {
+    const producto = { nombre: 'Lámpara', visible: false } as ProductoCatalogo;
+    expect(mensajeProductoCreado(producto)).toBe(
+      '«Lámpara» se ha añadido a tu catálogo como inactivo: ' +
+        'los clientes no lo verán hasta que lo actives.',
+    );
+  });
+});
+
+describe('urlImagen', () => {
+  it('deja igual las imágenes que ya son una data URL o una dirección web', () => {
+    const dataUrl = 'data:image/webp;base64,UklGRhYAAABXRUJQ';
+    expect(urlImagen(dataUrl)).toBe(dataUrl);
+    expect(urlImagen('https://ejemplo.com/foto.png')).toBe('https://ejemplo.com/foto.png');
+  });
+
+  it('añade el prefijo con su tipo a las guardadas solo en base64', () => {
+    expect(urlImagen('/9j/4AAQSkZJRg==')).toBe('data:image/jpeg;base64,/9j/4AAQSkZJRg==');
+    expect(urlImagen('iVBORw0KGgo=')).toBe('data:image/png;base64,iVBORw0KGgo=');
+    expect(urlImagen('UklGRhYAAABXRUJQ')).toBe('data:image/webp;base64,UklGRhYAAABXRUJQ');
+    // Si no se reconoce el tipo, como el carrito: PNG
+    expect(urlImagen('AAAA')).toBe('data:image/png;base64,AAAA');
+  });
+
+  it('sin imagen devuelve null (se muestra la imagen por defecto)', () => {
+    expect(urlImagen(null)).toBe(null);
+    expect(urlImagen('')).toBe(null);
   });
 });

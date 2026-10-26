@@ -1,5 +1,8 @@
 .carrito { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
 h1 { margin-bottom: 1.5rem; }
+/* Volver al catálogo desde el carrito */
+.volver { display: inline-block; margin-bottom: .75rem; color: #6b6e67; font-weight: 700; font-size: .9rem; text-decoration: none; }
+.volver:hover { color: #191a17; }
 .estado, .vacio { text-align: center; padding: 2rem 0; }
 .error { background: #fdecea; color: #b3261e; padding: .75rem 1rem; border-radius: 8px; }
 
@@ -18,6 +21,11 @@ h1 { margin-bottom: 1.5rem; }
 .info { display: flex; flex-direction: column; gap: .25rem; }
 .nombre { font-weight: 600; }
 .aviso { color: #b3261e; font-size: .85rem; }
+/* Error de un producto (por ejemplo, sin stock para subir la cantidad), dentro de su línea */
+.error-linea {
+  align-self: flex-start; padding: .3rem .6rem; border-radius: 6px;
+  background: #fdecea; color: #b3261e; font-size: .85rem; font-weight: 600;
+}
 .precio s { color: #888; margin-right: .35rem; }
 
 .cantidad { display: flex; align-items: center; gap: .5rem; }
@@ -46,3 +54,4 @@ h1 { margin-bottom: 1.5rem; }
   .linea img, .sin-imagen { width: 56px; height: 56px; }
   .cantidad, .subtotal, .eliminar { grid-column: 2; justify-self: start; }
 }
+a.pagar { text-align: center; text-decoration: none; cursor: pointer; opacity: 1; background: #ff6b4a; }

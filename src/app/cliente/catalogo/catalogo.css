@@ -1,0 +1,408 @@
+.pagina {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2.5rem 0 3.5rem;
+}
+
+/* Título a la izquierda y buscador a la derecha; en pantallas estrechas, uno debajo del otro */
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  color: var(--coral);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.sub {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+}
+
+/* Buscador: campo y botón «Buscar» juntos (también busca al pulsar Intro) */
+.buscador {
+  display: flex;
+  gap: 0.5rem;
+  width: min(440px, 100%);
+}
+
+.buscador input {
+  flex: 1;
+  min-width: 0;
+  height: 2.9rem;
+  padding: 0 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+
+.buscador input:focus {
+  outline: 2px solid var(--coral);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.btn-buscar {
+  height: 2.9rem;
+  padding: 0 1.3rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--coral);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-buscar:hover {
+  background: var(--coral-hover);
+}
+
+.resumen,
+.estado {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.aviso-error {
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.9rem;
+  background: var(--coral-soft);
+  color: #9a3412;
+  font-weight: 600;
+}
+
+/* 4 tarjetas por fila; 2 en pantallas estrechas */
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 900px) {
+  .rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.tarjeta {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Al pasar el ratón la tarjeta se levanta un poco: se puede pulsar para ver la ficha */
+.tarjeta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 44px rgb(25 26 23 / 14%);
+}
+
+.enlace-ficha {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.enlace-ficha:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: -2px;
+  border-radius: var(--radius);
+}
+
+/* Todas las fotos ocupan lo mismo (un cuadrado), sean horizontales, verticales o la imagen por defecto. La foto
+   se recorta para llenar el cuadrado; la imagen por defecto se ve entera, sobre el mismo color de fondo. */
+.foto {
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--cream);
+}
+
+.foto img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.foto img.sin-imagen {
+  object-fit: contain;
+}
+
+.info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem 1rem;
+}
+
+.nombre {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.categorias {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* El precio y los óvalos se quedan abajo aunque el nombre ocupe dos líneas */
+.precio {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: auto 0 0;
+  padding-top: 0.25rem;
+  font-size: 1.1rem;
+}
+
+.precio-original {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.ovalos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ovalo {
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.ovalo.disponible {
+  background: #e3efe4;
+  color: var(--ok);
+}
+
+.ovalo.poco-stock {
+  background: #fdebd3;
+  color: #b45309;
+}
+
+.ovalo.agotado {
+  background: #fde2e2;
+  color: #b91c1c;
+}
+
+.ovalo.premium {
+  border: 1px solid #b8860b;
+  background: #f6d365;
+  color: #5c4300;
+}
+
+.vacio {
+  grid-column: 1 / -1;
+  padding: 2.5rem 1rem;
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--muted);
+  text-align: center;
+}
+
+.vacio p {
+  margin: 0 0 1rem;
+}
+
+.btn-secundario,
+.paginacion button {
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+}
+
+.paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 2rem;
+}
+
+.paginacion .numero {
+  min-width: 2.6rem;
+}
+
+.paginacion .actual {
+  border-color: var(--coral);
+  background: var(--coral);
+  color: white;
+}
+
+.paginacion button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+/* HU-20: navegación por categorías: las primeras como botones y el resto en «Más categorías» */
+.categorias-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.categorias-nav .etiqueta {
+  margin-right: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--coral);
+}
+
+.chip.elegida {
+  border-color: var(--coral);
+  background: var(--coral);
+  color: white;
+}
+
+/* ✕ en la categoría elegida: al pulsarla se quita */
+.chip .quitar {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.mas-categorias {
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  border: 1px dashed var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* HU-20: filtros por precio, valoración y disponibilidad, en una línea (se reparten si no caben) */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.filtro {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.etiqueta {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.filtro input[type='number'],
+.filtro select {
+  height: 2.3rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+
+.filtro input[type='number'] {
+  width: 5.5rem;
+}
+
+.filtro.disponibles {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filtro.disponibles input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--coral);
+}
+
+/* Valoración en la tarjeta: ★ 4,5 (12) */
+.valoracion {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.valoracion .estrella {
+  color: #e0a800;
+}
+
+.valoracion .muted {
+  color: var(--muted);
+  font-weight: 600;
+}

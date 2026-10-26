@@ -8,8 +8,11 @@ import { MisProductos } from './vendedor/mis-productos/mis-productos';
 import { DetalleProducto } from './vendedor/detalle-producto/detalle-producto';
 import { portadaGuard, rolGuard, sinAdminGuard } from './core/rol.guard';
 import { Home } from './home/home';
-import { Cliente } from './cliente/cliente';
+import { Catalogo } from './cliente/catalogo/catalogo';
+import { FichaProducto } from './cliente/ficha-producto/ficha-producto';
 import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
+import { MetodosPago } from './cliente/metodos-pago/metodos-pago';
+import { Pagar } from './cliente/pagar/pagar';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 
 export const routes: Routes = [
@@ -35,7 +38,13 @@ export const routes: Routes = [
     loadComponent: () => import('./seguridad/seguridad-cuenta').then((m) => m.SeguridadCuenta),
   },
   { path: 'cliente', component: Cliente, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  // HU-19: al iniciar sesión, el cliente llega al catálogo
+  { path: 'cliente', component: Catalogo, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  // HU-21: ficha de un producto del catálogo
+  { path: 'cliente/productos/:id', component: FichaProducto, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+    { path: 'metodos-pago', component: MetodosPago, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+      { path: 'pagar', component: Pagar, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],
@@ -53,6 +62,8 @@ export const routes: Routes = [
     children: [
       { path: 'productos', component: MisProductos },
       { path: 'productos/nuevo', component: CrearProducto },
+      // Modificar producto: el mismo formulario del alta, con los datos del producto
+      { path: 'productos/:id/editar', component: CrearProducto },
       { path: 'productos/:id', component: DetalleProducto },
     ],
   },
