@@ -55,6 +55,18 @@
   }
 }
 
+/* HU-31: el corazón de favoritos, arriba a la derecha de la imagen */
+.galeria {
+  position: relative;
+}
+
+.favorito {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 1;
+}
+
 .foto {
   position: relative;
   display: block;

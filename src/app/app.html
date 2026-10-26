@@ -15,8 +15,7 @@
       }
       @if (esCliente()) {
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page">Catálogo</a>
-        <!-- Todavía sin hacer: cuando estén, pasan a ser enlaces como «Catálogo» -->
-        <span class="proximamente" title="Próximamente">Favoritos</span>
+        <a routerLink="/favoritos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Favoritos</a>
         <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page">Métodos de pago</a>
       }
       <!-- El carrito, siempre la última opción del cliente -->
@@ -73,7 +72,7 @@
       }
       @if (esCliente()) {
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Catálogo</a>
-        <span class="proximamente" title="Próximamente">Favoritos</span>
+        <a routerLink="/favoritos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Favoritos</a>
         <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Métodos de pago</a>
       }
       @if (esCliente()) {

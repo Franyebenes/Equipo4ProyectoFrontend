@@ -1,26 +1,24 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 
 import { Categoria } from '../../admin/categoria.service';
 import { AuthService } from '../../core/auth.service';
-import { IMAGEN_POR_DEFECTO, ProductoService, formatearPrecio, urlImagen } from '../../vendedor/producto.service';
+import { ProductoService } from '../../vendedor/producto.service';
+import { FavoritosService } from '../favoritos.service';
+import { TarjetaProducto } from '../tarjeta-producto/tarjeta-producto';
 import {
   CatalogoService,
-  Disponibilidad,
   FILTROS_VACIOS,
   FiltrosCatalogo,
   ProductoCliente,
-  TEXTO_DISPONIBILIDAD,
   VALORACIONES,
   filtrosAParametros,
   filtrosDeParametros,
-  formatearValoracion,
   hayFiltros,
   mensajeErrorCatalogoCliente,
-  tieneDescuento,
   validarFiltros,
 } from '../catalogo.service';
 
@@ -36,23 +34,18 @@ type CampoPrecio = 'precioMinimo' | 'precioMaximo';
 
 @Component({
   selector: 'app-catalogo',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, TarjetaProducto],
   templateUrl: './catalogo.html',
   styleUrl: './catalogo.css',
 })
 export class Catalogo implements OnInit {
   private readonly catalogoService = inject(CatalogoService);
   private readonly productoService = inject(ProductoService);
+  private readonly favoritos = inject(FavoritosService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  readonly formatearPrecio = formatearPrecio;
-  readonly formatearValoracion = formatearValoracion;
-  readonly urlImagen = urlImagen;
-  readonly tieneDescuento = tieneDescuento;
-  readonly imagenPorDefecto = IMAGEN_POR_DEFECTO;
-  readonly textoDisponibilidad = TEXTO_DISPONIBILIDAD;
   readonly valoraciones = VALORACIONES;
 
   readonly premium = computed(() => this.auth.usuario()?.rol === 'PREMIUM');
@@ -119,6 +112,8 @@ export class Catalogo implements OnInit {
 
   // La búsqueda, los filtros y la página vienen en la dirección: al volver de una ficha o recargar, se ve lo mismo
   ngOnInit(): void {
+    // HU-31: para pintar el corazón relleno en los productos favoritos
+    this.favoritos.cargarIds();
     // Categorías para la navegación por categorías (endpoint público)
     this.productoService.listarCategorias().subscribe({
       next: (lista) => this.categorias.set(lista),
@@ -207,10 +202,6 @@ export class Catalogo implements OnInit {
   precioDe(evento: Event): number | null {
     const texto = (evento.target as HTMLInputElement).value;
     return texto === '' || !Number.isFinite(Number(texto)) ? null : Number(texto);
-  }
-
-  claseDisponibilidad(disponibilidad: Disponibilidad): string {
-    return disponibilidad.toLowerCase().replace('_', '-');
   }
 
   cargar(pagina: number): void {

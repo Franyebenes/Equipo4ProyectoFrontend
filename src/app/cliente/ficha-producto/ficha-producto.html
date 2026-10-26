@@ -12,6 +12,8 @@
     <article class="ficha">
       <!-- Imagen: si el producto tiene foto, al pulsarla se ve a pantalla completa -->
       <div class="galeria">
+        <!-- HU-31: corazón para añadir o quitar de favoritos, arriba a la derecha de la imagen -->
+        <app-boton-favorito class="favorito" [idProducto]="p.id" [nombre]="p.nombre" />
         @if (p.imagen) {
           <button type="button" class="foto ampliable" (click)="ampliarImagen()" aria-label="Ver la imagen en grande">
             <img [src]="imagen()" [alt]="p.nombre">

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import { of } from 'rxjs';
 
 import { ProductoService } from '../../vendedor/producto.service';
+import { FavoritosService } from '../favoritos.service';
 import { CatalogoService, FILTROS_VACIOS, Pagina, ParametrosCatalogo, ProductoCliente } from '../catalogo.service';
 import { CATEGORIAS_VISIBLES, Catalogo, ESPERA_PRECIO_MS } from './catalogo';
 
@@ -47,6 +48,7 @@ describe('Catalogo (HU-19 Buscar productos)', () => {
       providers: [
         provideRouter([]),
         { provide: CatalogoService, useValue: { buscar, ultimosParametros } },
+        { provide: FavoritosService, useValue: { cargarIds: vi.fn(), ids: signal(new Set<string>()) } },
         {
           provide: ProductoService,
           useValue: { listarCategorias: () => of(categorias) },
