@@ -39,7 +39,7 @@ export class PagoService {
   private readonly http = inject(HttpClient);
   private readonly url = `${inject(API_URL)}/api/pago`;
 
-  pagar(datos: { idMetodoPago: string; direccionEnvio: DireccionEnvio }): Observable<ResultadoPago> {
+    pagar(datos: { idMetodoPago: string; direccionEnvio: DireccionEnvio; idVendedor: string | null }): Observable<ResultadoPago> {
     return this.http.post<ResultadoPago>(this.url, datos);
   }
 }
