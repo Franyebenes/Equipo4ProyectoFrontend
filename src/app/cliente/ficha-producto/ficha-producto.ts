@@ -5,7 +5,9 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { IMAGEN_POR_DEFECTO, formatearPrecio, precioFinal, urlImagen } from '../../vendedor/producto.service';
 import { BotonAnadirCarrito } from '../boton-anadir-carrito/boton-anadir-carrito';
+import { BotonFavorito } from '../boton-favorito/boton-favorito';
 import { CarritoService } from '../carrito.service';
+import { FavoritosService } from '../favoritos.service';
 import {
   CatalogoService,
   ProductoDetalle,
@@ -40,7 +42,7 @@ const FORMATO_MEDIA = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 1,
 
 @Component({
   selector: 'app-ficha-producto',
-  imports: [RouterLink, BotonAnadirCarrito],
+  imports: [RouterLink, BotonAnadirCarrito, BotonFavorito],
   templateUrl: './ficha-producto.html',
   styleUrl: './ficha-producto.css',
 })
@@ -48,6 +50,7 @@ export class FichaProducto implements OnInit {
   private readonly catalogoService = inject(CatalogoService);
   private readonly auth = inject(AuthService);
   private readonly carrito = inject(CarritoService);
+  private readonly favoritos = inject(FavoritosService);
   private readonly id = inject(ActivatedRoute).snapshot.paramMap.get('id') ?? '';
 
   readonly formatearPrecio = formatearPrecio;
@@ -83,6 +86,8 @@ export class FichaProducto implements OnInit {
   }
 
   ngOnInit(): void {
+    // HU-31: para saber si el corazón va relleno
+    this.favoritos.cargarIds();
     this.catalogoService.obtener(this.id).subscribe({
       next: (producto) => {
         this.producto.set(producto);

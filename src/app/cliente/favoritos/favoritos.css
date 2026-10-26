@@ -1,0 +1,9 @@
+/* El resto de estilos son los del catálogo */
+.vacio .pista {
+  font-size: 0.9rem;
+}
+
+.vacio a {
+  display: inline-block;
+  text-decoration: none;
+}

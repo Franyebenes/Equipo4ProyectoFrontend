@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
 import { CarritoService } from '../carrito.service';
 import { CatalogoService, ProductoDetalle } from '../catalogo.service';
+import { FavoritosService } from '../favoritos.service';
 import { CANTIDAD_MAXIMA, FichaProducto, estrellas, motivoNoComprar } from './ficha-producto';
 
 const RELOJ: ProductoDetalle = {
@@ -40,6 +41,7 @@ describe('FichaProducto (HU-21 Ver detalle del producto)', () => {
         { provide: CatalogoService, useValue: { obtener, ultimosParametros: signal({ busqueda: 'reloj' }) } },
         { provide: AuthService, useValue: { usuario: () => ({ rol }) } },
         { provide: CarritoService, useValue: { anadir, numeroArticulos } },
+        { provide: FavoritosService, useValue: { cargarIds: vi.fn(), ids: signal(new Set<string>()) } },
       ],
     });
     const fixture = TestBed.createComponent(FichaProducto);
@@ -56,6 +58,11 @@ describe('FichaProducto (HU-21 Ver detalle del producto)', () => {
       numeroArticulos.update((n) => n + cantidad);
       return of(undefined);
     });
+  });
+
+  it('HU-31: tiene el corazón de favoritos encima de la imagen', () => {
+    const corazon = crear().nativeElement.querySelector('.galeria app-boton-favorito button.corazon');
+    expect(corazon).not.toBeNull();
   });
 
   it('pide al backend el producto de la dirección', () => {

@@ -10,6 +10,7 @@ import { portadaGuard, rolGuard, sinAdminGuard } from './core/rol.guard';
 import { Home } from './home/home';
 import { Catalogo } from './cliente/catalogo/catalogo';
 import { FichaProducto } from './cliente/ficha-producto/ficha-producto';
+import { Favoritos } from './cliente/favoritos/favoritos';
 import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
 import { MetodosPago } from './cliente/metodos-pago/metodos-pago';
 import { Pagar } from './cliente/pagar/pagar';
@@ -41,6 +42,8 @@ export const routes: Routes = [
   { path: 'cliente', component: Catalogo, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   // HU-21: ficha de un producto del catálogo
   { path: 'cliente/productos/:id', component: FichaProducto, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  // HU-31.1: lista de favoritos del cliente de la sesión
+  { path: 'favoritos', component: Favoritos, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'metodos-pago', component: MetodosPago, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'pagar', component: Pagar, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
