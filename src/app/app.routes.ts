@@ -37,14 +37,13 @@ export const routes: Routes = [
     canActivate: [rolGuard('CLIENTE', 'PREMIUM', 'VENDEDOR', 'ADMIN')],
     loadComponent: () => import('./seguridad/seguridad-cuenta').then((m) => m.SeguridadCuenta),
   },
-  { path: 'cliente', component: Cliente, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   // HU-19: al iniciar sesión, el cliente llega al catálogo
   { path: 'cliente', component: Catalogo, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   // HU-21: ficha de un producto del catálogo
   { path: 'cliente/productos/:id', component: FichaProducto, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
-    { path: 'metodos-pago', component: MetodosPago, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
-      { path: 'pagar', component: Pagar, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  { path: 'metodos-pago', component: MetodosPago, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  { path: 'pagar', component: Pagar, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],
