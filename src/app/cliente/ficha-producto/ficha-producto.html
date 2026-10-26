@@ -109,7 +109,7 @@
 
     @if (imagenAmpliada()) {
       <div class="visor" role="dialog" aria-modal="true" [attr.aria-label]="'Imagen de ' + p.nombre"
-           (click)="cerrarImagen()">
+           (click)="cerrarImagen()" (keydown.escape)="cerrarImagen()">
         <img [src]="imagen()" [alt]="p.nombre">
         <button type="button" class="cerrar" (click)="cerrarImagen()" aria-label="Cerrar la imagen">✕</button>
       </div>
