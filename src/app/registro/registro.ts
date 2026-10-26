@@ -379,49 +379,60 @@ export class Registro {
       this.errorGeneral.set({ texto: TEXTOS_ERROR.peticionInvalida });
       return;
     }
-    const sinCampo: string[] = [];
-    const deCodigo = this.codigosDe(errores, 'codigoDosFactores');
-    if (this.fase() === 'verificacion' && deCodigo.length > 0) {
-      if (deCodigo.includes('ACTIVACION_NO_VIGENTE')) {
-        // El secreto caducó o se agotaron los intentos: hay que pedir otro QR desde los datos
-        this.volverALosDatos();
-        this.errorGeneral.set({ texto: TEXTOS_ERROR.activacionNoVigente });
-        return;
-      }
-      if (Object.keys(errores).length === 1) {
-        // Solo falla el código: se queda en este paso para reintentarlo
-        this.errorCodigo.set([...new Set(deCodigo.map((c) => mensajeDe('codigoDosFactores', c)))].join(' '));
-        this.enfocarCodigo();
-        return;
-      }
-    }
     if (this.fase() === 'verificacion') {
+      if (this.alFallarVerificacion(errores)) {
+        return;
+      }
       // Fallan los datos: se vuelve a ellos para corregirlos
       this.fase.set('datos');
       this.activacion.set(null);
       // Al volver a pintarse, cada campo se enlaza con su control y borraría los errores puestos a mano: se pinta antes
       this.cdr.detectChanges();
     }
+    const sinCampo: string[] = [];
     for (const [campo, valor] of Object.entries(errores)) {
-      if (campo === 'codigoDosFactores') {
-        continue;
-      }
-      const codigos = Array.isArray(valor)
-        ? valor.filter((codigo): codigo is string => typeof codigo === 'string')
-        : [];
-      const control = this.form.get(campo);
-      if (control?.enabled && codigos.length > 0) {
-        // Los errores puestos a mano duran hasta que el usuario edita ese campo.
-        control.setErrors(Object.fromEntries(codigos.map((codigo) => [codigo, true])));
-        control.markAsTouched();
-      } else {
-        sinCampo.push(...codigos.map((codigo) => mensajeDe(campo, codigo)));
+      if (campo !== 'codigoDosFactores') {
+        sinCampo.push(...this.pintarErroresDelCampo(campo, valor));
       }
     }
     this.errorGeneral.set({
       texto: sinCampo.length > 0 ? sinCampo.join(' ') : TEXTOS_ERROR.revisaCampos,
     });
     this.enfocarPrimerError();
+  }
+
+  // Errores del paso del código. Devuelve true si quedan resueltos aquí y no hay que volver a los datos.
+  private alFallarVerificacion(errores: object): boolean {
+    const deCodigo = this.codigosDe(errores, 'codigoDosFactores');
+    if (deCodigo.length === 0) {
+      return false;
+    }
+    if (deCodigo.includes('ACTIVACION_NO_VIGENTE')) {
+      // El secreto caducó o se agotaron los intentos: hay que pedir otro QR desde los datos
+      this.volverALosDatos();
+      this.errorGeneral.set({ texto: TEXTOS_ERROR.activacionNoVigente });
+      return true;
+    }
+    if (Object.keys(errores).length === 1) {
+      // Solo falla el código: se queda en este paso para reintentarlo
+      this.errorCodigo.set([...new Set(deCodigo.map((c) => mensajeDe('codigoDosFactores', c)))].join(' '));
+      this.enfocarCodigo();
+      return true;
+    }
+    return false;
+  }
+
+  // Pinta los códigos junto a su campo. Devuelve los mensajes de los que no tienen campo donde mostrarse.
+  private pintarErroresDelCampo(campo: string, valor: unknown): string[] {
+    const codigos = Array.isArray(valor) ? valor.filter((c): c is string => typeof c === 'string') : [];
+    const control = this.form.get(campo);
+    if (control?.enabled && codigos.length > 0) {
+      // Los errores puestos a mano duran hasta que el usuario edita ese campo.
+      control.setErrors(Object.fromEntries(codigos.map((codigo) => [codigo, true])));
+      control.markAsTouched();
+      return [];
+    }
+    return codigos.map((codigo) => mensajeDe(campo, codigo));
   }
 
   private codigosDe(errores: object, campo: string): string[] {
