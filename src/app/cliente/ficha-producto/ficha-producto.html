@@ -57,9 +57,16 @@
             }
             @if (p.descuentoPremium) {
               @if (premium()) {
-                <li>Incluye tu descuento premium del {{ p.descuentoPremium }} %</li>
+                <li>
+                  Incluye tu descuento premium del
+                  {{ p.descuentoPremium }} %{{ textoDescuentoTotal(p.descuento, p.descuentoPremium) }}
+                </li>
               } @else {
-                <li>Con premium, un {{ p.descuentoPremium }} % más: {{ precioPremium(p) }}</li>
+                <li>
+                  Con premium, un
+                  {{ p.descuentoPremium }} % más{{ textoDescuentoTotal(p.descuento, p.descuentoPremium) }}:
+                  {{ precioPremium(p) }}
+                </li>
               }
             }
           </ul>
