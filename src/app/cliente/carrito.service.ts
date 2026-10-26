@@ -12,7 +12,9 @@ export interface LineaCarrito {
   precioOriginal: number; // precio base, para mostrarlo tachado
   cantidad: number;
   subtotal: number;
-  disponible: boolean; // false si el vendedor lo ha desactivado (no cuenta en el total)
+  disponible: boolean;
+  idVendedor: string | null;
+  nombreVendedor: string | null; // false si el vendedor lo ha desactivado (no cuenta en el total)
 }
 
 export interface Carrito {

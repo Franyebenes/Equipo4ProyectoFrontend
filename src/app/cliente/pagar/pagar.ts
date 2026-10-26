@@ -1,14 +1,24 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-import { Carrito, CarritoService } from '../carrito.service';
+import { Carrito, CarritoService, LineaCarrito } from '../carrito.service';
 import { MetodoPago, MetodoPagoService } from '../metodo-pago.service';
 import { PagoService, ResultadoPago } from '../pago.service';
 
-// HU-23 Pago (ficticio): dirección de envío + tarjeta guardada + botón "Pagar"
+/** Productos del carrito de un mismo vendedor: cada compra es de un solo vendedor. */
+export interface GrupoVendedor {
+  idVendedor: string | null;
+  nombre: string;
+  lineas: LineaCarrito[];
+  total: number;
+  articulos: number;
+  hayNoDisponibles: boolean;
+}
+
+// HU-23 Pago (ficticio): vendedor (si hay varios) + dirección de envío + tarjeta guardada + botón "Pagar"
 @Component({
   selector: 'app-pagar',
   imports: [ReactiveFormsModule, RouterLink],
@@ -19,18 +29,55 @@ export class Pagar implements OnInit {
   private readonly carritoService = inject(CarritoService);
   private readonly metodoPagoService = inject(MetodoPagoService);
   private readonly pagoService = inject(PagoService);
+  private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
 
   readonly carrito = signal<Carrito | null>(null);
   readonly tarjetas = signal<MetodoPago[]>([]);
   readonly tarjetaElegida = signal<string | null>(null);
+  readonly vendedorElegido = signal<string | null | undefined>(undefined); // undefined = sin elegir
   readonly cargando = signal(true);
   readonly pagando = signal(false);
   readonly error = signal<string | null>(null);
   readonly resultado = signal<ResultadoPago | null>(null);
+  readonly quedanProductos = signal(false);
 
-  /** Si hay productos desactivados en el carrito, el pedido no se puede tramitar hasta quitarlos. */
-  readonly hayNoDisponibles = computed(() => this.carrito()?.lineas.some((l) => !l.disponible) ?? false);
+  /** El carrito agrupado por vendedor, en el orden en que aparecen. */
+  readonly grupos = computed<GrupoVendedor[]>(() => {
+    const grupos = new Map<string, GrupoVendedor>();
+    for (const linea of this.carrito()?.lineas ?? []) {
+      const clave = linea.idVendedor ?? '';
+      let grupo = grupos.get(clave);
+      if (!grupo) {
+        grupo = {
+          idVendedor: linea.idVendedor,
+          nombre: linea.nombreVendedor ?? 'Vendedor',
+          lineas: [],
+          total: 0,
+          articulos: 0,
+          hayNoDisponibles: false,
+        };
+        grupos.set(clave, grupo);
+      }
+      grupo.lineas.push(linea);
+      if (linea.disponible) {
+        grupo.total = Math.round((grupo.total + linea.subtotal) * 100) / 100;
+        grupo.articulos += linea.cantidad;
+      } else {
+        grupo.hayNoDisponibles = true;
+      }
+    }
+    return [...grupos.values()];
+  });
+
+  /** El grupo del vendedor elegido (o el único que hay). */
+  readonly grupoElegido = computed<GrupoVendedor | null>(() => {
+    const elegido = this.vendedorElegido();
+    if (elegido === undefined) {
+      return null;
+    }
+    return this.grupos().find((g) => g.idVendedor === elegido) ?? null;
+  });
 
   readonly direccion = this.fb.nonNullable.group({
     calle: ['', [Validators.required, Validators.maxLength(150)]],
@@ -45,6 +92,7 @@ export class Pagar implements OnInit {
         this.tarjetas.set(tarjetas);
         // Si solo tiene una tarjeta, ya viene elegida
         this.tarjetaElegida.set(tarjetas.length === 1 ? tarjetas[0].id : null);
+        this.elegirVendedorInicial();
         this.cargando.set(false);
       },
       error: (e) => {
@@ -52,6 +100,11 @@ export class Pagar implements OnInit {
         this.cargando.set(false);
       },
     });
+  }
+
+  elegirVendedor(idVendedor: string | null): void {
+    this.vendedorElegido.set(idVendedor);
+    this.error.set(null);
   }
 
   elegirTarjeta(id: string): void {
@@ -66,6 +119,11 @@ export class Pagar implements OnInit {
 
   pagar(): void {
     this.error.set(null);
+    const grupo = this.grupoElegido();
+    if (!grupo) {
+      this.error.set('Elige de qué vendedor quieres hacer la compra.');
+      return;
+    }
     if (this.direccion.invalid) {
       this.direccion.markAllAsTouched();
       return;
@@ -76,22 +134,38 @@ export class Pagar implements OnInit {
       return;
     }
     this.pagando.set(true);
-    this.pagoService.pagar({ idMetodoPago, direccionEnvio: this.direccion.getRawValue() }).subscribe({
-      next: (resultado) => {
-        this.resultado.set(resultado);
-        // El carrito se ha vaciado en el servidor: se pone a 0 el contador de la cabecera
-        this.carritoService.numeroArticulos.set(0);
-        this.pagando.set(false);
-      },
-      error: (e) => {
-        this.mostrarError(e);
-        this.pagando.set(false);
-      },
-    });
+    this.pagoService
+      .pagar({ idMetodoPago, direccionEnvio: this.direccion.getRawValue(), idVendedor: grupo.idVendedor })
+      .subscribe({
+        next: (resultado) => {
+          this.resultado.set(resultado);
+          this.pagando.set(false);
+          // Solo sale del carrito lo de este vendedor: se recarga para actualizar el contador de la cabecera
+          this.carritoService.obtener().subscribe({
+            next: (c) => this.quedanProductos.set(c.lineas.length > 0),
+          });
+        },
+        error: (e) => {
+          this.mostrarError(e);
+          this.pagando.set(false);
+        },
+      });
   }
 
   precio(importe: number): string {
     return importe.toFixed(2).replace('.', ',') + ' €';
+  }
+
+  // Si solo hay un vendedor, ya viene elegido. Si se llega desde el carrito con ?vendedor=..., se elige ese.
+  private elegirVendedorInicial(): void {
+    const grupos = this.grupos();
+    const pedido = this.route.snapshot.queryParamMap.get('vendedor');
+    const desdeCarrito = grupos.find((g) => g.idVendedor === pedido);
+    if (desdeCarrito) {
+      this.vendedorElegido.set(desdeCarrito.idVendedor);
+    } else if (grupos.length === 1) {
+      this.vendedorElegido.set(grupos[0].idVendedor);
+    }
   }
 
   private mostrarError(e: unknown): void {

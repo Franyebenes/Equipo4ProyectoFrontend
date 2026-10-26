@@ -66,3 +66,15 @@ h2 { margin: 0 0 1rem; font-size: 1.1rem; }
   .resumen { position: static; }
   .fila { grid-template-columns: 1fr; }
 }
+.elegir-vendedor { margin-bottom: 1.5rem; }
+.explicacion { color: #555; font-size: .9rem; margin: 0 0 1rem; }
+.vendedores { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .6rem; }
+.vendedor {
+  display: flex; align-items: center; gap: .8rem; margin: 0 !important;
+  padding: .8rem 1rem; border: 1px solid #e5e5e5; border-radius: 10px; cursor: pointer; font-weight: 400 !important;
+  flex-direction: row !important;
+}
+.vendedor .datos { flex: 1; }
+.vendedor.elegida { border-color: #ff6b4a; background: #fff6f3; }
+.vendido-por { color: #555; font-size: .9rem; margin: -.5rem 0 1rem; }
+.botones-confirmacion { display: flex; gap: .75rem; justify-content: center; }

@@ -4,7 +4,7 @@
     <div class="confirmacion">
       <span class="icono-ok" aria-hidden="true">✓</span>
       <h1>¡Pago realizado!</h1>
-      <p>Tu pedido está <strong>pagado</strong> y el vendedor lo preparará en breve.</p>
+      <p>Tu pedido a <strong>{{ grupoElegido()?.nombre }}</strong> está <strong>pagado</strong> y lo preparará en breve.</p>
       <dl class="datos-pedido">
         <dt>Pedido</dt><dd>{{ r.pedido.id }}</dd>
         <dt>Total</dt><dd>{{ precio(r.pedido.precioTotal) }}</dd>
@@ -12,7 +12,15 @@
         <dt>Envío a</dt>
         <dd>{{ r.pedido.direccionEnvio.calle }}, {{ r.pedido.direccionEnvio.codigoPostal }} {{ r.pedido.direccionEnvio.ciudad }}</dd>
       </dl>
-      <a routerLink="/cliente" class="btn-principal">Seguir comprando</a>
+      @if (quedanProductos()) {
+        <p class="aviso">Todavía tienes en el carrito productos de otros vendedores. Puedes comprarlos en otro pedido.</p>
+        <div class="botones-confirmacion">
+          <a routerLink="/carrito" class="btn-principal">Ir al carrito</a>
+          <a routerLink="/cliente" class="btn-secundario">Seguir comprando</a>
+        </div>
+      } @else {
+        <a routerLink="/cliente" class="btn-principal">Seguir comprando</a>
+      }
     </div>
   } @else {
     <a routerLink="/carrito" class="volver">← Volver al carrito</a>
@@ -24,17 +32,46 @@
 
     @if (cargando()) {
       <p class="estado">Cargando…</p>
-    } @else if (!carrito() || carrito()!.lineas.length === 0) {
+    } @else if (grupos().length === 0) {
       <div class="estado">
         <p>Tu carrito está vacío.</p>
         <a routerLink="/cliente" class="btn-secundario">Ir al catálogo</a>
       </div>
     } @else {
+      <!-- Varios vendedores: cada compra es de uno solo -->
+      @if (grupos().length > 1) {
+        <div class="bloque elegir-vendedor">
+          <h2>¿De qué vendedor quieres hacer la compra?</h2>
+          <p class="explicacion">
+            Tu carrito tiene productos de {{ grupos().length }} vendedores. Cada pedido es de un solo vendedor:
+            los productos de los demás se quedan en el carrito para otra compra.
+          </p>
+          <ul class="vendedores">
+            @for (g of grupos(); track g.idVendedor) {
+              <li>
+                <label class="vendedor" [class.elegida]="vendedorElegido() === g.idVendedor">
+                  <input type="radio" name="vendedor" [checked]="vendedorElegido() === g.idVendedor"
+                         (change)="elegirVendedor(g.idVendedor)" />
+                  <span class="datos">
+                    <span class="numero">{{ g.nombre }}</span>
+                    <span class="detalle">
+                      {{ g.articulos }} {{ g.articulos === 1 ? 'artículo' : 'artículos' }}
+                      @if (g.hayNoDisponibles) { · tiene productos no disponibles }
+                    </span>
+                  </span>
+                  <strong>{{ precio(g.total) }}</strong>
+                </label>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
       <div class="columnas">
         <div class="izquierda">
           <!-- Dirección de envío -->
           <form class="bloque" [formGroup]="direccion" novalidate>
-            <h2>1. Dirección de envío</h2>
+            <h2>Dirección de envío</h2>
             <label>
               Calle y número
               <input formControlName="calle" autocomplete="street-address" maxlength="150" />
@@ -56,7 +93,7 @@
 
           <!-- Tarjeta -->
           <div class="bloque">
-            <h2>2. Método de pago</h2>
+            <h2>Método de pago</h2>
             @if (tarjetas().length === 0) {
               <p class="estado">No tienes ninguna tarjeta guardada.</p>
               <a routerLink="/metodos-pago" class="btn-secundario">Añadir una tarjeta</a>
@@ -80,30 +117,36 @@
           </div>
         </div>
 
-        <!-- Resumen -->
+        <!-- Resumen del vendedor elegido -->
         <aside class="bloque resumen">
-          <h2>Resumen</h2>
-          <ul class="lineas">
-            @for (l of carrito()!.lineas; track l.idProducto) {
-              <li [class.no-disponible]="!l.disponible">
-                <span>{{ l.nombre }} × {{ l.cantidad }}</span>
-                <span>{{ l.disponible ? precio(l.subtotal) : 'No disponible' }}</span>
-              </li>
+          @if (grupoElegido(); as g) {
+            <h2>Resumen</h2>
+            <p class="vendido-por">Vendido por <strong>{{ g.nombre }}</strong></p>
+            <ul class="lineas">
+              @for (l of g.lineas; track l.idProducto) {
+                <li [class.no-disponible]="!l.disponible">
+                  <span>{{ l.nombre }} × {{ l.cantidad }}</span>
+                  <span>{{ l.disponible ? precio(l.subtotal) : 'No disponible' }}</span>
+                </li>
+              }
+            </ul>
+            <div class="total">
+              <span>Total</span>
+              <strong>{{ precio(g.total) }}</strong>
+            </div>
+
+            @if (g.hayNoDisponibles) {
+              <p class="aviso">Hay productos que ya no están disponibles. Quítalos del carrito para poder pagar.</p>
             }
-          </ul>
-          <div class="total">
-            <span>Total</span>
-            <strong>{{ precio(carrito()!.total) }}</strong>
-          </div>
 
-          @if (hayNoDisponibles()) {
-            <p class="aviso">Hay productos que ya no están disponibles. Quítalos del carrito para poder pagar.</p>
+            <button type="button" class="btn-principal pagar" (click)="pagar()"
+                    [disabled]="pagando() || g.hayNoDisponibles || tarjetas().length === 0">
+              {{ pagando() ? 'Pagando…' : 'Pagar ' + precio(g.total) }}
+            </button>
+          } @else {
+            <h2>Resumen</h2>
+            <p class="estado">Elige arriba de qué vendedor quieres hacer la compra.</p>
           }
-
-          <button type="button" class="btn-principal pagar" (click)="pagar()"
-                  [disabled]="pagando() || hayNoDisponibles() || tarjetas().length === 0">
-            {{ pagando() ? 'Pagando…' : 'Pagar ' + precio(carrito()!.total) }}
-          </button>
           <p class="nota">🔒 Pago simulado: no se realiza ningún cargo real.</p>
         </aside>
       </div>
