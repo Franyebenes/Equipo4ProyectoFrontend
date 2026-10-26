@@ -25,6 +25,11 @@ const RELOJ: ProductoDetalle = {
   numeroValoraciones: 0,
 };
 
+// El texto de la plantilla puede ir repartido en varias líneas: se juntan los espacios
+function normalizar(texto: string): string {
+  return texto.replace(/\s+/g, ' ');
+}
+
 describe('FichaProducto (HU-21 Ver detalle del producto)', () => {
   let obtener: ReturnType<typeof vi.fn>;
   let rol: string;
@@ -73,14 +78,17 @@ describe('FichaProducto (HU-21 Ver detalle del producto)', () => {
     expect(texto).toContain('Queda poco stock');
   });
 
-  it('a un cliente estándar le enseña el precio que tendría con premium', () => {
-    expect(crear().nativeElement.textContent).toContain('Con premium, un 10 % más: 72,00');
+  it('a un cliente estándar le enseña el precio con premium (los descuentos se suman)', () => {
+    // 20 % para todos + 10 % premium = 30 %: 100 € -> 70 €
+    const texto = normalizar(crear().nativeElement.textContent);
+    expect(texto).toContain('Con premium, un 10 % más (30 % en total): 70,00');
   });
 
   it('a un cliente premium le indica que el precio ya incluye su descuento', () => {
     rol = 'PREMIUM';
-    obtener.mockReturnValue(of({ ...RELOJ, precioFinal: 72 }));
-    expect(crear().nativeElement.textContent).toContain('Incluye tu descuento premium del 10 %');
+    obtener.mockReturnValue(of({ ...RELOJ, precioFinal: 70 }));
+    const texto = normalizar(crear().nativeElement.textContent);
+    expect(texto).toContain('Incluye tu descuento premium del 10 % (30 % en total)');
   });
 
   it('si se puede comprar, muestra el botón «Añadir al carrito»', () => {

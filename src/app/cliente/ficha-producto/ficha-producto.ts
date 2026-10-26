@@ -3,7 +3,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/auth.service';
-import { IMAGEN_POR_DEFECTO, formatearPrecio, precioFinal, urlImagen } from '../../vendedor/producto.service';
+import {
+  IMAGEN_POR_DEFECTO,
+  formatearPrecio,
+  precioFinal,
+  textoDescuentoTotal,
+  urlImagen,
+} from '../../vendedor/producto.service';
 import { BotonAnadirCarrito } from '../boton-anadir-carrito/boton-anadir-carrito';
 import { CarritoService } from '../carrito.service';
 import {
@@ -51,6 +57,8 @@ export class FichaProducto implements OnInit {
   private readonly id = inject(ActivatedRoute).snapshot.paramMap.get('id') ?? '';
 
   readonly formatearPrecio = formatearPrecio;
+  // « (30 % en total)» cuando tiene los dos descuentos: se suman
+  readonly textoDescuentoTotal = textoDescuentoTotal;
   readonly textoDisponibilidad = TEXTO_DISPONIBILIDAD;
   readonly estrellas = estrellas;
   // «Volver al catálogo» recupera la búsqueda y la página que tenía el cliente

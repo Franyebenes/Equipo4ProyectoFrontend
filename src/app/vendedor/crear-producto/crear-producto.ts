@@ -17,8 +17,10 @@ import {
   mensajeErrorCatalogo,
   mensajeProductoCreado,
   mensajeProductoModificado,
+  descuentoTotal,
   precioFinal,
   stockActualDelConflicto,
+  textoDescuentoTotal,
   urlImagen,
   validarStock,
 } from '../producto.service';
@@ -141,14 +143,19 @@ export class CrearProducto implements OnInit {
     return formatearPrecioConDescuento(this.precio, this.descuento);
   }
 
-  // Precio que verán los clientes premium (el descuento para todos y, además, el premium), o '' si no aplica
+  // Precio que verán los clientes premium (el descuento para todos más el premium, sumados) y,
+  // si tiene los dos, el descuento total; o '' si no aplica todavía
   precioPremium(): string {
     if (this.precio == null || this.precio <= PRECIO_MINIMO || !this.descuentoPremium
         || !descuentoValido(this.descuentoPremium)) {
       return '';
     }
     const descuento = this.descuento != null && descuentoValido(this.descuento) ? this.descuento : null;
-    return formatearPrecio(precioFinal(this.precio, descuento, this.descuentoPremium, true));
+    if (descuentoTotal(descuento, this.descuentoPremium) > DESCUENTO_MAXIMO) {
+      return '';
+    }
+    const precio = precioFinal(this.precio, descuento, this.descuentoPremium, true);
+    return formatearPrecio(precio) + textoDescuentoTotal(descuento, this.descuentoPremium);
   }
 
   guardar(): void {
@@ -248,6 +255,10 @@ export class CrearProducto implements OnInit {
     }
     if (this.descuentoPremium != null && !descuentoValido(this.descuentoPremium)) {
       return 'El descuento premium debe estar entre 0 y 100 %.';
+    }
+    // Se suman, así que entre los dos no pueden pasar del 100 % (la misma regla que el backend)
+    if (descuentoTotal(this.descuento, this.descuentoPremium) > DESCUENTO_MAXIMO) {
+      return 'El descuento y el descuento premium juntos no pueden superar el 100 %.';
     }
     return '';
   }

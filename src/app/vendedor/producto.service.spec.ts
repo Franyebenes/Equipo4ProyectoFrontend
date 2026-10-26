@@ -8,6 +8,7 @@ import {
   ProductoCatalogo,
   ProductoService,
   STOCK_MAXIMO,
+  descuentoTotal,
   formatearPrecioConDescuento,
   idsDeCategorias,
   mensajeConfirmarEliminacion,
@@ -16,7 +17,9 @@ import {
   mensajeProductoEliminado,
   mensajeProductoModificado,
   mensajeStockActualizado,
+  precioFinal,
   stockActualDelConflicto,
+  textoDescuentoTotal,
   textoStock,
   urlImagen,
   validarStock,
@@ -306,5 +309,34 @@ describe('urlImagen', () => {
   it('sin imagen devuelve null (se muestra la imagen por defecto)', () => {
     expect(urlImagen(null)).toBe(null);
     expect(urlImagen('')).toBe(null);
+  });
+});
+
+describe('Descuento premium: se suma al descuento para todos', () => {
+  it('precioFinal: el premium tiene los dos descuentos sumados y el resto solo el general', () => {
+    // El ejemplo de la HU: 10 % para todos y 15 % extra para premium = 25 %
+    expect(precioFinal(100, 10, 15, false)).toBe(90);
+    expect(precioFinal(100, 10, 15, true)).toBe(75);
+    expect(precioFinal(100, null, 15, true)).toBe(85);
+    expect(precioFinal(100, 20, null, true)).toBe(80);
+    expect(precioFinal(100, null, null, true)).toBe(100);
+  });
+
+  it('precioFinal redondea a céntimos y nunca es negativo', () => {
+    expect(precioFinal(19.99, 10, 5, true)).toBe(16.99);
+    expect(precioFinal(100, 60, 50, true)).toBe(0);
+  });
+
+  it('descuentoTotal suma los dos porcentajes', () => {
+    expect(descuentoTotal(10, 15)).toBe(25);
+    expect(descuentoTotal(null, 15)).toBe(15);
+    expect(descuentoTotal(null, null)).toBe(0);
+  });
+
+  it('textoDescuentoTotal solo aparece si tiene los dos descuentos', () => {
+    expect(textoDescuentoTotal(10, 15)).toBe(' (25 % en total)');
+    expect(textoDescuentoTotal(10.5, 15)).toBe(' (25,5 % en total)');
+    expect(textoDescuentoTotal(null, 15)).toBe('');
+    expect(textoDescuentoTotal(10, null)).toBe('');
   });
 });
