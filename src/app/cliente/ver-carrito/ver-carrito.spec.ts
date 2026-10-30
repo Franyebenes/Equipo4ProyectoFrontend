@@ -15,6 +15,8 @@ const linea = (idProducto: string, nombre: string): LineaCarrito => ({
   cantidad: 2,
   subtotal: 20,
   disponible: true,
+  idVendedor: null,
+  nombreVendedor: null,
 });
 const CARRITO: Carrito = { lineas: [linea('p1', 'Taza'), linea('p2', 'Vaso')], numeroArticulos: 4, total: 40 };
 
