@@ -1,0 +1,69 @@
+<main class="pagina">
+  <section class="tarjeta" aria-labelledby="titulo-perfil">
+    @if (error()) {
+      <p class="ceja">Mi perfil</p>
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    @if (perfil(); as p) {
+      <!-- Cabecera: avatar grande, nombre y tipo de cuenta -->
+      <header class="cabecera">
+        <span class="avatar" aria-hidden="true">
+          <img [src]="imagen()" alt="" width="96" height="96" />
+        </span>
+        <div class="identidad">
+          <p class="ceja">Mi perfil</p>
+          <h1 id="titulo-perfil">{{ p.nombre }} {{ p.apellidos }}</h1>
+          <span class="etiqueta-rol" [class.premium]="p.rol === 'PREMIUM'">{{ tipoCuenta() }}</span>
+        </div>
+      </header>
+
+      <dl class="datos">
+        <div class="dato">
+          <dt>Correo</dt>
+          <dd>{{ p.email }}</dd>
+        </div>
+        <div class="dato">
+          <dt>Teléfono</dt>
+          @if (p.telefono) {
+            <dd>{{ p.telefono }}</dd>
+          } @else {
+            <dd class="vacio">Sin indicar</dd>
+          }
+        </div>
+        @if (esCliente()) {
+          <div class="dato">
+            <dt>Fecha de nacimiento</dt>
+            <dd>{{ p.fechaNacimiento | date: 'dd/MM/yyyy' }}</dd>
+          </div>
+        }
+        @if (p.rol === 'VENDEDOR') {
+          <div class="dato">
+            <dt>Nombre comercial</dt>
+            <dd>{{ p.nombreComercial }}</dd>
+          </div>
+        }
+        @if (p.rol === 'ADMIN' && p.sede) {
+          <div class="dato">
+            <dt>Sede</dt>
+            <dd>{{ p.sede }}</dd>
+          </div>
+        }
+      </dl>
+
+      <!-- Aquí irán los botones de Premium (rama 2) y el enlace a direcciones (rama 3) -->
+
+      <div class="acciones">
+        <a routerLink="/perfil/editar" class="btn btn-coral btn-lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+          </svg>
+          Editar perfil
+        </a>
+      </div>
+    } @else if (!error()) {
+      <p class="cargando">Cargando tu perfil…</p>
+    }
+  </section>
+</main>

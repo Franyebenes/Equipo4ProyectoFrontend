@@ -15,6 +15,8 @@ import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
 import { MetodosPago } from './cliente/metodos-pago/metodos-pago';
 import { Pagar } from './cliente/pagar/pagar';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
+import {VerPerfil} from './perfil/ver-perfil/ver-perfil';
+import { EditarPerfil } from './perfil/editar-perfil/editar-perfil';
 
 export const routes: Routes = [
   { path: '', component: Home, canActivate: [portadaGuard] },
