@@ -1,0 +1,79 @@
+<section class="admin-page">
+  <div class="bar">
+    <nav class="admin-tabs" aria-label="Administración">
+      <a routerLink="/admin/usuarios" routerLinkActive="is-active">Usuarios</a>
+      <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active">Dar de alta administrador</a>
+      <a routerLink="/admin/categorias" routerLinkActive="is-active">Categorías</a>
+      <a routerLink="/admin/productos" routerLinkActive="is-active">Productos</a>
+    </nav>
+
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">Panel de administración</p>
+        <h1>Productos</h1>
+      </div>
+    </header>
+
+    @if (error()) {
+      <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+    }
+
+    <div class="card">
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Vendedor</th>
+              <th scope="col">Categorías</th>
+              <th scope="col" class="derecha">Precio</th>
+              <th scope="col" class="derecha">Stock</th>
+              <th scope="col">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (cargando()) {
+              <tr><td colspan="6" class="vacio">Cargando productos…</td></tr>
+            } @else if (pagina(); as p) {
+              @for (producto of p.contenido; track producto.id) {
+                <tr>
+                  <td><strong>{{ producto.nombre }}</strong></td>
+                  <td>{{ producto.vendedor }}</td>
+                  <td class="tenue">{{ producto.categorias.length ? producto.categorias.join(', ') : '—' }}</td>
+                  <td class="derecha">{{ precio(producto.precio) }}</td>
+                  <td class="derecha" [class.agotado]="producto.stock === 0">{{ producto.stock }}</td>
+                  <td>
+                    <div class="etiquetas">
+                      <span class="estado" [class.activo]="producto.visible">
+                        {{ producto.visible ? 'Activo' : 'Desactivado' }}
+                      </span>
+                      @if (producto.soloPremium) {
+                        <span class="estado premium">Solo Premium</span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                @if (!error()) {
+                  <tr><td colspan="6" class="vacio">Todavía no hay productos en la plataforma.</td></tr>
+                }
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (pagina(); as p) {
+        @if (p.totalPaginas > 1) {
+          <nav class="paginacion" aria-label="Paginación">
+            <button type="button" class="btn btn-ghost btn-sm" (click)="cargar(p.pagina - 1)" [disabled]="cargando() || p.pagina === 0">← Anterior</button>
+            <span>Página {{ p.pagina + 1 }} de {{ p.totalPaginas }} · {{ p.totalElementos }} productos</span>
+            <button type="button" class="btn btn-ghost btn-sm" (click)="cargar(p.pagina + 1)" [disabled]="cargando() || p.pagina + 1 >= p.totalPaginas">Siguiente →</button>
+          </nav>
+        } @else if (p.totalElementos > 0) {
+          <p class="paginacion">{{ p.totalElementos }} {{ p.totalElementos === 1 ? 'producto' : 'productos' }}</p>
+        }
+      }
+    </div>
+  </div>
+</section>

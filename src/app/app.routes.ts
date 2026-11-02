@@ -20,6 +20,8 @@ import { EditarPerfil } from './perfil/editar-perfil/editar-perfil';
 import { PagoPremium } from './perfil/pago-premium/pago-premium';
 import { LibretaDirecciones } from './direcciones/libreta-direcciones/libreta-direcciones';
 import { FormularioDireccion } from './direcciones/formulario-direccion/formulario-direccion';
+import { VerProductosAdmin } from './admin/ver-productos-admin/ver-productos-admin';
+
 
 export const routes: Routes = [
   { path: '', component: Home, canActivate: [portadaGuard] },
@@ -67,6 +69,7 @@ export const routes: Routes = [
       { path: 'categorias', component: VerCategorias },
       { path: 'crear-categoria', component: CrearCategoriaComponent },
       { path: 'categorias/:id/editar', component: EditarCategoria },
+      { path: 'productos', component: VerProductosAdmin },
     ],
   },
   {
