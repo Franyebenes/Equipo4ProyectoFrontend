@@ -72,6 +72,29 @@
           <!-- Dirección de envío -->
           <form class="bloque" [formGroup]="direccion" novalidate>
             <h2>Dirección de envío</h2>
+            @if (direcciones().length > 0) {
+                <ul class="tarjetas">
+                  @for (d of direcciones(); track d.id) {
+                    <li>
+                      <label class="tarjeta" [class.elegida]="direccionElegida() === d.id">
+                        <input type="radio" name="direccionGuardada" [checked]="direccionElegida() === d.id"
+                              (change)="elegirDireccion(d)" />
+                        <span class="datos">
+                          <span class="numero">{{ d.destinatario }}</span>
+                          <span class="detalle">{{ lineaCalle(d) }}, {{ d.codigoPostal }} {{ d.ciudad }}</span>
+                        </span>
+                      </label>
+                    </li>
+                  }
+                  <li>
+                    <label class="tarjeta" [class.elegida]="direccionElegida() === null">
+                      <input type="radio" name="direccionGuardada" [checked]="direccionElegida() === null"
+                            (change)="elegirDireccion(null)" />
+                      <span class="datos"><span class="numero">Otra dirección</span></span>
+                    </label>
+                  </li>
+                </ul>
+              }
             <label>
               Calle y número
               <input formControlName="calle" autocomplete="street-address" maxlength="150" />

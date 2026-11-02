@@ -2,11 +2,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, catchError, of } from 'rxjs';
 
 import { Carrito, CarritoService, LineaCarrito } from '../carrito.service';
 import { MetodoPago, MetodoPagoService } from '../metodo-pago.service';
 import { PagoService, ResultadoPago } from '../pago.service';
+
+import { Direccion, DireccionService, lineaCalle } from '../../direcciones/direccion.service';
 
 /** Productos del carrito de un mismo vendedor: cada compra es de un solo vendedor. */
 export interface GrupoVendedor {
@@ -31,6 +33,7 @@ export class Pagar implements OnInit {
   private readonly pagoService = inject(PagoService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
+  private readonly direccionService = inject(DireccionService);
 
   readonly carrito = signal<Carrito | null>(null);
   readonly tarjetas = signal<MetodoPago[]>([]);
@@ -41,6 +44,9 @@ export class Pagar implements OnInit {
   readonly error = signal<string | null>(null);
   readonly resultado = signal<ResultadoPago | null>(null);
   readonly quedanProductos = signal(false);
+  readonly direcciones = signal<Direccion[]>([]);
+  readonly direccionElegida = signal<string | null>(null);
+  readonly lineaCalle = lineaCalle;
 
   /** El carrito agrupado por vendedor, en el orden en que aparecen. */
   readonly grupos = computed<GrupoVendedor[]>(() => {
@@ -86,20 +92,43 @@ export class Pagar implements OnInit {
   });
 
   ngOnInit(): void {
-    forkJoin({ carrito: this.carritoService.obtener(), tarjetas: this.metodoPagoService.listar() }).subscribe({
-      next: ({ carrito, tarjetas }) => {
+    forkJoin({ carrito: this.carritoService.obtener(), tarjetas: this.metodoPagoService.listar(), direcciones: this.direccionService.listar().pipe(catchError(() => of([] as Direccion[]))),
+}).subscribe({
+      next: ({ carrito, tarjetas, direcciones }) => {
         this.carrito.set(carrito);
         this.tarjetas.set(tarjetas);
         // Si solo tiene una tarjeta, ya viene elegida
         this.tarjetaElegida.set(tarjetas.length === 1 ? tarjetas[0].id : null);
         this.elegirVendedorInicial();
         this.cargando.set(false);
+      
+        this.direcciones.set(direcciones);
+          const predeterminada =direcciones.find((d) => d.predeterminada);
+            if (predeterminada) {
+              this.elegirDireccion(predeterminada);
+            }
       },
       error: (e) => {
         this.mostrarError(e);
         this.cargando.set(false);
       },
     });
+  }
+
+  /** Rellena el formulario con la dirección guardada y lo bloquea; null lo vacía para escribir otra. */
+  elegirDireccion(direccion: Direccion | null): void {
+    this.direccionElegida.set(direccion?.id ?? null);
+    if (direccion) {
+      this.direccion.setValue({
+        calle: lineaCalle(direccion),
+        ciudad: direccion.ciudad,
+        codigoPostal: direccion.codigoPostal,
+      });
+      this.direccion.disable(); // deshabilitado: invalid es false y getRawValue() sigue dando los valores
+    } else {
+      this.direccion.enable();
+      this.direccion.reset();
+    }
   }
 
   elegirVendedor(idVendedor: string | null): void {
@@ -135,7 +164,11 @@ export class Pagar implements OnInit {
     }
     this.pagando.set(true);
     this.pagoService
-      .pagar({ idMetodoPago, direccionEnvio: this.direccion.getRawValue(), idVendedor: grupo.idVendedor })
+      .pagar({
+          idMetodoPago,
+          direccionEnvio: { ...this.direccion.getRawValue(), idDireccion: this.direccionElegida() },
+          idVendedor: grupo.idVendedor,
+        })
       .subscribe({
         next: (resultado) => {
           this.resultado.set(resultado);
