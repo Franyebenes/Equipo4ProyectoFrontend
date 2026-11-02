@@ -19,7 +19,7 @@ export interface Direccion {
 export type DatosDireccion = Omit<Direccion, 'id'>;
 
 /** "Calle Mayor 5, 2B": la misma línea que el backend copia al pedido (Direccion.lineaCalle). */
-export function lineaCalle(d: Direccion): string {
+export function lineaCalle(d: Pick<Direccion, 'calle' | 'numero' | 'pisoPuerta'>): string {
   return `${d.calle} ${d.numero}${d.pisoPuerta ? ', ' + d.pisoPuerta : ''}`;
 }
 

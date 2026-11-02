@@ -1,43 +1,106 @@
-<section class="direcciones">
-  <h1>{{ id ? 'Editar dirección' : 'Nueva dirección' }}</h1>
+<main class="pagina">
+  <section class="tarjeta" aria-labelledby="titulo-direccion">
+    <header class="cabecera">
+      <p class="ceja">Mis direcciones</p>
+      <h1 id="titulo-direccion">{{ id ? 'Editar dirección' : 'Nueva dirección' }}</h1>
+      <p class="intro">Indica dónde quieres recibir tus pedidos.</p>
+    </header>
 
-  @if (error()) {
-    <p class="error" role="alert">{{ error() }}</p>
-  }
-
-  <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
-    <label for="destinatario">Destinatario</label>
-    <input id="destinatario" formControlName="destinatario" autocomplete="name" />
-    @if (invalido('destinatario')) { <small class="error">Obligatorio, máximo 100 caracteres</small> }
-
-    <label for="calle">Calle</label>
-    <input id="calle" formControlName="calle" autocomplete="address-line1" maxlength="100" />
-    @if (invalido('calle')) { <small class="error">Obligatorio, máximo 100 caracteres</small> }
-
-    <label for="numero">Número</label>
-    <input id="numero" formControlName="numero" maxlength="10" />
-    @if (invalido('numero')) { <small class="error">Obligatorio, máximo 10 caracteres</small> }
-
-    <label for="pisoPuerta">Piso y puerta (opcional)</label>
-    <input id="pisoPuerta" formControlName="pisoPuerta" autocomplete="address-line2" maxlength="30" />
-
-    <label for="codigoPostal">Código postal</label>
-    <input id="codigoPostal" formControlName="codigoPostal" inputmode="numeric" autocomplete="postal-code" maxlength="5" />
-    @if (invalido('codigoPostal')) { <small class="error">Código postal español de 5 dígitos</small> }
-
-    <label for="ciudad">Ciudad</label>
-    <input id="ciudad" formControlName="ciudad" autocomplete="address-level2" maxlength="80" />
-    @if (invalido('ciudad')) { <small class="error">Obligatorio</small> }
-
-    <label for="provincia">Provincia</label>
-    <input id="provincia" formControlName="provincia" autocomplete="address-level1" maxlength="80" />
-    @if (invalido('provincia')) { <small class="error">Obligatorio</small> }
-
-    @if (!id) {
-      <label><input type="checkbox" formControlName="predeterminada" /> Usar como predeterminada</label>
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
     }
 
-    <button type="submit" class="btn" [disabled]="guardando()">Guardar</button>
-    <a routerLink="/direcciones">Cancelar</a>
-  </form>
-</section>
+    <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+      <div class="campo-grupo">
+        <label class="campo" for="destinatario">Destinatario</label>
+        <span class="entrada">
+          <input id="destinatario" formControlName="destinatario" autocomplete="name" maxlength="100"
+                 [attr.aria-invalid]="invalido('destinatario')" aria-describedby="error-destinatario" />
+        </span>
+        @if (invalido('destinatario')) {
+          <p class="error-campo" id="error-destinatario">Obligatorio, máximo 100 caracteres</p>
+        }
+      </div>
+
+      <div class="fila-calle">
+        <div class="campo-grupo">
+          <label class="campo" for="calle">Calle</label>
+          <span class="entrada">
+            <input id="calle" formControlName="calle" autocomplete="address-line1" maxlength="100"
+                   [attr.aria-invalid]="invalido('calle')" aria-describedby="error-calle" />
+          </span>
+          @if (invalido('calle')) {
+            <p class="error-campo" id="error-calle">Obligatorio, máximo 100 caracteres</p>
+          }
+        </div>
+
+        <div class="campo-grupo">
+          <label class="campo" for="numero">Número</label>
+          <span class="entrada">
+            <input id="numero" formControlName="numero" maxlength="10"
+                   [attr.aria-invalid]="invalido('numero')" aria-describedby="error-numero" />
+          </span>
+          @if (invalido('numero')) {
+            <p class="error-campo" id="error-numero">Obligatorio, máximo 10 caracteres</p>
+          }
+        </div>
+      </div>
+
+      <div class="dos-campos">
+        <div class="campo-grupo">
+          <label class="campo" for="pisoPuerta">Piso y puerta <span class="opcional">(opcional)</span></label>
+          <span class="entrada">
+            <input id="pisoPuerta" formControlName="pisoPuerta" autocomplete="address-line2" maxlength="30" />
+          </span>
+        </div>
+
+        <div class="campo-grupo">
+          <label class="campo" for="codigoPostal">Código postal</label>
+          <span class="entrada">
+            <input id="codigoPostal" formControlName="codigoPostal" inputmode="numeric" autocomplete="postal-code" maxlength="5"
+                   [attr.aria-invalid]="invalido('codigoPostal')" aria-describedby="error-cp" />
+          </span>
+          @if (invalido('codigoPostal')) {
+            <p class="error-campo" id="error-cp">Código postal español de 5 dígitos</p>
+          }
+        </div>
+
+        <div class="campo-grupo">
+          <label class="campo" for="ciudad">Ciudad</label>
+          <span class="entrada">
+            <input id="ciudad" formControlName="ciudad" autocomplete="address-level2" maxlength="80"
+                   [attr.aria-invalid]="invalido('ciudad')" aria-describedby="error-ciudad" />
+          </span>
+          @if (invalido('ciudad')) {
+            <p class="error-campo" id="error-ciudad">Obligatorio</p>
+          }
+        </div>
+
+        <div class="campo-grupo">
+          <label class="campo" for="provincia">Provincia</label>
+          <span class="entrada">
+            <input id="provincia" formControlName="provincia" autocomplete="address-level1" maxlength="80"
+                   [attr.aria-invalid]="invalido('provincia')" aria-describedby="error-provincia" />
+          </span>
+          @if (invalido('provincia')) {
+            <p class="error-campo" id="error-provincia">Obligatorio</p>
+          }
+        </div>
+      </div>
+
+      @if (!id) {
+        <label class="casilla">
+          <input type="checkbox" formControlName="predeterminada" />
+          Usar como dirección predeterminada
+        </label>
+      }
+
+      <div class="acciones">
+        <a [routerLink]="urlVuelta" class="btn btn-ghost btn-lg">Cancelar</a>
+        <button type="submit" class="btn btn-coral btn-lg" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando…' : 'Guardar dirección' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</main>

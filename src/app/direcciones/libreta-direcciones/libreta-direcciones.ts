@@ -9,6 +9,7 @@ import { Direccion, DireccionService, lineaCalle } from '../direccion.service';
   selector: 'app-libreta-direcciones',
   imports: [RouterLink],
   templateUrl: './libreta-direcciones.html',
+  styleUrl: './libreta-direcciones.css',
 })
 export class LibretaDirecciones {
   private readonly servicio = inject(DireccionService);

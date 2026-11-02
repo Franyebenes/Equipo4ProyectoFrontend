@@ -95,11 +95,22 @@
                   </li>
                 </ul>
               }
-            <label>
-              Calle y número
-              <input formControlName="calle" autocomplete="street-address" maxlength="150" />
-              @if (invalido('calle')) { <span class="campo-error">Indica la calle.</span> }
-            </label>
+            <div class="fila fila-calle">
+              <label>
+                Calle
+                <input formControlName="calle" autocomplete="address-line1" maxlength="100" />
+                @if (invalido('calle')) { <span class="campo-error">Indica la calle.</span> }
+              </label>
+              <label>
+                Número
+                <input formControlName="numero" maxlength="10" />
+                @if (invalido('numero')) { <span class="campo-error">Indica el número.</span> }
+              </label>
+              <label>
+                Piso y puerta <span class="opcional">(opcional)</span>
+                <input formControlName="pisoPuerta" autocomplete="address-line2" maxlength="30" />
+              </label>
+            </div>
             <div class="fila">
               <label>
                 Ciudad
@@ -109,9 +120,34 @@
               <label>
                 Código postal
                 <input formControlName="codigoPostal" autocomplete="postal-code" inputmode="numeric" maxlength="5" />
-                @if (invalido('codigoPostal')) { <span class="campo-error">5 números.</span> }
+                @if (invalido('codigoPostal')) {
+                  <span class="campo-error">{{ guardarDireccion() ? 'Código postal español (01000-52999).' : '5 números.' }}</span>
+                }
               </label>
             </div>
+
+            <!-- Solo para una dirección nueva: guardarla también en "Mis direcciones" -->
+            @if (direccionElegida() === null) {
+              <label class="casilla">
+                <input type="checkbox" [checked]="guardarDireccion()" (change)="cambiarGuardarDireccion($any($event.target).checked)" />
+                Guardar esta dirección en mis direcciones
+              </label>
+
+              @if (guardarDireccion()) {
+                <div class="fila">
+                  <label>
+                    Destinatario
+                    <input formControlName="destinatario" autocomplete="name" maxlength="100" />
+                    @if (invalido('destinatario')) { <span class="campo-error">Indica quién recibe el pedido.</span> }
+                  </label>
+                  <label>
+                    Provincia
+                    <input formControlName="provincia" autocomplete="address-level1" maxlength="80" />
+                    @if (invalido('provincia')) { <span class="campo-error">Indica la provincia.</span> }
+                  </label>
+                </div>
+              }
+            }
           </form>
 
           <!-- Tarjeta -->

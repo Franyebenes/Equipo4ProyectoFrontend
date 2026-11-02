@@ -2,13 +2,18 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin, catchError, of } from 'rxjs';
+import { Observable, forkJoin, catchError, map, of, switchMap, tap } from 'rxjs';
 
 import { Carrito, CarritoService, LineaCarrito } from '../carrito.service';
 import { MetodoPago, MetodoPagoService } from '../metodo-pago.service';
 import { PagoService, ResultadoPago } from '../pago.service';
 
+import { AuthService } from '../../core/auth.service';
 import { Direccion, DireccionService, lineaCalle } from '../../direcciones/direccion.service';
+
+const TEXTO_SEGURO = /^[^<>{}$]*$/;
+/** El que pide la libreta (01000-52999); para un envío sin guardar basta con 5 cifras */
+const CODIGO_POSTAL_ES = /^(0[1-9]|[1-4]\d|5[0-2])\d{3}$/;
 
 /** Productos del carrito de un mismo vendedor: cada compra es de un solo vendedor. */
 export interface GrupoVendedor {
@@ -34,6 +39,7 @@ export class Pagar implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly direccionService = inject(DireccionService);
+  private readonly auth = inject(AuthService);
 
   readonly carrito = signal<Carrito | null>(null);
   readonly tarjetas = signal<MetodoPago[]>([]);
@@ -85,10 +91,18 @@ export class Pagar implements OnInit {
     return this.grupos().find((g) => g.idVendedor === elegido) ?? null;
   });
 
+  /** Si la "Otra dirección" escrita a mano se guarda también en la libreta del cliente */
+  readonly guardarDireccion = signal(false);
+
+  // Mismos límites que la libreta de direcciones; destinatario y provincia solo hacen falta si se guarda
   readonly direccion = this.fb.nonNullable.group({
-    calle: ['', [Validators.required, Validators.maxLength(150)]],
-    ciudad: ['', [Validators.required, Validators.maxLength(80)]],
+    calle: ['', [Validators.required, Validators.maxLength(100), Validators.pattern(TEXTO_SEGURO)]],
+    numero: ['', [Validators.required, Validators.maxLength(10), Validators.pattern(TEXTO_SEGURO)]],
+    pisoPuerta: ['', [Validators.maxLength(30), Validators.pattern(TEXTO_SEGURO)]],
+    ciudad: ['', [Validators.required, Validators.maxLength(80), Validators.pattern(TEXTO_SEGURO)]],
     codigoPostal: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
+    destinatario: [''],
+    provincia: [''],
   });
 
   ngOnInit(): void {
@@ -119,15 +133,35 @@ export class Pagar implements OnInit {
   elegirDireccion(direccion: Direccion | null): void {
     this.direccionElegida.set(direccion?.id ?? null);
     if (direccion) {
+      this.cambiarGuardarDireccion(false);
       this.direccion.setValue({
-        calle: lineaCalle(direccion),
+        calle: direccion.calle,
+        numero: direccion.numero,
+        pisoPuerta: direccion.pisoPuerta ?? '',
         ciudad: direccion.ciudad,
         codigoPostal: direccion.codigoPostal,
+        destinatario: direccion.destinatario,
+        provincia: direccion.provincia,
       });
       this.direccion.disable(); // deshabilitado: invalid es false y getRawValue() sigue dando los valores
     } else {
       this.direccion.enable();
       this.direccion.reset();
+    }
+  }
+
+  /** Al marcar "Guardar en mis direcciones" pasan a ser obligatorios los datos que pide la libreta. */
+  cambiarGuardarDireccion(guardar: boolean): void {
+    this.guardarDireccion.set(guardar);
+    const { destinatario, provincia, codigoPostal } = this.direccion.controls;
+    destinatario.setValidators(guardar ? [Validators.required, Validators.maxLength(100), Validators.pattern(TEXTO_SEGURO)] : []);
+    provincia.setValidators(guardar ? [Validators.required, Validators.maxLength(80), Validators.pattern(TEXTO_SEGURO)] : []);
+    codigoPostal.setValidators([Validators.required, Validators.pattern(guardar ? CODIGO_POSTAL_ES : /^\d{5}$/)]);
+    if (guardar && !destinatario.value) {
+      destinatario.setValue(this.auth.usuario()?.nombre ?? '');
+    }
+    for (const control of [destinatario, provincia, codigoPostal]) {
+      control.updateValueAndValidity();
     }
   }
 
@@ -141,7 +175,7 @@ export class Pagar implements OnInit {
     this.error.set(null);
   }
 
-  invalido(campo: 'calle' | 'ciudad' | 'codigoPostal'): boolean {
+  invalido(campo: keyof typeof this.direccion.controls): boolean {
     const control = this.direccion.controls[campo];
     return control.invalid && control.touched;
   }
@@ -163,12 +197,22 @@ export class Pagar implements OnInit {
       return;
     }
     this.pagando.set(true);
-    this.pagoService
-      .pagar({
-          idMetodoPago,
-          direccionEnvio: { ...this.direccion.getRawValue(), idDireccion: this.direccionElegida() },
-          idVendedor: grupo.idVendedor,
-        })
+    this.idDireccionParaPago()
+      .pipe(
+        switchMap((idDireccion) => {
+          const v = this.direccion.getRawValue();
+          return this.pagoService.pagar({
+            idMetodoPago,
+            direccionEnvio: {
+              calle: lineaCalle({ calle: v.calle, numero: v.numero, pisoPuerta: v.pisoPuerta.trim() || null }),
+              ciudad: v.ciudad,
+              codigoPostal: v.codigoPostal,
+              idDireccion,
+            },
+            idVendedor: grupo.idVendedor,
+          });
+        }),
+      )
       .subscribe({
         next: (resultado) => {
           this.resultado.set(resultado);
@@ -183,6 +227,35 @@ export class Pagar implements OnInit {
           this.pagando.set(false);
         },
       });
+  }
+
+  /**
+   * Id de la dirección de la libreta con la que se paga. Si se ha pedido guardar la dirección nueva, antes se crea en
+   * la libreta y se deja elegida: si luego falla el pago, al reintentar no se vuelve a crear.
+   */
+  private idDireccionParaPago(): Observable<string | null> {
+    if (this.direccionElegida() !== null || !this.guardarDireccion()) {
+      return of(this.direccionElegida());
+    }
+    const v = this.direccion.getRawValue();
+    return this.direccionService
+      .crear({
+        destinatario: v.destinatario.trim(),
+        calle: v.calle.trim(),
+        numero: v.numero.trim(),
+        pisoPuerta: v.pisoPuerta.trim() || null,
+        codigoPostal: v.codigoPostal,
+        ciudad: v.ciudad.trim(),
+        provincia: v.provincia.trim(),
+        predeterminada: this.direcciones().length === 0, // la primera que guarda pasa a ser la predeterminada
+      })
+      .pipe(
+        tap((nueva) => {
+          this.direcciones.update((lista) => [...lista, nueva]);
+          this.elegirDireccion(nueva);
+        }),
+        map((nueva) => nueva.id),
+      );
   }
 
   precio(importe: number): string {

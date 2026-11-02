@@ -19,14 +19,18 @@ function texto(max: number, obligatorio = true) {
   selector: 'app-formulario-direccion',
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './formulario-direccion.html',
+  styleUrl: './formulario-direccion.css',
 })
 export class FormularioDireccion {
   private readonly servicio = inject(DireccionService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
+  private readonly ruta = inject(ActivatedRoute).snapshot;
   /** null = alta; con valor = edición */
-  protected readonly id = inject(ActivatedRoute).snapshot.paramMap.get('id');
+  protected readonly id = this.ruta.paramMap.get('id');
+  /** Al guardar o cancelar se vuelve al perfil si se llegó desde allí (?volver=perfil) */
+  protected readonly urlVuelta = this.ruta.queryParamMap.get('volver') === 'perfil' ? '/perfil' : '/direcciones';
   protected readonly error = signal<string | null>(null);
   protected readonly guardando = signal(false);
 
@@ -67,7 +71,7 @@ export class FormularioDireccion {
     this.guardando.set(true);
     this.error.set(null);
     peticion.subscribe({
-      next: () => this.router.navigateByUrl('/direcciones'),
+      next: () => this.router.navigateByUrl(this.urlVuelta),
       error: (e) => {
         this.guardando.set(false);
         this.error.set(mensajeDeError(e)); // 409 si está en un pedido en curso o se ha llegado al límite
