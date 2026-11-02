@@ -1,0 +1,86 @@
+<section class="pago-premium">
+  @if (estado() !== 'hecho') {
+    <h1>Hazte Premium</h1>
+    <p class="aviso" role="note">Pago simulado: no se realiza ningún cargo real. No introduzcas tu tarjeta real.</p>
+
+    <p>Cuota: <strong>{{ precio() === null ? '…' : formatearEuros(precio()!) }}</strong></p>
+    <ul>
+      <li>Descuento Premium adicional en los productos que lo tienen.</li>
+      <li>Acceso a los productos solo para Premium.</li>
+    </ul>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    @if (estado() === 'cargando') {
+      <p>Cargando…</p>
+    } @else {
+      <h2>Método de pago</h2>
+      <ul class="tarjetas">
+        @for (t of tarjetas(); track t.id) {
+          <li>
+            <label [class.elegida]="tarjetaElegida() === t.id">
+              <input type="radio" name="tarjeta" [checked]="tarjetaElegida() === t.id" (change)="tarjetaElegida.set(t.id)" />
+              •••• {{ t.ultimosDigitos }} · {{ t.titular }} · Caduca {{ t.caducidad }}
+            </label>
+          </li>
+        }
+      </ul>
+
+      @if (anadiendo()) {
+        <form [formGroup]="nuevaTarjeta" (ngSubmit)="guardarTarjeta()" novalidate>
+          <label for="titular">Titular de la tarjeta</label>
+          <input id="titular" formControlName="titular" autocomplete="cc-name" />
+          @if (invalido('titular')) { <small class="error">Obligatorio</small> }
+
+          <label for="numeroTarjeta">Número de tarjeta</label>
+          <input id="numeroTarjeta" formControlName="numeroTarjeta" inputmode="numeric" autocomplete="cc-number" maxlength="23" />
+          @if (invalido('numeroTarjeta')) { <small class="error">Entre 12 y 19 dígitos</small> }
+
+          <label for="caducidad">Caducidad (MM/AA)</label>
+          <input id="caducidad" formControlName="caducidad" placeholder="MM/AA" autocomplete="cc-exp" maxlength="5" />
+          @if (invalido('caducidad')) { <small class="error">Formato MM/AA</small> }
+
+          <label for="cvv">CVV</label>
+            <input
+                id="cvv"
+                name="cc-csc"
+                formControlName="cvv"
+                type="text"
+                inputmode="numeric"
+                autocomplete="cc-csc"
+                maxlength="4"
+                pattern="[0-9]{3,4}"
+                required
+            />          
+          @if (invalido('cvv')) { <small class="error">3 o 4 dígitos</small> }
+
+          <button type="submit" class="btn">Guardar tarjeta</button>
+          @if (tarjetas().length > 0) {
+            <button type="button" class="btn btn-ghost" (click)="anadiendo.set(false)">Cancelar</button>
+          }
+        </form>
+      } @else {
+        <button type="button" class="btn btn-ghost" (click)="anadiendo.set(true)">Añadir otra tarjeta</button>
+      }
+
+      <button type="button" class="btn" (click)="pagar()" [disabled]="estado() === 'procesando' || !tarjetaElegida()">
+        {{ estado() === 'procesando' ? 'Procesando pago…' : 'Pagar ' + (precio() === null ? '' : formatearEuros(precio()!)) }}
+      </button>
+      <a routerLink="/perfil">Cancelar</a>
+    }
+  } @else if (justificante(); as j) {
+    <h1>¡Bienvenido a Premium!</h1>
+    <output>
+        Pago realizado. Desde ahora verás tus descuentos exclusivos.
+    </output>
+    <dl>
+      <dt>Importe</dt>
+      <dd>{{ formatearEuros(j.importe) }}</dd>
+      <dt>Tarjeta</dt>
+      <dd>•••• {{ j.ultimosDigitos }}</dd>
+    </dl>
+    <a routerLink="/perfil" class="btn">Volver a mi perfil</a>
+  }
+</section>

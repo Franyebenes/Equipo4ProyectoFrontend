@@ -6,7 +6,7 @@ import { VerCategorias } from './admin/ver-categorias/ver-categorias';
 import { EditarCategoria } from './admin/editar-categoria/editar-categoria';
 import { MisProductos } from './vendedor/mis-productos/mis-productos';
 import { DetalleProducto } from './vendedor/detalle-producto/detalle-producto';
-import { portadaGuard, rolGuard, sinAdminGuard } from './core/rol.guard';
+import { portadaGuard, rolGuard } from './core/rol.guard';
 import { Home } from './home/home';
 import { Catalogo } from './cliente/catalogo/catalogo';
 import { FichaProducto } from './cliente/ficha-producto/ficha-producto';
@@ -17,6 +17,7 @@ import { Pagar } from './cliente/pagar/pagar';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 import {VerPerfil} from './perfil/ver-perfil/ver-perfil';
 import { EditarPerfil } from './perfil/editar-perfil/editar-perfil';
+import { PagoPremium } from './perfil/pago-premium/pago-premium';
 
 export const routes: Routes = [
   { path: '', component: Home, canActivate: [portadaGuard] },
@@ -49,6 +50,9 @@ export const routes: Routes = [
   { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'metodos-pago', component: MetodosPago, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'pagar', component: Pagar, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  { path: 'perfil/premium', component: PagoPremium, canActivate: [rolGuard('CLIENTE')] },
+  { path: 'perfil', component: VerPerfil, canActivate: [rolGuard('CLIENTE','PREMIUM','VENDEDOR','ADMIN')] },
+  { path: 'perfil/editar', component: EditarPerfil, canActivate: [rolGuard('CLIENTE','PREMIUM','VENDEDOR','ADMIN')] },
   {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],

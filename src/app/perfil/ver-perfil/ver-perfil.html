@@ -51,7 +51,7 @@
         }
       </dl>
 
-      <!-- Aquí irán los botones de Premium (rama 2) y el enlace a direcciones (rama 3) -->
+      <!-- Aquí irán los botones de Premium  y el enlace a direcciones  -->
 
       <div class="acciones">
         <a routerLink="/perfil/editar" class="btn btn-coral btn-lg">
@@ -62,6 +62,27 @@
           Editar perfil
         </a>
       </div>
+      
+      @if (mensajeExito()) {
+        <output class="exito">{{ mensajeExito() }}</output>{{ mensajeExito() }}</p>
+      }
+
+      @if (p.rol === 'CLIENTE') {
+        <a routerLink="/perfil/premium" class="btn">Hacerme Premium</a>
+      }
+
+      @if (p.rol === 'PREMIUM' && !confirmandoBaja()) {
+        <button type="button" class="btn btn-ghost" (click)="confirmandoBaja.set(true)" [disabled]="procesando()">Dejar Premium</button>
+      }
+
+      @if (confirmandoBaja()) {
+        <div class="confirmacion" role="alertdialog" aria-labelledby="texto-baja">
+          <p id="texto-baja">¿Seguro que quieres dejar Premium? Perderás los descuentos exclusivos, se quitarán de tu carrito los productos solo para Premium y no se devuelve la cuota pagada.</p>
+          <button type="button" class="btn" (click)="confirmarBaja()">Sí, dejar Premium</button>
+          <button type="button" class="btn btn-ghost" (click)="confirmandoBaja.set(false)">Cancelar</button>
+        </div>
+      }
+
     } @else if (!error()) {
       <p class="cargando">Cargando tu perfil…</p>
     }
