@@ -1,0 +1,39 @@
+<section class="direcciones">
+  <h1>Mis direcciones</h1>
+  <a routerLink="/direcciones/nueva" class="btn">Añadir dirección</a>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  @if (cargando()) {
+    <p>Cargando…</p>
+  } @else {
+    @for (d of direcciones(); track d.id) {
+      <article class="direccion">
+        <p>
+          <strong>{{ d.destinatario }}</strong>
+          @if (d.predeterminada) {
+            <span class="etiqueta">Predeterminada</span>
+          }
+        </p>
+        <p>{{ lineaCalle(d) }}</p>
+        <p>{{ d.codigoPostal }} {{ d.ciudad }} ({{ d.provincia }})</p>
+
+        <a [routerLink]="['/direcciones', d.id, 'editar']">Editar</a>
+        @if (!d.predeterminada) {
+          <button type="button" class="btn btn-ghost" (click)="hacerPredeterminada(d)">Usar como predeterminada</button>
+        }
+        @if (confirmandoBorrado() === d.id) {
+          <span role="alertdialog">¿Eliminar esta dirección?</span>
+          <button type="button" class="btn" (click)="eliminar(d)">Sí, eliminar</button>
+          <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(null)">Cancelar</button>
+        } @else {
+          <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(d.id)">Eliminar</button>
+        }
+      </article>
+    } @empty {
+      <p>Aún no tienes direcciones guardadas.</p>
+    }
+  }
+</section>

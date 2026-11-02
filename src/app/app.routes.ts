@@ -18,6 +18,8 @@ import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 import {VerPerfil} from './perfil/ver-perfil/ver-perfil';
 import { EditarPerfil } from './perfil/editar-perfil/editar-perfil';
 import { PagoPremium } from './perfil/pago-premium/pago-premium';
+import { LibretaDirecciones } from './direcciones/libreta-direcciones/libreta-direcciones';
+import { FormularioDireccion } from './direcciones/formulario-direccion/formulario-direccion';
 
 export const routes: Routes = [
   { path: '', component: Home, canActivate: [portadaGuard] },
@@ -53,6 +55,9 @@ export const routes: Routes = [
   { path: 'perfil/premium', component: PagoPremium, canActivate: [rolGuard('CLIENTE')] },
   { path: 'perfil', component: VerPerfil, canActivate: [rolGuard('CLIENTE','PREMIUM','VENDEDOR','ADMIN')] },
   { path: 'perfil/editar', component: EditarPerfil, canActivate: [rolGuard('CLIENTE','PREMIUM','VENDEDOR','ADMIN')] },
+  { path: 'direcciones', component: LibretaDirecciones, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  { path: 'direcciones/nueva', component: FormularioDireccion, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  { path: 'direcciones/:id/editar', component: FormularioDireccion, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],

@@ -1,0 +1,43 @@
+<section class="direcciones">
+  <h1>{{ id ? 'Editar dirección' : 'Nueva dirección' }}</h1>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    <label for="destinatario">Destinatario</label>
+    <input id="destinatario" formControlName="destinatario" autocomplete="name" />
+    @if (invalido('destinatario')) { <small class="error">Obligatorio, máximo 100 caracteres</small> }
+
+    <label for="calle">Calle</label>
+    <input id="calle" formControlName="calle" autocomplete="address-line1" maxlength="100" />
+    @if (invalido('calle')) { <small class="error">Obligatorio, máximo 100 caracteres</small> }
+
+    <label for="numero">Número</label>
+    <input id="numero" formControlName="numero" maxlength="10" />
+    @if (invalido('numero')) { <small class="error">Obligatorio, máximo 10 caracteres</small> }
+
+    <label for="pisoPuerta">Piso y puerta (opcional)</label>
+    <input id="pisoPuerta" formControlName="pisoPuerta" autocomplete="address-line2" maxlength="30" />
+
+    <label for="codigoPostal">Código postal</label>
+    <input id="codigoPostal" formControlName="codigoPostal" inputmode="numeric" autocomplete="postal-code" maxlength="5" />
+    @if (invalido('codigoPostal')) { <small class="error">Código postal español de 5 dígitos</small> }
+
+    <label for="ciudad">Ciudad</label>
+    <input id="ciudad" formControlName="ciudad" autocomplete="address-level2" maxlength="80" />
+    @if (invalido('ciudad')) { <small class="error">Obligatorio</small> }
+
+    <label for="provincia">Provincia</label>
+    <input id="provincia" formControlName="provincia" autocomplete="address-level1" maxlength="80" />
+    @if (invalido('provincia')) { <small class="error">Obligatorio</small> }
+
+    @if (!id) {
+      <label><input type="checkbox" formControlName="predeterminada" /> Usar como predeterminada</label>
+    }
+
+    <button type="submit" class="btn" [disabled]="guardando()">Guardar</button>
+    <a routerLink="/direcciones">Cancelar</a>
+  </form>
+</section>
