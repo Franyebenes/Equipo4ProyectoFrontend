@@ -18,6 +18,7 @@ function mensaje(e: unknown, porDefecto: string): string {
   selector: 'app-pago-premium',
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './pago-premium.html',
+  styleUrl: './pago-premium.css',
 })
 export class PagoPremium {
   private readonly perfilService = inject(PerfilService);

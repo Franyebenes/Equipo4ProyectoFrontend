@@ -1,86 +1,149 @@
-<section class="pago-premium">
-  @if (estado() !== 'hecho') {
-    <h1>Hazte Premium</h1>
-    <p class="aviso" role="note">Pago simulado: no se realiza ningún cargo real. No introduzcas tu tarjeta real.</p>
+<main class="pagina">
+  <section class="tarjeta" aria-labelledby="titulo-premium">
+    @if (estado() !== 'hecho') {
+      <!-- Cabecera: título y cuota -->
+      <header class="cabecera">
+        <div>
+          <p class="ceja">Mi perfil</p>
+          <h1 id="titulo-premium">Hazte Premium</h1>
+          <p class="intro">Disfruta de ventajas exclusivas en toda la tienda.</p>
+        </div>
+        <p class="cuota">
+          <span class="cuota-texto">Cuota</span>
+          <span class="cuota-importe">{{ precio() === null ? '…' : formatearEuros(precio()!) }}</span>
+        </p>
+      </header>
 
-    <p>Cuota: <strong>{{ precio() === null ? '…' : formatearEuros(precio()!) }}</strong></p>
-    <ul>
-      <li>Descuento Premium adicional en los productos que lo tienen.</li>
-      <li>Acceso a los productos solo para Premium.</li>
-    </ul>
-
-    @if (error()) {
-      <p class="error" role="alert">{{ error() }}</p>
-    }
-
-    @if (estado() === 'cargando') {
-      <p>Cargando…</p>
-    } @else {
-      <h2>Método de pago</h2>
-      <ul class="tarjetas">
-        @for (t of tarjetas(); track t.id) {
-          <li>
-            <label [class.elegida]="tarjetaElegida() === t.id">
-              <input type="radio" name="tarjeta" [checked]="tarjetaElegida() === t.id" (change)="tarjetaElegida.set(t.id)" />
-              •••• {{ t.ultimosDigitos }} · {{ t.titular }} · Caduca {{ t.caducidad }}
-            </label>
-          </li>
-        }
+      <ul class="ventajas">
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+          Descuento Premium adicional en los productos que lo tienen.
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+          Acceso a los productos solo para Premium.
+        </li>
       </ul>
 
-      @if (anadiendo()) {
-        <form [formGroup]="nuevaTarjeta" (ngSubmit)="guardarTarjeta()" novalidate>
-          <label for="titular">Titular de la tarjeta</label>
-          <input id="titular" formControlName="titular" autocomplete="cc-name" />
-          @if (invalido('titular')) { <small class="error">Obligatorio</small> }
-
-          <label for="numeroTarjeta">Número de tarjeta</label>
-          <input id="numeroTarjeta" formControlName="numeroTarjeta" inputmode="numeric" autocomplete="cc-number" maxlength="23" />
-          @if (invalido('numeroTarjeta')) { <small class="error">Entre 12 y 19 dígitos</small> }
-
-          <label for="caducidad">Caducidad (MM/AA)</label>
-          <input id="caducidad" formControlName="caducidad" placeholder="MM/AA" autocomplete="cc-exp" maxlength="5" />
-          @if (invalido('caducidad')) { <small class="error">Formato MM/AA</small> }
-
-          <label for="cvv">CVV</label>
-            <input
-                id="cvv"
-                name="cc-csc"
-                formControlName="cvv"
-                type="text"
-                inputmode="numeric"
-                autocomplete="cc-csc"
-                maxlength="4"
-                pattern="[0-9]{3,4}"
-                required
-            />          
-          @if (invalido('cvv')) { <small class="error">3 o 4 dígitos</small> }
-
-          <button type="submit" class="btn">Guardar tarjeta</button>
-          @if (tarjetas().length > 0) {
-            <button type="button" class="btn btn-ghost" (click)="anadiendo.set(false)">Cancelar</button>
-          }
-        </form>
-      } @else {
-        <button type="button" class="btn btn-ghost" (click)="anadiendo.set(true)">Añadir otra tarjeta</button>
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
       }
 
-      <button type="button" class="btn" (click)="pagar()" [disabled]="estado() === 'procesando' || !tarjetaElegida()">
-        {{ estado() === 'procesando' ? 'Procesando pago…' : 'Pagar ' + (precio() === null ? '' : formatearEuros(precio()!)) }}
-      </button>
-      <a routerLink="/perfil">Cancelar</a>
+      @if (estado() === 'cargando') {
+        <p class="cargando">Cargando…</p>
+      } @else {
+        <h2>Método de pago</h2>
+
+        @if (tarjetas().length > 0) {
+          <ul class="tarjetas">
+            @for (t of tarjetas(); track t.id) {
+              <li>
+                <label class="opcion-tarjeta" [class.elegida]="tarjetaElegida() === t.id">
+                  <input type="radio" name="tarjeta" [checked]="tarjetaElegida() === t.id" (change)="tarjetaElegida.set(t.id)" />
+                  <span class="tarjeta-numero">•••• {{ t.ultimosDigitos }}</span>
+                  <span class="tarjeta-detalle">{{ t.titular }} · Caduca {{ t.caducidad }}</span>
+                </label>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (anadiendo()) {
+          <form class="nueva-tarjeta" [formGroup]="nuevaTarjeta" (ngSubmit)="guardarTarjeta()" novalidate>
+            <div class="campo-grupo">
+              <label class="campo" for="titular">Titular de la tarjeta</label>
+              <span class="entrada">
+                <input id="titular" formControlName="titular" autocomplete="cc-name"
+                       [attr.aria-invalid]="invalido('titular')" aria-describedby="error-titular" />
+              </span>
+              @if (invalido('titular')) {
+                <p class="error-campo" id="error-titular">Obligatorio</p>
+              }
+            </div>
+
+            <div class="campo-grupo">
+              <label class="campo" for="numeroTarjeta">Número de tarjeta</label>
+              <span class="entrada">
+                <input id="numeroTarjeta" formControlName="numeroTarjeta" inputmode="numeric" autocomplete="cc-number" maxlength="23"
+                       [attr.aria-invalid]="invalido('numeroTarjeta')" aria-describedby="error-numero" />
+              </span>
+              @if (invalido('numeroTarjeta')) {
+                <p class="error-campo" id="error-numero">Entre 12 y 19 dígitos</p>
+              }
+            </div>
+
+            <div class="dos-campos">
+              <div class="campo-grupo">
+                <label class="campo" for="caducidad">Caducidad</label>
+                <span class="entrada">
+                  <input id="caducidad" formControlName="caducidad" placeholder="MM/AA" autocomplete="cc-exp" maxlength="5"
+                         [attr.aria-invalid]="invalido('caducidad')" aria-describedby="error-caducidad" />
+                </span>
+                @if (invalido('caducidad')) {
+                  <p class="error-campo" id="error-caducidad">Formato MM/AA</p>
+                }
+              </div>
+
+              <div class="campo-grupo">
+                <label class="campo" for="cvv">CVV</label>
+                <span class="entrada">
+                  <input id="cvv" name="cc-csc" formControlName="cvv" type="text" inputmode="numeric" autocomplete="cc-csc" maxlength="4"
+                         [attr.aria-invalid]="invalido('cvv')" aria-describedby="error-cvv" />
+                </span>
+                @if (invalido('cvv')) {
+                  <p class="error-campo" id="error-cvv">3 o 4 dígitos</p>
+                }
+              </div>
+            </div>
+
+            <div class="acciones-tarjeta">
+              @if (tarjetas().length > 0) {
+                <button type="button" class="btn btn-ghost" (click)="anadiendo.set(false)">Cancelar</button>
+              }
+              <button type="submit" class="btn btn-white">Guardar tarjeta</button>
+            </div>
+          </form>
+        } @else {
+          <button type="button" class="btn btn-ghost anadir" (click)="anadiendo.set(true)">+ Añadir otra tarjeta</button>
+        }
+
+        <div class="acciones">
+          <a routerLink="/perfil" class="btn btn-ghost btn-lg">Cancelar</a>
+          <button type="button" class="btn btn-coral btn-lg" (click)="pagar()" [disabled]="estado() === 'procesando' || !tarjetaElegida()">
+            {{ estado() === 'procesando' ? 'Procesando pago…' : 'Pagar ' + (precio() === null ? '' : formatearEuros(precio()!)) }}
+          </button>
+        </div>
+      }
+    } @else if (justificante(); as j) {
+      <div class="exito">
+        <span class="icono-exito" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </span>
+        <p class="ceja">Premium</p>
+        <h1 id="titulo-premium">¡Bienvenido a Premium!</h1>
+        <output class="intro">Pago realizado. Desde ahora verás tus descuentos exclusivos.</output>
+      </div>
+
+      <dl class="datos">
+        <div class="dato">
+          <dt>Importe</dt>
+          <dd>{{ formatearEuros(j.importe) }}</dd>
+        </div>
+        <div class="dato">
+          <dt>Tarjeta</dt>
+          <dd>•••• {{ j.ultimosDigitos }}</dd>
+        </div>
+      </dl>
+
+      <div class="acciones">
+        <a routerLink="/perfil" class="btn btn-coral btn-lg">Volver a mi perfil</a>
+      </div>
     }
-  } @else if (justificante(); as j) {
-    <h1>¡Bienvenido a Premium!</h1>
-    <output>
-        Pago realizado. Desde ahora verás tus descuentos exclusivos.
-    </output>
-    <dl>
-      <dt>Importe</dt>
-      <dd>{{ formatearEuros(j.importe) }}</dd>
-      <dt>Tarjeta</dt>
-      <dd>•••• {{ j.ultimosDigitos }}</dd>
-    </dl>
-    <a routerLink="/perfil" class="btn">Volver a mi perfil</a>
-  }
-</section>
+  </section>
+</main>

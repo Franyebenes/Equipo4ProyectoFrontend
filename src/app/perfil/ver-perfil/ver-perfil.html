@@ -64,7 +64,7 @@
       </div>
       
       @if (mensajeExito()) {
-        <output class="exito">{{ mensajeExito() }}</output>{{ mensajeExito() }}</p>
+        <output class="exito">{{ mensajeExito() }}</output>
       }
 
       @if (p.rol === 'CLIENTE') {
@@ -78,8 +78,10 @@
       @if (confirmandoBaja()) {
         <div class="confirmacion" role="alertdialog" aria-labelledby="texto-baja">
           <p id="texto-baja">¿Seguro que quieres dejar Premium? Perderás los descuentos exclusivos, se quitarán de tu carrito los productos solo para Premium y no se devuelve la cuota pagada.</p>
-          <button type="button" class="btn" (click)="confirmarBaja()">Sí, dejar Premium</button>
-          <button type="button" class="btn btn-ghost" (click)="confirmandoBaja.set(false)">Cancelar</button>
+          <div class="botones-confirmacion">
+            <button type="button" class="btn" (click)="confirmarBaja()">Sí, dejar Premium</button>
+            <button type="button" class="btn btn-ghost" (click)="confirmandoBaja.set(false)">Cancelar</button>
+          </div>
         </div>
       }
 
