@@ -36,7 +36,7 @@ export class EditarPerfil {
   protected readonly formulario = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(TEXTO_SEGURO)]],
     apellidos: ['', [Validators.required, Validators.maxLength(100), Validators.pattern(TEXTO_SEGURO)]],
-    telefono: ['', [Validators.pattern(/^([0-9]{9})?$/)]],
+    telefono: ['', [Validators.pattern(/^(\d{9})?$/)]],
     fechaNacimiento: [''],
     avatar: ['', [Validators.required]],
     nombreComercial: ['', [Validators.maxLength(80), Validators.pattern(TEXTO_SEGURO)]],
