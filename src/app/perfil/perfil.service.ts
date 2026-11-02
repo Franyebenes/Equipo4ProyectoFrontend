@@ -28,6 +28,18 @@ export interface CambiosPerfil {
   nombreComercial: string | null;
 }
 
+export interface RespuestaPremium {
+  perfil: DatosPerfil;
+  importe: number;
+  ultimosDigitos: string;
+  fecha: string;
+}
+
+export interface RespuestaBajaPremium {
+  perfil: DatosPerfil;
+  productosQuitadosDelCarrito: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PerfilService {
   private readonly http = inject(HttpClient);
@@ -44,6 +56,18 @@ export class PerfilService {
   avatares(): Observable<string[]> {
     return this.http.get<string[]>(`${this.api}/api/registro/avatares`);
   }
+
+  precioPremium(): Observable<{ importe: number }> {
+    return this.http.get<{ importe: number }>(`${this.api}/api/cliente/suscripcion/premium/precio`);
+  }
+
+  pasarAPremium(idMetodoPago: string): Observable<RespuestaPremium> {
+    return this.http.post<RespuestaPremium>(`${this.api}/api/cliente/suscripcion/premium`, { idMetodoPago });
+  }
+
+  dejarPremium(): Observable<RespuestaBajaPremium> {
+    return this.http.delete<RespuestaBajaPremium>(`${this.api}/api/cliente/suscripcion/premium`);
+  }
 }
 
 /** Avatares del catálogo que tienen imagen en public/avatares/clientes y public/avatares/vendedores. */
@@ -58,4 +82,9 @@ export function avatarPorDefecto(rol: Rol | undefined): string {
 export function imagenDeAvatar(avatar: string | null | undefined, rol: Rol | undefined): string {
   const id = avatar && AVATARES_CON_IMAGEN.includes(avatar) ? avatar : avatarPorDefecto(rol);
   return `/avatares/${rol === 'VENDEDOR' ? 'vendedores' : 'clientes'}/${id}.png`;
+}
+
+/** 4.99 → "4,99 €" */
+export function formatearEuros(importe: number): string {
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(importe);
 }

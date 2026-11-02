@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { mensajeDeError } from '../../core/mensaje-error';
 import { DatosPerfil, PerfilService, imagenDeAvatar } from '../perfil.service';
+import { AuthService } from '../../core/auth.service';
 
 /** Página "Mi perfil". Muestra los datos que corresponden al rol del usuario. */
 @Component({
@@ -43,4 +44,33 @@ export class VerPerfil {
       error: (e) => this.error.set(mensajeDeError(e)),
     });
   }
+
+  private readonly auth = inject(AuthService);
+
+  protected readonly mensajeExito = signal<string | null>(null);
+  protected readonly confirmandoBaja = signal(false);
+  protected readonly procesando = signal(false);
+
+  protected confirmarBaja(): void {
+    this.confirmandoBaja.set(false);
+    this.procesando.set(true);
+    this.error.set(null);
+    this.perfilService.dejarPremium().subscribe({
+      next: (respuesta) => {
+        this.perfil.set(respuesta.perfil);
+        const quitados = respuesta.productosQuitadosDelCarrito;
+        this.mensajeExito.set(
+          quitados > 0
+            ? `Has vuelto al plan estándar. Hemos quitado de tu carrito ${quitados} producto(s) solo para Premium.`
+            : 'Has vuelto al plan estándar.',
+        );
+        this.procesando.set(false);
+        void this.auth.restaurarSesion();
+      },
+      error: (e) => {
+        this.procesando.set(false);
+        this.error.set(mensajeDeError(e));
+      },
+  });
+}
 }
