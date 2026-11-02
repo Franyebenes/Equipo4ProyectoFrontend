@@ -72,11 +72,45 @@
           <!-- Dirección de envío -->
           <form class="bloque" [formGroup]="direccion" novalidate>
             <h2>Dirección de envío</h2>
-            <label>
-              Calle y número
-              <input formControlName="calle" autocomplete="street-address" maxlength="150" />
-              @if (invalido('calle')) { <span class="campo-error">Indica la calle.</span> }
-            </label>
+            @if (direcciones().length > 0) {
+                <ul class="tarjetas">
+                  @for (d of direcciones(); track d.id) {
+                    <li>
+                      <label class="tarjeta" [class.elegida]="direccionElegida() === d.id">
+                        <input type="radio" name="direccionGuardada" [checked]="direccionElegida() === d.id"
+                              (change)="elegirDireccion(d)" />
+                        <span class="datos">
+                          <span class="numero">{{ d.destinatario }}</span>
+                          <span class="detalle">{{ lineaCalle(d) }}, {{ d.codigoPostal }} {{ d.ciudad }}</span>
+                        </span>
+                      </label>
+                    </li>
+                  }
+                  <li>
+                    <label class="tarjeta" [class.elegida]="direccionElegida() === null">
+                      <input type="radio" name="direccionGuardada" [checked]="direccionElegida() === null"
+                            (change)="elegirDireccion(null)" />
+                      <span class="datos"><span class="numero">Otra dirección</span></span>
+                    </label>
+                  </li>
+                </ul>
+              }
+            <div class="fila fila-calle">
+              <label>
+                Calle
+                <input formControlName="calle" autocomplete="address-line1" maxlength="100" />
+                @if (invalido('calle')) { <span class="campo-error">Indica la calle.</span> }
+              </label>
+              <label>
+                Número
+                <input formControlName="numero" maxlength="10" />
+                @if (invalido('numero')) { <span class="campo-error">Indica el número.</span> }
+              </label>
+              <label>
+                Piso y puerta <span class="opcional">(opcional)</span>
+                <input formControlName="pisoPuerta" autocomplete="address-line2" maxlength="30" />
+              </label>
+            </div>
             <div class="fila">
               <label>
                 Ciudad
@@ -86,9 +120,34 @@
               <label>
                 Código postal
                 <input formControlName="codigoPostal" autocomplete="postal-code" inputmode="numeric" maxlength="5" />
-                @if (invalido('codigoPostal')) { <span class="campo-error">5 números.</span> }
+                @if (invalido('codigoPostal')) {
+                  <span class="campo-error">{{ guardarDireccion() ? 'Código postal español (01000-52999).' : '5 números.' }}</span>
+                }
               </label>
             </div>
+
+            <!-- Solo para una dirección nueva: guardarla también en "Mis direcciones" -->
+            @if (direccionElegida() === null) {
+              <label class="casilla">
+                <input type="checkbox" [checked]="guardarDireccion()" (change)="cambiarGuardarDireccion($any($event.target).checked)" />
+                Guardar esta dirección en mis direcciones
+              </label>
+
+              @if (guardarDireccion()) {
+                <div class="fila">
+                  <label>
+                    Destinatario
+                    <input formControlName="destinatario" autocomplete="name" maxlength="100" />
+                    @if (invalido('destinatario')) { <span class="campo-error">Indica quién recibe el pedido.</span> }
+                  </label>
+                  <label>
+                    Provincia
+                    <input formControlName="provincia" autocomplete="address-level1" maxlength="80" />
+                    @if (invalido('provincia')) { <span class="campo-error">Indica la provincia.</span> }
+                  </label>
+                </div>
+              }
+            }
           </form>
 
           <!-- Tarjeta -->

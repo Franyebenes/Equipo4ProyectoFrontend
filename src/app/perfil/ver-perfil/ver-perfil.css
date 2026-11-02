@@ -122,6 +122,63 @@ dd.vacio {
   font-style: italic;
 }
 
+/* Mis direcciones (solo clientes) */
+.direcciones {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.direcciones-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.lista-direcciones {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.direccion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.direccion p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.direccion .destinatario {
+  margin-bottom: 0.2rem;
+  font-weight: 700;
+}
+
+.direccion .etiqueta-rol {
+  margin-left: 0.4rem;
+}
+
+.lista-direcciones .vacio {
+  color: var(--muted);
+  font-style: italic;
+}
+
 .acciones {
   display: flex;
   justify-content: flex-end;
@@ -131,6 +188,7 @@ dd.vacio {
 .botones-confirmacion {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.75rem;
 }
 

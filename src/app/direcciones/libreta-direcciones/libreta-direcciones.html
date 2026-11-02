@@ -1,0 +1,54 @@
+<main class="pagina">
+  <section class="tarjeta" aria-labelledby="titulo-libreta">
+    <header class="cabecera">
+      <div>
+        <p class="ceja">Mi cuenta</p>
+        <h1 id="titulo-libreta">Mis direcciones</h1>
+      </div>
+      <a routerLink="/direcciones/nueva" class="btn btn-coral">Añadir dirección</a>
+    </header>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    @if (cargando()) {
+      <p class="cargando">Cargando…</p>
+    } @else {
+      <ul class="lista">
+        @for (d of direcciones(); track d.id) {
+          <li class="direccion">
+            <div class="datos">
+              <p class="destinatario">
+                {{ d.destinatario }}
+                @if (d.predeterminada) {
+                  <span class="etiqueta">Predeterminada</span>
+                }
+              </p>
+              <p>{{ lineaCalle(d) }}</p>
+              <p>{{ d.codigoPostal }} {{ d.ciudad }} ({{ d.provincia }})</p>
+            </div>
+
+            @if (confirmandoBorrado() === d.id) {
+              <div class="botones" role="alertdialog" [attr.aria-label]="'¿Eliminar la dirección de ' + d.destinatario + '?'">
+                <span class="pregunta">¿Eliminar esta dirección?</span>
+                <button type="button" class="btn" (click)="eliminar(d)">Sí, eliminar</button>
+                <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(null)">Cancelar</button>
+              </div>
+            } @else {
+              <div class="botones">
+                <a [routerLink]="['/direcciones', d.id, 'editar']" class="btn btn-ghost">Editar</a>
+                @if (!d.predeterminada) {
+                  <button type="button" class="btn btn-ghost" (click)="hacerPredeterminada(d)">Usar como predeterminada</button>
+                }
+                <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(d.id)">Eliminar</button>
+              </div>
+            }
+          </li>
+        } @empty {
+          <li class="vacio">Aún no tienes direcciones guardadas.</li>
+        }
+      </ul>
+    }
+  </section>
+</main>

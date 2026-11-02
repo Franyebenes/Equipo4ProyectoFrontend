@@ -8,6 +8,7 @@ export interface DireccionEnvio {
   calle: string;
   ciudad: string;
   codigoPostal: string;
+  idDireccion?: string | null;
 }
 
 export interface LineaPedido {

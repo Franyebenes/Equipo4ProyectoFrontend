@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { mensajeDeError } from '../../core/mensaje-error';
 import { DatosPerfil, PerfilService, imagenDeAvatar } from '../perfil.service';
 import { AuthService } from '../../core/auth.service';
+import { Direccion, DireccionService, lineaCalle } from '../../direcciones/direccion.service';
 
 /** Página "Mi perfil". Muestra los datos que corresponden al rol del usuario. */
 @Component({
@@ -40,8 +41,45 @@ export class VerPerfil {
 
   constructor() {
     this.perfilService.obtener().subscribe({
-      next: (perfil) => this.perfil.set(perfil),
+      next: (perfil) => {
+        this.perfil.set(perfil);
+        if (this.esCliente()) {
+          this.cargarDirecciones();
+        }
+      },
       error: (e) => this.error.set(mensajeDeError(e)),
+    });
+  }
+
+  private readonly direccionService = inject(DireccionService);
+
+  protected readonly direcciones = signal<Direccion[]>([]);
+  protected readonly cargandoDirecciones = signal(true);
+  protected readonly errorDirecciones = signal<string | null>(null);
+  /** Id de la dirección cuyo borrado se está confirmando */
+  protected readonly confirmandoBorrado = signal<string | null>(null);
+  protected readonly lineaCalle = lineaCalle;
+
+  private cargarDirecciones(): void {
+    this.direccionService.listar().subscribe({
+      next: (lista) => {
+        this.direcciones.set(lista);
+        this.cargandoDirecciones.set(false);
+      },
+      error: (e) => {
+        this.errorDirecciones.set(mensajeDeError(e));
+        this.cargandoDirecciones.set(false);
+      },
+    });
+  }
+
+  protected eliminarDireccion(direccion: Direccion): void {
+    this.confirmandoBorrado.set(null);
+    this.errorDirecciones.set(null);
+    this.direccionService.eliminar(direccion.id).subscribe({
+      next: () => this.cargarDirecciones(),
+      // Un 409 si la dirección está en un pedido en curso
+      error: (e) => this.errorDirecciones.set(mensajeDeError(e)),
     });
   }
 

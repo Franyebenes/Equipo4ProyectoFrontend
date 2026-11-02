@@ -51,7 +51,51 @@
         }
       </dl>
 
-      <!-- Aquí irán los botones de Premium  y el enlace a direcciones  -->
+      @if (esCliente()) {
+        <section class="direcciones" aria-labelledby="titulo-direcciones">
+          <div class="direcciones-cabecera">
+            <h2 id="titulo-direcciones">Mis direcciones</h2>
+            <a routerLink="/direcciones/nueva" [queryParams]="{ volver: 'perfil' }" class="btn btn-ghost">Añadir dirección</a>
+          </div>
+
+          @if (errorDirecciones()) {
+            <p class="error" role="alert">{{ errorDirecciones() }}</p>
+          }
+
+          @if (cargandoDirecciones()) {
+            <p class="cargando">Cargando direcciones…</p>
+          } @else {
+            <ul class="lista-direcciones">
+              @for (d of direcciones(); track d.id) {
+                <li class="dato direccion">
+                  <div>
+                    <p class="destinatario">
+                      {{ d.destinatario }}
+                      @if (d.predeterminada) {
+                        <span class="etiqueta-rol">Predeterminada</span>
+                      }
+                    </p>
+                    <p>{{ lineaCalle(d) }}</p>
+                    <p>{{ d.codigoPostal }} {{ d.ciudad }} ({{ d.provincia }})</p>
+                  </div>
+
+                  @if (confirmandoBorrado() === d.id) {
+                    <div class="botones-confirmacion" role="alertdialog" [attr.aria-label]="'¿Eliminar la dirección de ' + d.destinatario + '?'">
+                      <span>¿Eliminar esta dirección?</span>
+                      <button type="button" class="btn" (click)="eliminarDireccion(d)">Sí, eliminar</button>
+                      <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(null)">Cancelar</button>
+                    </div>
+                  } @else {
+                    <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(d.id)">Eliminar</button>
+                  }
+                </li>
+              } @empty {
+                <li class="dato vacio">Aún no tienes direcciones guardadas.</li>
+              }
+            </ul>
+          }
+        </section>
+      }
 
       <div class="acciones">
         <a routerLink="/perfil/editar" class="btn btn-coral btn-lg">
