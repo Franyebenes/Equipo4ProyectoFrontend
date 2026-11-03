@@ -97,6 +97,9 @@
           }
         </div>
 
+        <!-- Guardar en una o varias listas del cliente (o crear una nueva al momento) -->
+        <app-anadir-a-lista [productoId]="p.id" />
+
         <section>
           <h2>Descripción</h2>
           <p class="descripcion">{{ p.descripcion || 'Este producto no tiene descripción.' }}</p>

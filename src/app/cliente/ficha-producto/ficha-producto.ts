@@ -14,6 +14,7 @@ import { BotonAnadirCarrito } from '../boton-anadir-carrito/boton-anadir-carrito
 import { BotonFavorito } from '../boton-favorito/boton-favorito';
 import { CarritoService } from '../carrito.service';
 import { FavoritosService } from '../favoritos.service';
+import { AnadirALista } from '../../listas/anadir-a-lista/anadir-a-lista';
 import {
   CatalogoService,
   ProductoDetalle,
@@ -48,7 +49,7 @@ const FORMATO_MEDIA = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 1,
 
 @Component({
   selector: 'app-ficha-producto',
-  imports: [RouterLink, BotonAnadirCarrito, BotonFavorito],
+  imports: [RouterLink, BotonAnadirCarrito, BotonFavorito, AnadirALista],
   templateUrl: './ficha-producto.html',
   styleUrl: './ficha-producto.css',
 })

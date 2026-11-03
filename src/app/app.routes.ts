@@ -21,6 +21,7 @@ import { PagoPremium } from './perfil/pago-premium/pago-premium';
 import { LibretaDirecciones } from './direcciones/libreta-direcciones/libreta-direcciones';
 import { FormularioDireccion } from './direcciones/formulario-direccion/formulario-direccion';
 import { VerProductosAdmin } from './admin/ver-productos-admin/ver-productos-admin';
+import { MisListas } from './listas/mis-listas/mis-listas';
 
 
 export const routes: Routes = [
@@ -60,6 +61,9 @@ export const routes: Routes = [
   { path: 'direcciones', component: LibretaDirecciones, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'direcciones/nueva', component: FormularioDireccion, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'direcciones/:id/editar', component: FormularioDireccion, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  { path: 'listas', component: MisListas, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  // Una colección abierta: la misma pantalla, que enseña los productos de la lista
+  { path: 'listas/:id', component: MisListas, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],
