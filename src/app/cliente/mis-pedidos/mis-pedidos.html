@@ -1,0 +1,111 @@
+<section class="pedidos">
+  <header class="cabecera">
+    <h1>Mis pedidos</h1>
+    <button type="button" class="btn-secundario" (click)="cargar()" [disabled]="cargando()">Actualizar</button>
+  </header>
+
+  @if (exito()) {
+    <p class="aviso aviso-ok" role="status">{{ exito() }}</p>
+  }
+  @if (errorAccion()) {
+    <p class="aviso aviso-error" role="alert">{{ errorAccion() }}</p>
+  }
+
+  @if (cargando()) {
+    <p class="estado-carga">Cargando tus pedidos…</p>
+  } @else if (error()) {
+    <p class="aviso aviso-error" role="alert">{{ error() }}</p>
+  } @else if (historial(); as h) {
+    @if (h.enProceso.length === 0 && h.historicos.length === 0) {
+      <div class="vacio">
+        <p>Todavía no has hecho ningún pedido.</p>
+        <a routerLink="/carrito" class="btn-secundario">Ir al carrito</a>
+      </div>
+    } @else {
+      <h2>En proceso</h2>
+      @if (h.enProceso.length === 0) {
+        <p class="sin-pedidos">No tienes pedidos en curso.</p>
+      }
+      @for (p of h.enProceso; track p.id) {
+        <ng-container *ngTemplateOutlet="tarjetaPedido; context: { $implicit: p }" />
+      }
+
+      <h2>Históricos</h2>
+      @if (h.historicos.length === 0) {
+        <p class="sin-pedidos">Aquí aparecerán tus pedidos finalizados y cancelados.</p>
+      }
+      @for (p of h.historicos; track p.id) {
+        <ng-container *ngTemplateOutlet="tarjetaPedido; context: { $implicit: p }" />
+      }
+    }
+  }
+</section>
+
+<ng-template #tarjetaPedido let-p>
+  <article class="pedido" [class.cancelado]="p.estado === 'CANCELADO'">
+    <header class="pedido-cabecera">
+      <div>
+        <span class="fecha">{{ fecha(p) }}</span>
+        <span class="chip" [class]="p.estado.toLowerCase()">{{ etiquetaEstado(p) }}</span>
+      </div>
+      <strong class="total">{{ formatearPrecio(p.precioTotal) }}</strong>
+    </header>
+
+    <ul class="lineas">
+      @for (l of p.lineas; track l.idProducto) {
+        <li class="linea">
+          <span class="nombre">{{ l.nombre }}</span>
+          <span class="detalle">{{ l.cantidad }} × {{ formatearPrecio(l.precioUnitario) }}</span>
+          <span class="subtotal">{{ formatearPrecio(l.subtotal) }}</span>
+          <!-- HU-30: solo se valoran los productos de un pedido finalizado, una vez y sin poder cambiarlo -->
+          @if (p.estado === 'FINALIZADO') {
+            @if (l.valoracion !== null) {
+              <span class="estrellas valorado" [attr.aria-label]="'Tu valoración: ' + l.valoracion + ' de 5'">
+                @for (e of estrellas; track e) {
+                  <span [class.activa]="e <= l.valoracion">★</span>
+                }
+              </span>
+            } @else {
+              <span class="estrellas" role="group" [attr.aria-label]="'Valorar ' + l.nombre">
+                @for (e of estrellas; track e) {
+                  <button type="button" (click)="valorar(p, l, e)" [disabled]="ocupado() === p.id"
+                          [attr.aria-label]="e + (e === 1 ? ' estrella' : ' estrellas')">★</button>
+                }
+              </span>
+            }
+          }
+        </li>
+      }
+    </ul>
+
+    <footer class="pedido-pie">
+      <span class="direccion">
+        Envío a {{ p.direccionEnvio.calle }}, {{ p.direccionEnvio.codigoPostal }} {{ p.direccionEnvio.ciudad }}
+      </span>
+      <div class="acciones">
+        @if (sePuedeConfirmarRecepcion(p)) {
+          <button type="button" class="btn-principal" (click)="confirmarRecepcion(p)" [disabled]="ocupado() === p.id">
+            He recibido el pedido
+          </button>
+        }
+        @if (sePuedeCancelar(p)) {
+          <button type="button" class="btn-peligro" (click)="pedirCancelacion(p)" [disabled]="ocupado() === p.id">
+            Cancelar pedido
+          </button>
+        }
+      </div>
+    </footer>
+  </article>
+</ng-template>
+
+@if (pedidoACancelar(); as pedido) {
+  <app-dialogo-confirmacion
+    titulo="Cancelar pedido"
+    [mensaje]="mensajeConfirmarCancelacion(pedido)"
+    textoConfirmar="Sí, cancelar"
+    textoProcesando="Cancelando…"
+    [procesando]="cancelando()"
+    (confirmar)="confirmarCancelacion()"
+    (cancelar)="cerrarCancelacion()"
+  />
+}

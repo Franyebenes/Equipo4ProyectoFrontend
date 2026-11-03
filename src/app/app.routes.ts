@@ -14,6 +14,7 @@ import { Favoritos } from './cliente/favoritos/favoritos';
 import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
 import { MetodosPago } from './cliente/metodos-pago/metodos-pago';
 import { Pagar } from './cliente/pagar/pagar';
+import { MisPedidos } from './cliente/mis-pedidos/mis-pedidos';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
 import {VerPerfil} from './perfil/ver-perfil/ver-perfil';
 import { EditarPerfil } from './perfil/editar-perfil/editar-perfil';
@@ -64,6 +65,7 @@ export const routes: Routes = [
   { path: 'listas', component: MisListas, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   // Una colección abierta: la misma pantalla, que enseña los productos de la lista
   { path: 'listas/:id', component: MisListas, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  { path: 'pedidos', component: MisPedidos, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   {
     path: 'admin',
     canActivate: [rolGuard('ADMIN')],
