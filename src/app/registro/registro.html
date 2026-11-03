@@ -18,8 +18,86 @@
         </p>
         <a routerLink="/" class="btn btn-coral btn-ancho">Volver al inicio</a>
       </div>
+    } @else if (fase() === 'codigos') {
+      <div class="codigos-registro">
+        <p class="ceja">Cuenta creada · Paso 3 de 3</p>
+        <!-- tabindex -1: al llegar se le da el foco, para que se vea y se lea. -->
+        <h2 tabindex="-1">Guarda tus códigos de recuperación</h2>
+        <p class="intro">
+          Si pierdes el acceso a tu aplicación autenticadora, cada uno de estos códigos te deja entrar una vez. Es la única
+          vez que los verás: guárdalos en un sitio seguro.
+        </p>
+        <app-codigos-recuperacion [codigos]="codigosRecuperacion()" (guardados)="codigosGuardados.set($event)" />
+        <button type="button" class="btn btn-coral btn-ancho" [disabled]="!codigosGuardados()" (click)="continuar()">
+          Continuar
+        </button>
+      </div>
+    } @else if (fase() === 'verificacion') {
+      <p class="ceja">Crear cuenta · Paso 2 de 3</p>
+      <h2>Activa la verificación en dos pasos</h2>
+      <p class="intro">
+        Es obligatoria: además de tu contraseña, te pediremos un código de 6 dígitos que genera una aplicación
+        autenticadora en tu móvil, como Google Authenticator. Una vez creada la cuenta no se podrá cambiar.
+      </p>
+      <ol class="pasos-2fa">
+        <li>Abre tu aplicación autenticadora (Google Authenticator, Microsoft Authenticator, Authy...).</li>
+        <li>Añade una cuenta nueva y escanea este código QR.</li>
+        <li>Escribe aquí el código de 6 dígitos que te muestre.</li>
+      </ol>
+      @if (activacion(); as a) {
+        <app-qr-dos-factores [uri]="a.uri" [secreto]="a.secreto" />
+      }
+      <form (submit)="verificar($event)" novalidate>
+        <div class="campo-grupo">
+          <label class="campo">
+            Código de verificación
+            <span class="entrada">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              </svg>
+              <input
+                id="codigoDosFactores"
+                type="text"
+                [formControl]="codigo"
+                autocomplete="one-time-code"
+                inputmode="numeric"
+                maxlength="7"
+                spellcheck="false"
+                placeholder="123 456"
+                [attr.aria-invalid]="errorCodigo() ? 'true' : null"
+                [attr.aria-describedby]="errorCodigo() ? 'error-codigoDosFactores' : null"
+              />
+            </span>
+          </label>
+          @if (errorCodigo(); as mensaje) {
+            <div class="errores-campo" id="error-codigoDosFactores">
+              <p class="error-campo">{{ mensaje }}</p>
+            </div>
+          }
+        </div>
+
+        @if (errorGeneral(); as error) {
+          <div class="error-general" role="alert">
+            <p>{{ error.texto }}</p>
+            @if (error.referencia) {
+              <p class="referencia">Código de referencia: <code>{{ error.referencia }}</code></p>
+            }
+          </div>
+        }
+
+        <button type="submit" class="btn btn-coral btn-ancho" [disabled]="enviando() || esperaSegundos() > 0">
+          @if (esperaSegundos() > 0) {
+            Espera {{ esperaSegundos() }} s
+          } @else if (enviando()) {
+            Creando cuenta…
+          } @else {
+            Crear cuenta
+          }
+        </button>
+        <button type="button" class="btn btn-ghost btn-ancho" (click)="volverALosDatos()">Volver a mis datos</button>
+      </form>
     } @else {
-      <p class="ceja">Crear cuenta</p>
+      <p class="ceja">Crear cuenta · Paso 1 de 3</p>
       <h2>¿Cómo usarás ESIBuy?</h2>
       <p class="intro">Selecciona un rol. El acceso y las herramientas disponibles dependerán de esta elección.</p>
 
@@ -401,12 +479,12 @@
           @if (esperaSegundos() > 0) {
             Espera {{ esperaSegundos() }} s
           } @else if (enviando()) {
-            Creando cuenta…
+            Preparando…
           } @else {
             <svg viewBox="0 0 16 16" aria-hidden="true">
               <path d="M2.5 8h11M9.5 4.5 13.5 8l-4 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            Crear cuenta
+            Continuar
           }
         </button>
       </form>

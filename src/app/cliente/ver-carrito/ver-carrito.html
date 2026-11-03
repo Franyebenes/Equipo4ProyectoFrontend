@@ -1,4 +1,5 @@
 <section class="carrito">
+  <a routerLink="/cliente" class="volver">← Seguir comprando</a>
   <h1>Mi carrito</h1>
 
   @if (cargando()) {
@@ -10,9 +11,9 @@
 
     @if (carrito(); as c) {
       @if (c.lineas.length === 0) {
+        <!-- Para volver al catálogo está siempre «Seguir comprando», arriba -->
         <div class="vacio">
           <p>Tu carrito está vacío.</p>
-          <a routerLink="/cliente" class="btn-secundario">Seguir comprando</a>
         </div>
       } @else {
         <ul class="lineas">
@@ -35,6 +36,9 @@
                   }
                   {{ precio(l.precioUnitario) }}
                 </span>
+                @if (errorDe(l); as mensaje) {
+                  <span class="error-linea" role="alert">{{ mensaje }}</span>
+                }
               </div>
 
               <div class="cantidad">
@@ -60,43 +64,8 @@
           <strong>{{ precio(c.total) }}</strong>
         </div>
 
-        <!-- HU-26: el pago es simulado, solo se pide la dirección de envío -->
-        @if (!tramitando()) {
-          <button type="button" class="pagar" (click)="tramitar()">Tramitar pedido</button>
-        } @else {
-          <form class="envio" (ngSubmit)="confirmarPedido()">
-            <h2>Dirección de envío</h2>
-            <label>
-              Calle y número
-              <input type="text" name="calle" [ngModel]="calle()" (ngModelChange)="calle.set($event)"
-                     maxlength="150" autocomplete="street-address" required>
-            </label>
-            <div class="envio-fila">
-              <label>
-                Ciudad
-                <input type="text" name="ciudad" [ngModel]="ciudad()" (ngModelChange)="ciudad.set($event)"
-                       maxlength="80" autocomplete="address-level2" required>
-              </label>
-              <label>
-                Código postal
-                <input type="text" name="codigoPostal" [ngModel]="codigoPostal()"
-                       (ngModelChange)="codigoPostal.set($event)" inputmode="numeric" maxlength="5"
-                       autocomplete="postal-code" required>
-              </label>
-            </div>
-            @if (errorPedido()) {
-              <p class="error" role="alert">{{ errorPedido() }}</p>
-            }
-            <div class="envio-botones">
-              <button type="button" class="btn-secundario" (click)="cancelarTramite()" [disabled]="enviandoPedido()">
-                Volver al carrito
-              </button>
-              <button type="submit" class="pagar" [disabled]="enviandoPedido()">
-                {{ enviandoPedido() ? 'Realizando pedido…' : 'Confirmar y pagar ' + precio(c.total) }}
-              </button>
-            </div>
-          </form>
-        }
+        <!-- HU-23: se activará cuando esté el pago -->
+        <a routerLink="/pagar" class="pagar">Tramitar pedido</a>
       }
     }
   }

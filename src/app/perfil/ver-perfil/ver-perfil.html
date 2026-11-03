@@ -1,0 +1,136 @@
+<main class="pagina">
+  <section class="tarjeta" aria-labelledby="titulo-perfil">
+    @if (error()) {
+      <p class="ceja">Mi perfil</p>
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    @if (perfil(); as p) {
+      <!-- Cabecera: avatar grande, nombre y tipo de cuenta -->
+      <header class="cabecera">
+        <span class="avatar" aria-hidden="true">
+          <img [src]="imagen()" alt="" width="96" height="96" />
+        </span>
+        <div class="identidad">
+          <p class="ceja">Mi perfil</p>
+          <h1 id="titulo-perfil">{{ p.nombre }} {{ p.apellidos }}</h1>
+          <span class="etiqueta-rol" [class.premium]="p.rol === 'PREMIUM'">{{ tipoCuenta() }}</span>
+        </div>
+      </header>
+
+      <dl class="datos">
+        <div class="dato">
+          <dt>Correo</dt>
+          <dd>{{ p.email }}</dd>
+        </div>
+        <div class="dato">
+          <dt>Teléfono</dt>
+          @if (p.telefono) {
+            <dd>{{ p.telefono }}</dd>
+          } @else {
+            <dd class="vacio">Sin indicar</dd>
+          }
+        </div>
+        @if (esCliente()) {
+          <div class="dato">
+            <dt>Fecha de nacimiento</dt>
+            <dd>{{ p.fechaNacimiento | date: 'dd/MM/yyyy' }}</dd>
+          </div>
+        }
+        @if (p.rol === 'VENDEDOR') {
+          <div class="dato">
+            <dt>Nombre comercial</dt>
+            <dd>{{ p.nombreComercial }}</dd>
+          </div>
+        }
+        @if (p.rol === 'ADMIN' && p.sede) {
+          <div class="dato">
+            <dt>Sede</dt>
+            <dd>{{ p.sede }}</dd>
+          </div>
+        }
+      </dl>
+
+      @if (esCliente()) {
+        <section class="direcciones" aria-labelledby="titulo-direcciones">
+          <div class="direcciones-cabecera">
+            <h2 id="titulo-direcciones">Mis direcciones</h2>
+            <a routerLink="/direcciones/nueva" [queryParams]="{ volver: 'perfil' }" class="btn btn-ghost">Añadir dirección</a>
+          </div>
+
+          @if (errorDirecciones()) {
+            <p class="error" role="alert">{{ errorDirecciones() }}</p>
+          }
+
+          @if (cargandoDirecciones()) {
+            <p class="cargando">Cargando direcciones…</p>
+          } @else {
+            <ul class="lista-direcciones">
+              @for (d of direcciones(); track d.id) {
+                <li class="dato direccion">
+                  <div>
+                    <p class="destinatario">
+                      {{ d.destinatario }}
+                      @if (d.predeterminada) {
+                        <span class="etiqueta-rol">Predeterminada</span>
+                      }
+                    </p>
+                    <p>{{ lineaCalle(d) }}</p>
+                    <p>{{ d.codigoPostal }} {{ d.ciudad }} ({{ d.provincia }})</p>
+                  </div>
+
+                  @if (confirmandoBorrado() === d.id) {
+                    <div class="botones-confirmacion" role="alertdialog" [attr.aria-label]="'¿Eliminar la dirección de ' + d.destinatario + '?'">
+                      <span>¿Eliminar esta dirección?</span>
+                      <button type="button" class="btn" (click)="eliminarDireccion(d)">Sí, eliminar</button>
+                      <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(null)">Cancelar</button>
+                    </div>
+                  } @else {
+                    <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(d.id)">Eliminar</button>
+                  }
+                </li>
+              } @empty {
+                <li class="dato vacio">Aún no tienes direcciones guardadas.</li>
+              }
+            </ul>
+          }
+        </section>
+      }
+
+      <div class="acciones">
+        <a routerLink="/perfil/editar" class="btn btn-coral btn-lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+          </svg>
+          Editar perfil
+        </a>
+      </div>
+      
+      @if (mensajeExito()) {
+        <output class="exito">{{ mensajeExito() }}</output>
+      }
+
+      @if (p.rol === 'CLIENTE') {
+        <a routerLink="/perfil/premium" class="btn">Hacerme Premium</a>
+      }
+
+      @if (p.rol === 'PREMIUM' && !confirmandoBaja()) {
+        <button type="button" class="btn btn-ghost" (click)="confirmandoBaja.set(true)" [disabled]="procesando()">Dejar Premium</button>
+      }
+
+      @if (confirmandoBaja()) {
+        <div class="confirmacion" role="alertdialog" aria-labelledby="texto-baja">
+          <p id="texto-baja">¿Seguro que quieres dejar Premium? Perderás los descuentos exclusivos, se quitarán de tu carrito los productos solo para Premium y no se devuelve la cuota pagada.</p>
+          <div class="botones-confirmacion">
+            <button type="button" class="btn" (click)="confirmarBaja()">Sí, dejar Premium</button>
+            <button type="button" class="btn btn-ghost" (click)="confirmandoBaja.set(false)">Cancelar</button>
+          </div>
+        </div>
+      }
+
+    } @else if (!error()) {
+      <p class="cargando">Cargando tu perfil…</p>
+    }
+  </section>
+</main>

@@ -1,36 +1,24 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 import { Carrito, CarritoService, LineaCarrito } from '../carrito.service';
-import { PedidoService, mensajeErrorPedidos, validarDireccion } from '../pedido.service';
 
-// HU-22.1 Ver carrito, HU-22.3 Modificar cantidad, HU-22.4 Eliminar del carrito y HU-26 Realizar pedido
+// HU-22.1 Ver carrito, HU-22.3 Modificar cantidad y HU-22.4 Eliminar del carrito
 @Component({
   selector: 'app-ver-carrito',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink],
   templateUrl: './ver-carrito.html',
   styleUrl: './ver-carrito.css',
 })
 export class VerCarrito implements OnInit {
   private readonly carritoService = inject(CarritoService);
-  private readonly pedidoService = inject(PedidoService);
-  private readonly router = inject(Router);
 
   readonly carrito = signal<Carrito | null>(null);
   readonly cargando = signal(true);
   readonly error = signal<string | null>(null);
   /** Producto que se está actualizando, para desactivar sus botones mientras tanto. */
   readonly ocupado = signal<string | null>(null);
-
-  // HU-26: al tramitar el pedido se pide la dirección de envío. El pago es simulado: no se piden datos de pago.
-  readonly tramitando = signal(false);
-  readonly calle = signal('');
-  readonly ciudad = signal('');
-  readonly codigoPostal = signal('');
-  readonly enviandoPedido = signal(false);
-  readonly errorPedido = signal<string | null>(null);
 
   ngOnInit(): void {
     this.carritoService.obtener().subscribe({
@@ -59,6 +47,14 @@ export class VerCarrito implements OnInit {
     this.actualizar(linea, this.carritoService.eliminar(linea.idProducto));
   }
 
+  /** Error al cambiar la cantidad o eliminar: sale dentro de la línea de ese producto, no arriba del todo. */
+  readonly errorLinea = signal<{ idProducto: string; mensaje: string } | null>(null);
+
+  errorDe(linea: LineaCarrito): string | null {
+    const error = this.errorLinea();
+    return error?.idProducto === linea.idProducto ? error.mensaje : null;
+  }
+
   tieneDescuento(linea: LineaCarrito): boolean {
     return linea.precioUnitario < linea.precioOriginal;
   }
@@ -72,55 +68,21 @@ export class VerCarrito implements OnInit {
     return imagen.startsWith('data:') ? imagen : `data:image/png;base64,${imagen}`;
   }
 
-  tramitar(): void {
-    this.errorPedido.set(null);
-    this.tramitando.set(true);
-  }
-
-  cancelarTramite(): void {
-    if (!this.enviandoPedido()) {
-      this.tramitando.set(false);
-    }
-  }
-
-  // Crea el pedido con lo que hay en el carrito y lleva al historial, donde se ve ya como pagado
-  confirmarPedido(): void {
-    const direccion = {
-      calle: this.calle().trim(),
-      ciudad: this.ciudad().trim(),
-      codigoPostal: this.codigoPostal().trim(),
-    };
-    const error = validarDireccion(direccion);
-    if (error) {
-      this.errorPedido.set(error);
-      return;
-    }
-    this.errorPedido.set(null);
-    this.enviandoPedido.set(true);
-    this.pedidoService.realizar(direccion).subscribe({
-      next: () => {
-        this.carritoService.numeroArticulos.set(0);
-        void this.router.navigate(['/pedidos'], {
-          state: { exito: 'Pedido realizado. Puedes seguirlo desde aquí.' },
-        });
-      },
-      error: (e: HttpErrorResponse) => {
-        this.enviandoPedido.set(false);
-        this.errorPedido.set(mensajeErrorPedidos(e));
-      },
-    });
-  }
-
   private actualizar(linea: LineaCarrito, peticion: ReturnType<CarritoService['obtener']>): void {
     this.ocupado.set(linea.idProducto);
     this.error.set(null);
     peticion.subscribe({
       next: (c) => {
         this.carrito.set(c);
+        this.errorLinea.set(null);
         this.ocupado.set(null);
       },
       error: (e) => {
-        this.mostrarError(e);
+        const mensaje = e instanceof HttpErrorResponse ? e.error?.mensaje : null;
+        this.errorLinea.set({
+          idProducto: linea.idProducto,
+          mensaje: mensaje ?? 'No se ha podido actualizar este producto. Inténtalo de nuevo.',
+        });
         this.ocupado.set(null);
       },
     });

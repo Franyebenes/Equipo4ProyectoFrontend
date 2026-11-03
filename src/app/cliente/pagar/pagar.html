@@ -1,0 +1,214 @@
+<section class="pago">
+  @if (resultado(); as r) {
+    <!-- Confirmación -->
+    <div class="confirmacion">
+      <span class="icono-ok" aria-hidden="true">✓</span>
+      <h1>¡Pago realizado!</h1>
+      <p>Tu pedido a <strong>{{ grupoElegido()?.nombre }}</strong> está <strong>pagado</strong> y lo preparará en breve.</p>
+      <dl class="datos-pedido">
+        <dt>Pedido</dt><dd>{{ r.pedido.id }}</dd>
+        <dt>Total</dt><dd>{{ precio(r.pedido.precioTotal) }}</dd>
+        <dt>Tarjeta</dt><dd>•••• {{ r.ultimosDigitos }}</dd>
+        <dt>Envío a</dt>
+        <dd>{{ r.pedido.direccionEnvio.calle }}, {{ r.pedido.direccionEnvio.codigoPostal }} {{ r.pedido.direccionEnvio.ciudad }}</dd>
+      </dl>
+      @if (quedanProductos()) {
+        <p class="aviso">Todavía tienes en el carrito productos de otros vendedores. Puedes comprarlos en otro pedido.</p>
+        <div class="botones-confirmacion">
+          <a routerLink="/carrito" class="btn-principal">Ir al carrito</a>
+          <a routerLink="/cliente" class="btn-secundario">Seguir comprando</a>
+        </div>
+      } @else {
+        <a routerLink="/cliente" class="btn-principal">Seguir comprando</a>
+      }
+    </div>
+  } @else {
+    <a routerLink="/carrito" class="volver">← Volver al carrito</a>
+    <h1>Tramitar pedido</h1>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    @if (cargando()) {
+      <p class="estado">Cargando…</p>
+    } @else if (grupos().length === 0) {
+      <div class="estado">
+        <p>Tu carrito está vacío.</p>
+        <a routerLink="/cliente" class="btn-secundario">Ir al catálogo</a>
+      </div>
+    } @else {
+      <!-- Varios vendedores: cada compra es de uno solo -->
+      @if (grupos().length > 1) {
+        <div class="bloque elegir-vendedor">
+          <h2>¿De qué vendedor quieres hacer la compra?</h2>
+          <p class="explicacion">
+            Tu carrito tiene productos de {{ grupos().length }} vendedores. Cada pedido es de un solo vendedor:
+            los productos de los demás se quedan en el carrito para otra compra.
+          </p>
+          <ul class="vendedores">
+            @for (g of grupos(); track g.idVendedor) {
+              <li>
+                <label class="vendedor" [class.elegida]="vendedorElegido() === g.idVendedor">
+                  <input type="radio" name="vendedor" [checked]="vendedorElegido() === g.idVendedor"
+                         (change)="elegirVendedor(g.idVendedor)" />
+                  <span class="datos">
+                    <span class="numero">{{ g.nombre }}</span>
+                    <span class="detalle">
+                      {{ g.articulos }} {{ g.articulos === 1 ? 'artículo' : 'artículos' }}
+                      @if (g.hayNoDisponibles) { · tiene productos no disponibles }
+                    </span>
+                  </span>
+                  <strong>{{ precio(g.total) }}</strong>
+                </label>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      <div class="columnas">
+        <div class="izquierda">
+          <!-- Dirección de envío -->
+          <form class="bloque" [formGroup]="direccion" novalidate>
+            <h2>Dirección de envío</h2>
+            @if (direcciones().length > 0) {
+                <ul class="tarjetas">
+                  @for (d of direcciones(); track d.id) {
+                    <li>
+                      <label class="tarjeta" [class.elegida]="direccionElegida() === d.id">
+                        <input type="radio" name="direccionGuardada" [checked]="direccionElegida() === d.id"
+                              (change)="elegirDireccion(d)" />
+                        <span class="datos">
+                          <span class="numero">{{ d.destinatario }}</span>
+                          <span class="detalle">{{ lineaCalle(d) }}, {{ d.codigoPostal }} {{ d.ciudad }}</span>
+                        </span>
+                      </label>
+                    </li>
+                  }
+                  <li>
+                    <label class="tarjeta" [class.elegida]="direccionElegida() === null">
+                      <input type="radio" name="direccionGuardada" [checked]="direccionElegida() === null"
+                            (change)="elegirDireccion(null)" />
+                      <span class="datos"><span class="numero">Otra dirección</span></span>
+                    </label>
+                  </li>
+                </ul>
+              }
+            <div class="fila fila-calle">
+              <label>
+                Calle
+                <input formControlName="calle" autocomplete="address-line1" maxlength="100" />
+                @if (invalido('calle')) { <span class="campo-error">Indica la calle.</span> }
+              </label>
+              <label>
+                Número
+                <input formControlName="numero" maxlength="10" />
+                @if (invalido('numero')) { <span class="campo-error">Indica el número.</span> }
+              </label>
+              <label>
+                Piso y puerta <span class="opcional">(opcional)</span>
+                <input formControlName="pisoPuerta" autocomplete="address-line2" maxlength="30" />
+              </label>
+            </div>
+            <div class="fila">
+              <label>
+                Ciudad
+                <input formControlName="ciudad" autocomplete="address-level2" maxlength="80" />
+                @if (invalido('ciudad')) { <span class="campo-error">Indica la ciudad.</span> }
+              </label>
+              <label>
+                Código postal
+                <input formControlName="codigoPostal" autocomplete="postal-code" inputmode="numeric" maxlength="5" />
+                @if (invalido('codigoPostal')) {
+                  <span class="campo-error">{{ guardarDireccion() ? 'Código postal español (01000-52999).' : '5 números.' }}</span>
+                }
+              </label>
+            </div>
+
+            <!-- Solo para una dirección nueva: guardarla también en "Mis direcciones" -->
+            @if (direccionElegida() === null) {
+              <label class="casilla">
+                <input type="checkbox" [checked]="guardarDireccion()" (change)="cambiarGuardarDireccion($any($event.target).checked)" />
+                Guardar esta dirección en mis direcciones
+              </label>
+
+              @if (guardarDireccion()) {
+                <div class="fila">
+                  <label>
+                    Destinatario
+                    <input formControlName="destinatario" autocomplete="name" maxlength="100" />
+                    @if (invalido('destinatario')) { <span class="campo-error">Indica quién recibe el pedido.</span> }
+                  </label>
+                  <label>
+                    Provincia
+                    <input formControlName="provincia" autocomplete="address-level1" maxlength="80" />
+                    @if (invalido('provincia')) { <span class="campo-error">Indica la provincia.</span> }
+                  </label>
+                </div>
+              }
+            }
+          </form>
+
+          <!-- Tarjeta -->
+          <div class="bloque">
+            <h2>Método de pago</h2>
+            @if (tarjetas().length === 0) {
+              <p class="estado">No tienes ninguna tarjeta guardada.</p>
+              <a routerLink="/metodos-pago" class="btn-secundario">Añadir una tarjeta</a>
+            } @else {
+              <ul class="tarjetas">
+                @for (t of tarjetas(); track t.id) {
+                  <li>
+                    <label class="tarjeta" [class.elegida]="tarjetaElegida() === t.id">
+                      <input type="radio" name="tarjeta" [checked]="tarjetaElegida() === t.id"
+                             (change)="elegirTarjeta(t.id)" />
+                      <span class="icono" aria-hidden="true">💳</span>
+                      <span class="datos">
+                        <span class="numero">•••• {{ t.ultimosDigitos }}</span>
+                        <span class="detalle">{{ t.titular }} · Caduca {{ t.caducidad }}</span>
+                      </span>
+                    </label>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+
+        <!-- Resumen del vendedor elegido -->
+        <aside class="bloque resumen">
+          @if (grupoElegido(); as g) {
+            <h2>Resumen</h2>
+            <p class="vendido-por">Vendido por <strong>{{ g.nombre }}</strong></p>
+            <ul class="lineas">
+              @for (l of g.lineas; track l.idProducto) {
+                <li [class.no-disponible]="!l.disponible">
+                  <span>{{ l.nombre }} × {{ l.cantidad }}</span>
+                  <span>{{ l.disponible ? precio(l.subtotal) : 'No disponible' }}</span>
+                </li>
+              }
+            </ul>
+            <div class="total">
+              <span>Total</span>
+              <strong>{{ precio(g.total) }}</strong>
+            </div>
+
+            @if (g.hayNoDisponibles) {
+              <p class="aviso">Hay productos que ya no están disponibles. Quítalos del carrito para poder pagar.</p>
+            }
+
+            <button type="button" class="btn-principal pagar" (click)="pagar()"
+                    [disabled]="pagando() || g.hayNoDisponibles || tarjetas().length === 0">
+              {{ pagando() ? 'Pagando…' : 'Pagar ' + precio(g.total) }}
+            </button>
+          } @else {
+            <h2>Resumen</h2>
+            <p class="estado">Elige arriba de qué vendedor quieres hacer la compra.</p>
+          }
+          <p class="nota">🔒 Pago simulado: no se realiza ningún cargo real.</p>
+        </aside>
+      </div>
+    }
+  }
+</section>

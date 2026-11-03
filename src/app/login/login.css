@@ -233,3 +233,12 @@ form {
     font-size: 1.75rem;
   }
 }
+
+/* Enlaces del segundo paso que son botones: mismo aspecto que el enlace de «olvidé mi contraseña». */
+button.olvido {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: right;
+}

@@ -97,22 +97,39 @@ export function formatearPrecioConDescuento(precio: number, descuento: number): 
   return formatearPrecio(precio * (1 - descuento / 100));
 }
 
-// Precio que paga el cliente: el mismo cálculo que PrecioProducto.precioFinal en el backend. Primero el
-// descuento para todos y, si es premium, sobre ese precio el descuento premium. Redondeado a céntimos.
+// Precio que paga el cliente: el mismo cálculo que PrecioProducto.precioFinal en el backend. Todos
+// tienen el descuento para todos y un premium, además, el premium: los dos se suman
+// (10 % + 15 % = 25 %). Redondeado a céntimos y nunca negativo.
 export function precioFinal(
   precio: number,
   descuento: number | null,
   descuentoPremium: number | null,
   clientePremium: boolean,
 ): number {
-  let resultado = precio * (1 - (descuento ?? 0) / 100);
-  if (clientePremium) {
-    resultado *= 1 - (descuentoPremium ?? 0) / 100;
-  }
+  const total = descuentoTotal(descuento, clientePremium ? descuentoPremium : null);
+  const resultado = precio * Math.max(0, 1 - total / 100);
   return Math.round(resultado * 100) / 100;
 }
 
-// Precio que pagan los clientes premium, con los dos descuentos aplicados
+// Descuento total en porcentaje: el general más el premium (0 si no hay ninguno)
+export function descuentoTotal(descuento: number | null, descuentoPremium: number | null): number {
+  return (descuento ?? 0) + (descuentoPremium ?? 0);
+}
+
+const FORMATO_PORCENTAJE = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 });
+
+// « (25 % en total)» si el producto tiene los dos descuentos, para que se vea que se suman; si no, ''
+export function textoDescuentoTotal(
+  descuento: number | null,
+  descuentoPremium: number | null,
+): string {
+  if (!descuento || !descuentoPremium) {
+    return '';
+  }
+  return ` (${FORMATO_PORCENTAJE.format(descuentoTotal(descuento, descuentoPremium))} % en total)`;
+}
+
+// Precio que pagan los clientes premium, con los dos descuentos sumados
 export function formatearPrecioPremium(producto: ProductoCatalogo): string {
   return formatearPrecio(precioFinal(producto.precio, producto.descuento, producto.descuentoPremium, true));
 }

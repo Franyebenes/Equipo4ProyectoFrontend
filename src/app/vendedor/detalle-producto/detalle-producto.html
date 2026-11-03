@@ -68,8 +68,9 @@
                   <dt>Descuento premium</dt>
                   <dd>
                     @if (p.descuentoPremium) {
-                      {{ p.descuentoPremium }} % · {{ formatearPrecioPremium(p) }}
-                      <span class="nota-precio">Precio para premium, con los dos descuentos</span>
+                      {{ p.descuentoPremium }} %{{ textoDescuentoTotal(p.descuento, p.descuentoPremium) }} ·
+                      {{ formatearPrecioPremium(p) }}
+                      <span class="nota-precio">Precio para premium: los dos descuentos se suman</span>
                     } @else {
                       Sin descuento premium
                     }

@@ -20,6 +20,7 @@ import {
   mensajeProductoEliminado,
   mensajeStockActualizado,
   stockActualDelConflicto,
+  textoDescuentoTotal,
   textoStock,
   urlImagen,
   validarStock,
@@ -40,6 +41,7 @@ export class DetalleProducto implements OnInit {
   readonly formatearPrecio = formatearPrecio;
   readonly formatearPrecioConDescuento = formatearPrecioConDescuento;
   readonly formatearPrecioPremium = formatearPrecioPremium;
+  readonly textoDescuentoTotal = textoDescuentoTotal;
   readonly urlImagen = urlImagen;
   // Al volver a Mi catálogo se recuperan los filtros que tenía
   readonly filtrosCatalogo = inject(FiltrosCatalogo).ultimos;

@@ -33,6 +33,9 @@ const MENSAJES: Record<string, string> = {
   CONTRASENA_FILTRADA: 'Esta contraseña aparece en filtraciones públicas de datos. Elige otra.',
   CONTRASENA_CON_DATOS_PERSONALES:
     'No uses tu nombre, apellidos, correo, nombre comercial ni «esibuy» en la contraseña.',
+  CODIGO_INCORRECTO:
+    'El código no es correcto. Comprueba que has escrito el último que muestra tu aplicación.',
+  ACTIVACION_NO_VIGENTE: 'El código QR ha caducado. Vuelve atrás para obtener uno nuevo.',
   ENLACE_INVALIDO: 'El enlace no es válido o ha caducado. Solicita uno nuevo.',
 };
 

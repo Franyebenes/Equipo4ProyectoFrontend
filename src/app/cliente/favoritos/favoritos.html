@@ -1,0 +1,31 @@
+<main class="pagina">
+  <header class="cabecera">
+    <div>
+      <p class="eyebrow">Favoritos</p>
+      <h1>Mis favoritos</h1>
+      @if (!cargando() && !error() && productos().length > 0) {
+        <p class="sub">{{ productos().length }} {{ productos().length === 1 ? 'producto guardado' : 'productos guardados' }}</p>
+      }
+    </div>
+  </header>
+
+  @if (cargando()) {
+    <p class="estado">Cargando tus favoritos…</p>
+  } @else if (error()) {
+    <div class="aviso-error" role="alert">{{ error() }}</div>
+  } @else {
+    <ul class="rejilla">
+      @for (p of productos(); track p.id) {
+        <li class="tarjeta">
+          <app-tarjeta-producto [producto]="p" (cambioFavorito)="cambioFavorito(p, $event)" />
+        </li>
+      } @empty {
+        <li class="vacio">
+          <p>Todavía no tienes productos favoritos.</p>
+          <p class="pista">Pulsa el ♡ de cualquier producto del catálogo para guardarlo aquí.</p>
+          <a routerLink="/cliente" class="btn-secundario">Ir al catálogo</a>
+        </li>
+      }
+    </ul>
+  }
+</main>

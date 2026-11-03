@@ -17,7 +17,8 @@ export interface Usuario {
   avatar?: string | null;
 }
 
-export type TipoError = 'credenciales' | 'validacion' | 'bloqueado' | 'servidor' | 'red';
+// 'desafio': el segundo paso del login ya no es válido (caducó o se agotaron los intentos): hay que volver a escribir la contraseña.
+export type TipoError = 'credenciales' | 'validacion' | 'bloqueado' | 'servidor' | 'red' | 'desafio';
 
 // Error de autenticación ya traducido a algo que la pantalla puede mostrar.
 export class ErrorAutenticacion extends Error {
@@ -42,6 +43,13 @@ interface TokenCsrf {
 }
 
 interface RespuestaLogin extends Usuario {
+  mensaje: string;
+}
+
+// Respuesta del primer paso cuando la cuenta tiene la verificación en dos pasos: la contraseña era correcta, pero todavía
+// no hay sesión; falta el código. No lleva ningún dato del usuario.
+interface RespuestaSegundoFactorRequerido {
+  requiereSegundoFactor: true;
   mensaje: string;
 }
 
@@ -74,26 +82,56 @@ export class AuthService {
     }
   }
 
-  async login(email: string, contrasena: string): Promise<Usuario> {
+  // Devuelve el usuario si ha entrado, o null si la cuenta tiene la verificación en dos pasos: en ese caso todavía no hay
+  // sesión y hay que pedir el código y llamar a verificarSegundoFactor.
+  async login(email: string, contrasena: string): Promise<Usuario | null> {
     try {
       // El backend rechaza con 400 cualquier campo que no sea email y contrasena.
       const respuesta = await this.enviarConCsrf((cabeceras) =>
-        this.http.post<RespuestaLogin>(`${this.api}/api/auth/login`, { email, contrasena }, { headers: cabeceras }),
+        this.http.post<RespuestaLogin | RespuestaSegundoFactorRequerido>(
+          `${this.api}/api/auth/login`,
+          { email, contrasena },
+          { headers: cabeceras },
+        ),
       );
       // El login rota la sesión: el token CSRF anterior ya no vale y se pedirá otro en la próxima petición.
       this.csrf = null;
-      const usuario: Usuario = {
-        id: respuesta.id,
-        email: respuesta.email,
-        nombre: respuesta.nombre,
-        rol: respuesta.rol,
-        avatar: respuesta.avatar,
-      };
-      this._usuario.set(usuario);
-      return usuario;
+      if ('requiereSegundoFactor' in respuesta) {
+        return null;
+      }
+      return this.iniciarSesionLocal(respuesta);
     } catch (error) {
       throw this.traducirError(error);
     }
+  }
+
+  // Segundo paso del login: el código de la aplicación autenticadora (o uno de recuperación). Crea la sesión definitiva.
+  async verificarSegundoFactor(codigo: string): Promise<Usuario> {
+    try {
+      const respuesta = await this.enviarConCsrf((cabeceras) =>
+        this.http.post<RespuestaLogin>(`${this.api}/api/auth/2fa/verificar`, { codigo }, { headers: cabeceras }),
+      );
+      this.csrf = null; // la sesión definitiva es otra: el token anterior ya no vale
+      return this.iniciarSesionLocal(respuesta);
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 401) {
+        // Aquí un 401 no es "credenciales incorrectas": el desafío caducó o se agotó
+        throw new ErrorAutenticacion('desafio', 'La verificación ha caducado. Vuelve a iniciar sesión.');
+      }
+      throw this.traducirError(error);
+    }
+  }
+
+  private iniciarSesionLocal(respuesta: RespuestaLogin): Usuario {
+    const usuario: Usuario = {
+      id: respuesta.id,
+      email: respuesta.email,
+      nombre: respuesta.nombre,
+      rol: respuesta.rol,
+      avatar: respuesta.avatar,
+    };
+    this._usuario.set(usuario);
+    return usuario;
   }
 
   // Cierra la sesión en el servidor. El estado local se descarta siempre, aunque el servidor no responda.

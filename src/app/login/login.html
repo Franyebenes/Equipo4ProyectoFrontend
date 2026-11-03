@@ -9,6 +9,58 @@
       <p class="exito" role="status">Contraseña restablecida. Ya puedes iniciar sesión con la nueva.</p>
     }
 
+    @if (pideCodigo()) {
+      <!-- Segundo paso: la contraseña era correcta y la cuenta tiene la verificación en dos pasos. -->
+      <form (submit)="enviarCodigo($event)">
+        <p class="intro">
+          @if (usaRecuperacion()) {
+            Escribe uno de tus códigos de recuperación. Cada uno solo se puede usar una vez.
+          } @else {
+            Escribe el código de 6 dígitos que muestra tu aplicación autenticadora (Google Authenticator u otra).
+          }
+        </p>
+
+        <label class="campo">
+          {{ usaRecuperacion() ? 'Código de recuperación' : 'Código de verificación' }}
+          <span class="entrada">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            </svg>
+            <input
+              type="text"
+              name="codigo"
+              required
+              autocomplete="one-time-code"
+              autocapitalize="characters"
+              spellcheck="false"
+              [attr.inputmode]="usaRecuperacion() ? 'text' : 'numeric'"
+              [attr.maxlength]="usaRecuperacion() ? 24 : 7"
+              [placeholder]="usaRecuperacion() ? 'ABCD-EFGH-IJKL-MNOP' : '123 456'"
+              [(ngModel)]="codigo"
+            />
+          </span>
+          @for (mensaje of mensajesCampo('codigo'); track mensaje) {
+            <span class="error-campo">{{ mensaje }}</span>
+          }
+        </label>
+
+        @if (error(); as mensajeError) {
+          <p class="error" role="alert">{{ mensajeError }}</p>
+        }
+
+        <button type="submit" class="btn btn-coral btn-ancho" [disabled]="enviando()">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M2.5 8h11M9.5 4.5 13.5 8l-4 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          {{ enviando() ? 'Comprobando...' : 'Verificar y entrar' }}
+        </button>
+
+        <button type="button" class="olvido" (click)="alternarRecuperacion()">
+          {{ usaRecuperacion() ? 'Usar el código de mi aplicación' : 'He perdido el acceso a mi aplicación: usar un código de recuperación' }}
+        </button>
+        <button type="button" class="olvido" (click)="volverALaContrasena()">Volver</button>
+      </form>
+    } @else {
     <form (submit)="enviar($event)">
       <label class="campo">
         Correo electrónico
@@ -74,6 +126,7 @@
         {{ enviando() ? 'Comprobando...' : 'Continuar de forma segura' }}
       </button>
     </form>
+    }
 
     <p class="cambio-via">
       ¿Aún no tienes cuenta?

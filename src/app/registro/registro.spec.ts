@@ -9,6 +9,13 @@ import { provideRouter } from '@angular/router';
 import { Registro } from './registro';
 
 const URL_REGISTRO = 'http://localhost:8080/api/auth/registro';
+const URL_QR = 'http://localhost:8080/api/auth/registro/2fa';
+const CODIGO = '123456';
+const ACTIVACION = {
+  uri: 'otpauth://totp/ESIBuy:ana.garcia%40gmail.com?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&issuer=ESIBuy',
+  secreto: 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ',
+};
+const CODIGOS_RECUPERACION = ['ABCD-EFGH-IJKL-MNOP', 'QRST-UVWX-YZ23-4567'];
 const URL_CATEGORIAS = 'http://localhost:8080/api/registro/categorias';
 // Valor de prueba: cumple la política (12 a 128 caracteres) y no se usa en ningún sitio real.
 const CONTRASENA = 'Una-contrasena-de-prueba-1';
@@ -21,6 +28,7 @@ const RESPUESTA_CREADA = {
   email: 'ana.garcia@gmail.com',
   nombre: 'Ana',
   mensaje: 'Tu cuenta se ha creado correctamente.',
+  codigosRecuperacion: CODIGOS_RECUPERACION,
 };
 
 describe('Registro', () => {
@@ -99,9 +107,27 @@ describe('Registro', () => {
     fixture.detectChanges();
   }
 
-  function enviarYCapturar(): TestRequest {
+  // Primer paso: los datos piden el QR del 2FA y se pasa a la verificación.
+  function pedirQr(): void {
+    enviar();
+    httpTesting.expectOne({ method: 'POST', url: URL_QR }).flush(ACTIVACION);
+    fixture.detectChanges();
+  }
+
+  // Segundo paso: se escribe el código y se envía el registro.
+  function enviarYCapturar(codigo = CODIGO): TestRequest {
+    pedirQr();
+    escribir('#codigoDosFactores', codigo);
     enviar();
     return httpTesting.expectOne({ method: 'POST', url: URL_REGISTRO });
+  }
+
+  // Tercer paso: se guardan los códigos de recuperación y se pasa a la confirmación.
+  function terminarConLosCodigos(): void {
+    campo('.codigos-registro input[type="checkbox"]').click();
+    fixture.detectChanges();
+    campo('.codigos-registro button.btn-coral').click();
+    fixture.detectChanges();
   }
 
   function responderError(
@@ -231,6 +257,108 @@ describe('Registro', () => {
 
   // ---------------------------------------------------------------- envío
 
+  describe('verificación en dos pasos', () => {
+    it('al continuar pide el QR con solo el correo, sin crear la cuenta todavía', () => {
+      rellenarCliente();
+      enviar();
+
+      const peticion = httpTesting.expectOne({ method: 'POST', url: URL_QR });
+      expect(peticion.request.body).toEqual({ email: 'ana.garcia@gmail.com' });
+      peticion.flush(ACTIVACION);
+      fixture.detectChanges();
+
+      expect(buscar('app-qr-dos-factores')).not.toBeNull();
+      expect(texto('app-qr-dos-factores .secreto')).toBe('GEZD GNBV GY3T QOJQ GEZD GNBV GY3T QOJQ');
+      expect(buscar('#codigoDosFactores')).not.toBeNull();
+      expect(buscar('#nombre')).toBeNull();
+    });
+
+    it('lleva el foco al campo del código', () => {
+      rellenarCliente();
+      pedirQr();
+
+      expect(document.activeElement).toBe(campo('#codigoDosFactores'));
+    });
+
+    it('exige el código y no envía el registro sin él', () => {
+      rellenarCliente();
+      pedirQr();
+
+      enviar(); // httpTesting.verify() fallaría si se enviara algo
+
+      expect(texto('#error-codigoDosFactores')).toBe('Este campo es obligatorio.');
+    });
+
+    it('con un código incorrecto se queda en este paso y lo explica', () => {
+      rellenarCliente();
+      responderError(enviarYCapturar('000000'), 400, { errores: { codigoDosFactores: ['CODIGO_INCORRECTO'] } });
+
+      expect(texto('#error-codigoDosFactores')).toContain('El código no es correcto');
+      expect(buscar('#codigoDosFactores')).not.toBeNull();
+      expect(buscar('#nombre')).toBeNull();
+    });
+
+    it('si el QR ya no vale vuelve a los datos y avisa de que hay que pedir otro', () => {
+      rellenarCliente();
+      responderError(enviarYCapturar(), 400, { errores: { codigoDosFactores: ['ACTIVACION_NO_VIGENTE'] } });
+
+      expect(texto('.error-general')).toContain('El código QR ha caducado');
+      expect(campo<HTMLInputElement>('#email').value).toBe('ana.garcia@gmail.com');
+      expect(buscar('app-qr-dos-factores')).toBeNull();
+    });
+
+    it('si fallan los datos vuelve a ellos y pinta el error junto a su campo', () => {
+      rellenarCliente();
+      responderError(enviarYCapturar(), 400, { errores: { email: ['DOMINIO_EMAIL_INEXISTENTE'] } });
+
+      expect(buscar('#nombre')).not.toBeNull();
+      expect(texto('#error-email')).toContain('no puede recibir emails');
+    });
+
+    it('permite volver a los datos y pide un QR nuevo al continuar', () => {
+      rellenarCliente();
+      pedirQr();
+
+      campo<HTMLButtonElement>('button.btn-ghost').click();
+      fixture.detectChanges();
+      expect(campo<HTMLInputElement>('#email').value).toBe('ana.garcia@gmail.com');
+
+      pedirQr();
+      expect(buscar('#codigoDosFactores')).not.toBeNull();
+    });
+
+    it('muestra los códigos de recuperación y no deja continuar hasta confirmar que se han guardado', () => {
+      rellenarCliente();
+      enviarYCapturar().flush(RESPUESTA_CREADA, { status: 201, statusText: 'Created' });
+      fixture.detectChanges();
+
+      expect(texto('.codigos-registro')).toContain('ABCD-EFGH-IJKL-MNOP');
+      expect(texto('.codigos-registro')).toContain('QRST-UVWX-YZ23-4567');
+      expect(buscar('.confirmacion')).toBeNull();
+      expect(campo<HTMLButtonElement>('.codigos-registro button.btn-coral').disabled).toBe(true);
+
+      campo('.codigos-registro input[type="checkbox"]').click();
+      fixture.detectChanges();
+      expect(campo<HTMLButtonElement>('.codigos-registro button.btn-coral').disabled).toBe(false);
+      campo('.codigos-registro button.btn-coral').click();
+      fixture.detectChanges();
+
+      expect(buscar('.confirmacion')).not.toBeNull();
+      expect(buscar('.codigos-registro')).toBeNull();
+      expect(fixture.componentInstance.codigosRecuperacion()).toEqual([]);
+    });
+
+    it('un error al pedir el QR se muestra en el paso de los datos', () => {
+      rellenarCliente();
+      enviar();
+      responderError(httpTesting.expectOne({ method: 'POST', url: URL_QR }), 400, {
+        errores: { email: ['FORMATO_INVALIDO'] },
+      });
+
+      expect(texto('#error-email')).toContain('correo válido');
+    });
+  });
+
   describe('envío', () => {
     it('envía al cliente con solo sus campos y muestra la confirmación', () => {
       rellenarCliente();
@@ -248,10 +376,12 @@ describe('Registro', () => {
         telefono: null,
         contrasena: CONTRASENA,
         repetirContrasena: CONTRASENA,
+        codigoDosFactores: CODIGO,
         fechaNacimiento: '2000-05-15',
       });
       peticion.flush(RESPUESTA_CREADA, { status: 201, statusText: 'Created' });
       fixture.detectChanges();
+      terminarConLosCodigos();
 
       expect(buscar('.confirmacion')).not.toBeNull();
       expect(texto('.confirmacion')).toContain('ana.garcia@gmail.com');
@@ -264,6 +394,7 @@ describe('Registro', () => {
       rellenarCliente();
       enviarYCapturar().flush(RESPUESTA_CREADA, { status: 201, statusText: 'Created' });
       fixture.detectChanges();
+      terminarConLosCodigos();
 
       expect(document.activeElement).toBe(campo('.confirmacion h2'));
     });
@@ -310,6 +441,7 @@ describe('Registro', () => {
         telefono: null,
         contrasena: CONTRASENA,
         repetirContrasena: CONTRASENA,
+        codigoDosFactores: CODIGO,
         nombreComercial: 'Tienda Norte',
         categoriaPrincipalId: CATEGORIAS[0].id,
       });
