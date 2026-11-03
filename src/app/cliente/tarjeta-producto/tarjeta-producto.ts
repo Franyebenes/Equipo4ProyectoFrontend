@@ -2,6 +2,7 @@ import { Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { IMAGEN_POR_DEFECTO, formatearPrecio, urlImagen } from '../../vendedor/producto.service';
+import { AnadirALista } from '../../listas/anadir-a-lista/anadir-a-lista';
 import { BotonFavorito } from '../boton-favorito/boton-favorito';
 import {
   Disponibilidad,
@@ -16,7 +17,7 @@ import {
 // favorito.
 @Component({
   selector: 'app-tarjeta-producto',
-  imports: [RouterLink, BotonFavorito],
+  imports: [RouterLink, BotonFavorito, AnadirALista],
   templateUrl: './tarjeta-producto.html',
   styleUrl: './tarjeta-producto.css',
 })

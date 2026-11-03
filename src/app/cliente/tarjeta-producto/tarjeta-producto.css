@@ -13,6 +13,19 @@
   z-index: 1;
 }
 
+/* Menú ⋯ de listas, abajo a la derecha, a la altura de los óvalos */
+.guardar-en-lista {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.65rem;
+  z-index: 2;
+}
+
+/* Hueco para que los óvalos no queden debajo del ⋯ */
+.ovalos {
+  padding-right: 2.4rem;
+}
+
 .enlace-ficha {
   display: flex;
   flex-direction: column;

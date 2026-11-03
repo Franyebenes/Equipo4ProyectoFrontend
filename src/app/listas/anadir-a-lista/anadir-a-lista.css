@@ -1,0 +1,221 @@
+:host {
+  position: relative;
+  display: inline-block;
+  margin: 0.25rem 0 1.25rem;
+}
+
+:host(.compacto) {
+  margin: 0;
+}
+
+.abrir {
+  gap: 0.45rem;
+}
+
+.flecha {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* Botón ⋯ de la tarjeta del catálogo, del mismo estilo que el corazón */
+.puntos {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  transition: background 0.15s ease;
+}
+
+.puntos:hover,
+.puntos[aria-expanded="true"] {
+  background: var(--cream);
+}
+
+.puntos svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: currentColor;
+}
+
+/* Menú flotante: hacia abajo en la ficha y hacia arriba en la tarjeta (que recorta lo que se sale) */
+.menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  width: 270px;
+  padding: 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--paper);
+  box-shadow: 0 16px 44px rgb(25 26 23 / 18%);
+  animation: aparecer 0.12s ease-out;
+}
+
+:host(.compacto) .menu {
+  top: auto;
+  bottom: calc(100% + 0.35rem);
+  left: auto;
+  right: 0;
+  width: 240px;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.titulo {
+  margin: 0.2rem 0.4rem 0.4rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.estado {
+  margin: 0.4rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.error {
+  margin: 0 0.2rem 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.7rem;
+  background: var(--coral-soft);
+  color: #9a3412;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+ul {
+  max-height: 210px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Cada lista: miniatura, nombre y + (guardar) o ✓ (ya guardado, al pulsar se quita) */
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.4rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.opcion:hover {
+  background: var(--cream);
+}
+
+.miniatura {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  overflow: hidden;
+  border-radius: 0.55rem;
+  background: var(--coral-soft);
+  color: var(--coral);
+  font-weight: 800;
+}
+
+.miniatura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.miniatura.mas {
+  background: white;
+  box-shadow: inset 0 0 0 1.5px var(--line);
+  color: var(--ink);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.nombre {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marca {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1.5px var(--line);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.guardado .marca {
+  background: var(--coral);
+  box-shadow: none;
+  color: white;
+}
+
+.nueva-lista {
+  margin-top: 0.3rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 0.7rem 0.7rem;
+}
+
+.nueva {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+  padding: 0.55rem 0.2rem 0.2rem;
+  border-top: 1px solid var(--line);
+}
+
+.nueva input {
+  flex: 1;
+  min-width: 0;
+  height: 2.2rem;
+  padding: 0 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+}
+
+.nueva input:focus {
+  outline: 2px solid var(--coral);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.nueva .btn {
+  padding: 0.35rem 0.85rem;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
