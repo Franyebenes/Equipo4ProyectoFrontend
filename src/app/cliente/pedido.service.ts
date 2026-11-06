@@ -66,9 +66,10 @@ export const ETIQUETA_ESTADO_PEDIDO: Record<EstadoPedido, string> = {
   CANCELADO: 'Cancelado',
 };
 
-// HU-28: solo se puede cancelar mientras está pagado y aún no se ha enviado (misma regla que el backend)
+// HU-28: se puede cancelar mientras aún no se ha enviado, es decir, pagado o en preparación (misma regla que el
+// backend)
 export function sePuedeCancelar(pedido: Pedido): boolean {
-  return pedido.estado === 'PAGADO';
+  return pedido.estado === 'PAGADO' || pedido.estado === 'EN_PREPARACION';
 }
 
 // HU-30: el cliente confirma la recepción mientras el pedido sigue en curso (en cualquier paso del envío)
