@@ -17,6 +17,7 @@ function pedido(cambios: Partial<PedidoRecibidoDetalle> = {}): PedidoRecibidoDet
     estado: 'PAGADO',
     unidades: 2,
     fechaActualizacion: '2026-11-02T09:30:00Z',
+    fechaEntregaEstimada: '2026-11-07',
     estadosSiguientes: ['EN_PREPARACION', 'ENVIADO', 'EN_REPARTO', 'ENTREGADO'],
     direccionEnvio: { calle: 'Calle Mayor 1', ciudad: 'Ciudad Real', codigoPostal: '13001' },
     lineas: [{ idProducto: 'p1', nombre: 'Teclado', cantidad: 2, precioUnitario: 18, subtotal: 36 }],
@@ -111,7 +112,7 @@ describe('DetallePedidoRecibido (Ver pedidos recibidos y Procesar estado del ped
     componente.confirmarCambio(componente.pedido()!);
     fixture.detectChanges();
 
-    expect(cambiarEstado).toHaveBeenCalledWith(ID_PEDIDO, 'EN_PREPARACION');
+    expect(cambiarEstado).toHaveBeenCalledWith(ID_PEDIDO, 'EN_PREPARACION', null);
     expect(componente.pedido()?.estado).toBe('EN_PREPARACION');
     expect(componente.nuevoEstado()).toBe('ENVIADO');
     expect(componente.confirmandoCambio()).toBe(false);
@@ -142,6 +143,38 @@ describe('DetallePedidoRecibido (Ver pedidos recibidos y Procesar estado del ped
     expect(obtener).toHaveBeenCalledTimes(2);
     expect(componente.pedido()?.estado).toBe('CANCELADO');
     expect(texto(fixture.nativeElement)).toContain('Este pedido ya está cancelado');
+  });
+
+  it('muestra la fecha estimada de entrega que ve el cliente', () => {
+    expect(texto(crear().nativeElement)).toContain('Entrega estimada para el cliente: sábado, 7 de noviembre');
+  });
+
+  it('solo pide la fecha de entrega al enviarlo, y la manda junto al estado', () => {
+    cambiarEstado.mockReturnValue(of(pedido({ estado: 'ENVIADO' })));
+    const fixture = crear();
+    const componente = fixture.componentInstance;
+    expect(fixture.nativeElement.querySelector('input[type="date"]')).toBeNull();
+
+    componente.nuevoEstado.set('ENVIADO');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('input[type="date"]')).not.toBeNull();
+
+    componente.fechaEntrega.set('2026-11-10');
+    expect(componente.mensajeConfirmacion(componente.pedido()!)).toContain('martes, 10 de noviembre');
+    componente.confirmarCambio(componente.pedido()!);
+    expect(cambiarEstado).toHaveBeenCalledWith(ID_PEDIDO, 'ENVIADO', '2026-11-10');
+  });
+
+  it('si se cambia a un estado sin fecha de entrega, no la manda aunque se hubiera escrito', () => {
+    cambiarEstado.mockReturnValue(of(pedido({ estado: 'EN_PREPARACION' })));
+    const componente = crear().componentInstance;
+
+    componente.nuevoEstado.set('ENVIADO');
+    componente.fechaEntrega.set('2026-11-10');
+    componente.nuevoEstado.set('EN_PREPARACION');
+    componente.confirmarCambio(componente.pedido()!);
+
+    expect(cambiarEstado).toHaveBeenCalledWith(ID_PEDIDO, 'EN_PREPARACION', null);
   });
 
   it('un pedido entregado ya no ofrece cambiar su estado', () => {

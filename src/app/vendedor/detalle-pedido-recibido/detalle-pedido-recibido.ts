@@ -1,14 +1,17 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { DialogoConfirmacion } from '../../admin/dialogo-confirmacion/dialogo-confirmacion';
 import { EstadoPedido } from '../../cliente/pedido.service';
+import { formatearDia } from '../../cliente/seguimiento.service';
 import { formatearPrecio } from '../producto.service';
 import {
+  ESTADOS_CON_FECHA_ENTREGA,
   PedidoRecibidoDetalle,
   PedidoVendedorService,
+  diaDeHoy,
   esEstadoFiltrable,
   etiquetaEstadoPedido,
   formatearFechaPedido,
@@ -23,6 +26,7 @@ import {
 // lo devuelve si es del vendedor de la sesión (si no, 404 con su mensaje).
 // Procesar estado del pedido: desde aquí el vendedor hace avanzar el envío. Los estados que se ofrecen son los que
 // devuelve el backend (estadosSiguientes) y el cambio se confirma antes de hacerlo, porque no se puede deshacer.
+// Estado del envío: al enviarlo puede indicar la fecha estimada de entrega que verá el cliente (si no, se calcula).
 @Component({
   selector: 'app-detalle-pedido-recibido',
   imports: [RouterLink, FormsModule, DialogoConfirmacion],
@@ -44,6 +48,8 @@ export class DetallePedidoRecibido implements OnInit {
   readonly etiquetaEstado = etiquetaEstadoPedido;
   readonly referencia = referenciaPedido;
   readonly textoUnidades = textoUnidades;
+  readonly formatearDia = formatearDia;
+  readonly hoy = diaDeHoy();
 
   pedido = signal<PedidoRecibidoDetalle | null>(null);
   cargando = signal(true);
@@ -57,6 +63,12 @@ export class DetallePedidoRecibido implements OnInit {
   guardandoEstado = signal(false);
   exitoEstado = signal('');
   errorEstado = signal('');
+  // Estado del envío: fecha estimada de entrega que indica el vendedor (AAAA-MM-DD, opcional)
+  fechaEntrega = signal('');
+  pideFechaEntrega = computed(() => {
+    const nuevo = this.nuevoEstado();
+    return nuevo !== '' && ESTADOS_CON_FECHA_ENTREGA.includes(nuevo);
+  });
 
   ngOnInit(): void {
     const estado = this.route.snapshot.queryParamMap.get('estado');
@@ -78,7 +90,7 @@ export class DetallePedidoRecibido implements OnInit {
 
   mensajeConfirmacion(pedido: PedidoRecibidoDetalle): string {
     const nuevo = this.nuevoEstado();
-    return nuevo ? mensajeConfirmarCambioEstado(pedido, nuevo) : '';
+    return nuevo ? mensajeConfirmarCambioEstado(pedido, nuevo, this.fechaEntregaElegida()) : '';
   }
 
   pedirConfirmacion(): void {
@@ -101,7 +113,7 @@ export class DetallePedidoRecibido implements OnInit {
       return;
     }
     this.guardandoEstado.set(true);
-    this.pedidoService.cambiarEstado(pedido.id, nuevo).subscribe({
+    this.pedidoService.cambiarEstado(pedido.id, nuevo, this.fechaEntregaElegida()).subscribe({
       next: (actualizado) => {
         this.guardandoEstado.set(false);
         this.confirmandoCambio.set(false);
@@ -121,10 +133,16 @@ export class DetallePedidoRecibido implements OnInit {
     });
   }
 
+  // Solo se envía si el estado elegido la admite y se ha rellenado
+  private fechaEntregaElegida(): string | null {
+    return this.pideFechaEntrega() && this.fechaEntrega() ? this.fechaEntrega() : null;
+  }
+
   // Muestra el pedido y propone como nuevo estado el siguiente paso del envío
   private mostrar(pedido: PedidoRecibidoDetalle): void {
     this.pedido.set(pedido);
     this.nuevoEstado.set(pedido.estadosSiguientes[0] ?? '');
+    this.fechaEntrega.set('');
   }
 
   private recargar(id: string): void {

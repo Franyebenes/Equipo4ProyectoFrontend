@@ -104,6 +104,13 @@
   font-size: 0.9rem;
 }
 
+.estado-controles input[type='date'] {
+  height: 2.5rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 0.6rem;
+  font-size: 0.9rem;
+}
+
 .estado-controles .btn {
   height: 2.5rem;
 }

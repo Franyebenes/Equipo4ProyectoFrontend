@@ -50,7 +50,12 @@
                 {{ etiquetaEstado(p.estado) }}
               </span>
             </div>
-            <p class="muted ayuda-estado">Última actualización: {{ formatearFecha(p.fechaActualizacion) }}</p>
+            <p class="muted ayuda-estado">
+              Última actualización: {{ formatearFecha(p.fechaActualizacion) }}
+              @if (p.fechaEntregaEstimada) {
+                · Entrega estimada para el cliente: {{ formatearDia(p.fechaEntregaEstimada) }}
+              }
+            </p>
             @if (p.estadosSiguientes.length > 0) {
               <div class="estado-controles">
                 <label class="campo">
@@ -62,6 +67,13 @@
                     }
                   </select>
                 </label>
+                @if (pideFechaEntrega()) {
+                  <label class="campo">
+                    Entrega estimada (opcional)
+                    <input type="date" [min]="hoy" [ngModel]="fechaEntrega()"
+                           (ngModelChange)="fechaEntrega.set($event)" [disabled]="guardandoEstado()">
+                  </label>
+                }
                 <button type="button" class="btn btn-crear" (click)="pedirConfirmacion()"
                         [disabled]="guardandoEstado() || !nuevoEstado()">Actualizar estado</button>
               </div>

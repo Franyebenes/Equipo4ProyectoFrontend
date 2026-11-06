@@ -15,12 +15,14 @@ import {
   sePuedeCancelar,
   sePuedeConfirmarRecepcion,
 } from '../pedido.service';
+import { VentanaSeguimiento } from '../seguimiento-pedido/seguimiento-pedido';
 
 // HU-27 Historial de compras (solo lectura), HU-28 Cancelar pedido y HU-30 Confirmar recepción y valorar producto.
 // Siempre se lee del backend, así que muestra el estado actual de cada pedido.
+// Estado del envío: desde cada pedido se abre la ventana con su seguimiento.
 @Component({
   selector: 'app-mis-pedidos',
-  imports: [RouterLink, NgTemplateOutlet, DialogoConfirmacion],
+  imports: [RouterLink, NgTemplateOutlet, DialogoConfirmacion, VentanaSeguimiento],
   templateUrl: './mis-pedidos.html',
   styleUrl: './mis-pedidos.css',
 })
@@ -44,6 +46,8 @@ export class MisPedidos implements OnInit {
   // Pedido pendiente de confirmar su cancelación (abre el diálogo)
   readonly pedidoACancelar = signal<Pedido | null>(null);
   readonly cancelando = signal(false);
+  // Estado del envío: pedido cuyo seguimiento se está viendo (abre la ventana)
+  readonly pedidoEnSeguimiento = signal<string | null>(null);
 
   constructor() {
     // Aviso que deja el carrito al realizar un pedido
@@ -55,6 +59,14 @@ export class MisPedidos implements OnInit {
 
   ngOnInit(): void {
     this.cargar();
+  }
+
+  verSeguimiento(pedido: Pedido): void {
+    this.pedidoEnSeguimiento.set(pedido.id);
+  }
+
+  cerrarSeguimiento(): void {
+    this.pedidoEnSeguimiento.set(null);
   }
 
   cargar(): void {
