@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { API_URL } from '../core/api';
 import { DireccionEnvio, ETIQUETA_ESTADO_PEDIDO, EstadoPedido } from '../cliente/pedido.service';
+import { formatearDia } from '../cliente/seguimiento.service';
 
 // Pedido en el listado de pedidos recibidos (PedidoRecibidoDTO en el backend). cliente es su nombre y apellidos
 // (o su email si no los tiene); importe, lo que pagó por todo el pedido; unidades, la suma de todas las líneas.
@@ -26,10 +27,12 @@ export interface LineaPedidoRecibido {
 }
 
 // Detalle de un pedido recibido (PedidoRecibidoDetalleDTO): lo del listado más la dirección de envío y las líneas.
-// fechaActualizacion es el último cambio del pedido y estadosSiguientes, los estados a los que el vendedor lo puede
-// llevar ahora (vacío si ya está entregado, finalizado o cancelado). El backend decide cuáles son.
+// fechaActualizacion es el último cambio del pedido; fechaEntregaEstimada, el día (AAAA-MM-DD) que ve el cliente
+// (null si ya no va de camino) y estadosSiguientes, los estados a los que el vendedor lo puede llevar ahora (vacío
+// si ya está entregado, finalizado o cancelado). El backend decide cuáles son.
 export interface PedidoRecibidoDetalle extends PedidoRecibido {
   fechaActualizacion: string;
+  fechaEntregaEstimada: string | null;
   estadosSiguientes: EstadoPedido[];
   direccionEnvio: DireccionEnvio | null;
   lineas: LineaPedidoRecibido[];
@@ -60,11 +63,27 @@ export function etiquetaEstadoPedido(estado: EstadoPedido): string {
   return ETIQUETA_ESTADO_PEDIDO[estado] ?? estado;
 }
 
+// Estado del envío: el vendedor puede indicar la fecha estimada de entrega al enviar el pedido
+export const ESTADOS_CON_FECHA_ENTREGA: readonly EstadoPedido[] = ['ENVIADO', 'EN_REPARTO'];
+
+// Hoy como AAAA-MM-DD en la hora del navegador (lo mínimo que se puede elegir como fecha de entrega)
+export function diaDeHoy(ahora: Date = new Date()): string {
+  const dos = (n: number) => String(n).padStart(2, '0');
+  return `${ahora.getFullYear()}-${dos(ahora.getMonth() + 1)}-${dos(ahora.getDate())}`;
+}
+
 // Procesar estado del pedido: lo que se pregunta antes de cambiarlo y el aviso al terminar
-export function mensajeConfirmarCambioEstado(pedido: PedidoRecibido, nuevo: EstadoPedido): string {
+export function mensajeConfirmarCambioEstado(
+  pedido: PedidoRecibido,
+  nuevo: EstadoPedido,
+  fechaEntregaEstimada: string | null = null,
+): string {
+  const entrega = fechaEntregaEstimada
+    ? ` La entrega estimada será el ${formatearDia(fechaEntregaEstimada)}.`
+    : '';
   return (
     `El pedido ${referenciaPedido(pedido.id)} pasará de «${etiquetaEstadoPedido(pedido.estado)}» ` +
-    `a «${etiquetaEstadoPedido(nuevo)}». Después no podrá volver a un estado anterior.`
+    `a «${etiquetaEstadoPedido(nuevo)}».${entrega} Después no podrá volver a un estado anterior.`
   );
 }
 
@@ -110,9 +129,13 @@ export class PedidoVendedorService {
 
   // Procesar estado del pedido: lo hace avanzar y devuelve el detalle actualizado.
   // 409 si el cambio no se permite (hacia atrás o en un pedido terminado), con el mensaje del backend.
-  cambiarEstado(id: string, estado: EstadoPedido): Observable<PedidoRecibidoDetalle> {
-    return this.http.patch<PedidoRecibidoDetalle>(`${this.url}/${encodeURIComponent(id)}/estado`, {
-      estado,
-    });
+  // Estado del envío: al enviarlo se puede indicar la fecha estimada de entrega (AAAA-MM-DD).
+  cambiarEstado(
+    id: string,
+    estado: EstadoPedido,
+    fechaEntregaEstimada: string | null = null,
+  ): Observable<PedidoRecibidoDetalle> {
+    const cuerpo = fechaEntregaEstimada ? { estado, fechaEntregaEstimada } : { estado };
+    return this.http.patch<PedidoRecibidoDetalle>(`${this.url}/${encodeURIComponent(id)}/estado`, cuerpo);
   }
 }

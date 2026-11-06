@@ -83,6 +83,10 @@
         Envío a {{ p.direccionEnvio.calle }}, {{ p.direccionEnvio.codigoPostal }} {{ p.direccionEnvio.ciudad }}
       </span>
       <div class="acciones">
+        <button type="button" class="btn-secundario" (click)="verSeguimiento(p)"
+                [attr.aria-label]="'Ver el seguimiento del pedido del ' + fecha(p)">
+          Seguimiento
+        </button>
         @if (sePuedeConfirmarRecepcion(p)) {
           <button type="button" class="btn-principal" (click)="confirmarRecepcion(p)" [disabled]="ocupado() === p.id">
             He recibido el pedido
@@ -97,6 +101,10 @@
     </footer>
   </article>
 </ng-template>
+
+@if (pedidoEnSeguimiento(); as idPedido) {
+  <app-seguimiento-pedido [idPedido]="idPedido" (cerrar)="cerrarSeguimiento()" />
+}
 
 @if (pedidoACancelar(); as pedido) {
   <app-dialogo-confirmacion

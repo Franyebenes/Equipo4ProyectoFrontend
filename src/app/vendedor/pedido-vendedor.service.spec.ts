@@ -6,6 +6,7 @@ import {
   ESTADOS_FILTRO,
   PedidoRecibido,
   PedidoVendedorService,
+  diaDeHoy,
   esEstadoFiltrable,
   etiquetaEstadoPedido,
   mensajeConfirmarCambioEstado,
@@ -80,6 +81,14 @@ describe('PedidoVendedorService', () => {
     expect(detalle).toEqual(actualizado);
   });
 
+  it('cambiarEstado envía también la fecha estimada de entrega si se indica', () => {
+    servicio.cambiarEstado(ID_PEDIDO, 'ENVIADO', '2026-11-10').subscribe();
+
+    const peticion = http.expectOne(`${URL_PEDIDOS}/${ID_PEDIDO}/estado`);
+    expect(peticion.request.body).toEqual({ estado: 'ENVIADO', fechaEntregaEstimada: '2026-11-10' });
+    peticion.flush({});
+  });
+
   it('obtener codifica el id para que no pueda cambiar la ruta', () => {
     servicio.obtener('../productos').subscribe();
 
@@ -124,6 +133,16 @@ describe('Pedidos recibidos: textos', () => {
     expect(mensaje).toContain('#00000101');
     expect(mensaje).toContain('de «Pagado» a «Enviado»');
     expect(mensaje).toContain('no podrá volver a un estado anterior');
+  });
+
+  it('si se indica la fecha estimada, la confirmación la incluye', () => {
+    expect(mensajeConfirmarCambioEstado(PEDIDO, 'ENVIADO', '2026-11-10')).toContain(
+      'La entrega estimada será el martes, 10 de noviembre.',
+    );
+  });
+
+  it('hoy se escribe como AAAA-MM-DD', () => {
+    expect(diaDeHoy(new Date(2026, 10, 6, 23, 59))).toBe('2026-11-06');
   });
 
   it('al cambiar el estado confirma el estado nuevo', () => {

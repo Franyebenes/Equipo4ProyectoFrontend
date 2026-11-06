@@ -76,10 +76,11 @@ describe('PedidoService', () => {
 });
 
 describe('reglas de los pedidos', () => {
-  it('solo se puede cancelar un pedido pagado', () => {
+  it('se puede cancelar mientras aún no se ha enviado', () => {
     expect(sePuedeCancelar(pedido('PAGADO'))).toBe(true);
-    expect(sePuedeCancelar(pedido('EN_PREPARACION'))).toBe(false);
+    expect(sePuedeCancelar(pedido('EN_PREPARACION'))).toBe(true);
     expect(sePuedeCancelar(pedido('ENVIADO'))).toBe(false);
+    expect(sePuedeCancelar(pedido('EN_REPARTO'))).toBe(false);
     expect(sePuedeCancelar(pedido('FINALIZADO'))).toBe(false);
     expect(sePuedeCancelar(pedido('CANCELADO'))).toBe(false);
   });
