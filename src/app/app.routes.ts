@@ -6,6 +6,8 @@ import { VerCategorias } from './admin/ver-categorias/ver-categorias';
 import { EditarCategoria } from './admin/editar-categoria/editar-categoria';
 import { MisProductos } from './vendedor/mis-productos/mis-productos';
 import { DetalleProducto } from './vendedor/detalle-producto/detalle-producto';
+import { PedidosRecibidos } from './vendedor/pedidos-recibidos/pedidos-recibidos';
+import { DetallePedidoRecibido } from './vendedor/detalle-pedido-recibido/detalle-pedido-recibido';
 import { portadaGuard, rolGuard } from './core/rol.guard';
 import { Home } from './home/home';
 import { Catalogo } from './cliente/catalogo/catalogo';
@@ -87,6 +89,9 @@ export const routes: Routes = [
       // Modificar producto: el mismo formulario del alta, con los datos del producto
       { path: 'productos/:id/editar', component: CrearProducto },
       { path: 'productos/:id', component: DetalleProducto },
+      // Ver pedidos recibidos: los pedidos de los productos del vendedor y el detalle de cada uno
+      { path: 'pedidos', component: PedidosRecibidos },
+      { path: 'pedidos/:id', component: DetallePedidoRecibido },
     ],
   },
 ];
