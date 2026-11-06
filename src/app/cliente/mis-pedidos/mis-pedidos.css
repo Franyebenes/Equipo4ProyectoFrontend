@@ -28,7 +28,8 @@ h2 { margin: 2rem 0 1rem; font-size: 1.15rem; }
   font-size: .78rem; font-weight: 700; background: #f2f2f2; color: #444;
 }
 .chip.pagado { background: #e3eedf; color: #3f6f48; }
-.chip.enviado, .chip.entregado { background: #e4ecf7; color: #2c5282; }
+.chip.en_preparacion { background: #fdf3d7; color: #8a5a00; }
+.chip.enviado, .chip.en_reparto, .chip.entregado { background: #e4ecf7; color: #2c5282; }
 .chip.finalizado { background: #f4f0e9; color: #6b6e67; }
 .chip.cancelado { background: #fdecea; color: #b3261e; }
 
