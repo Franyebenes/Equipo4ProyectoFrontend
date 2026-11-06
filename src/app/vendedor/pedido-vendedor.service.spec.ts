@@ -8,7 +8,9 @@ import {
   PedidoVendedorService,
   esEstadoFiltrable,
   etiquetaEstadoPedido,
+  mensajeConfirmarCambioEstado,
   mensajeErrorPedidosRecibidos,
+  mensajeEstadoActualizado,
   referenciaPedido,
   textoUnidades,
 } from './pedido-vendedor.service';
@@ -58,6 +60,26 @@ describe('PedidoVendedorService', () => {
     peticion.flush({ ...PEDIDO, direccionEnvio: null, lineas: [] });
   });
 
+  it('cambiarEstado envía el nuevo estado con PATCH a la ruta del pedido', () => {
+    let detalle: unknown;
+    servicio.cambiarEstado(ID_PEDIDO, 'ENVIADO').subscribe((d) => (detalle = d));
+
+    const peticion = http.expectOne(`${URL_PEDIDOS}/${ID_PEDIDO}/estado`);
+    expect(peticion.request.method).toBe('PATCH');
+    expect(peticion.request.body).toEqual({ estado: 'ENVIADO' });
+    const actualizado = {
+      ...PEDIDO,
+      estado: 'ENVIADO',
+      fechaActualizacion: '2026-11-03T12:00:00Z',
+      estadosSiguientes: ['EN_REPARTO', 'ENTREGADO'],
+      direccionEnvio: null,
+      lineas: [],
+    };
+    peticion.flush(actualizado);
+
+    expect(detalle).toEqual(actualizado);
+  });
+
   it('obtener codifica el id para que no pueda cambiar la ruta', () => {
     servicio.obtener('../productos').subscribe();
 
@@ -80,10 +102,42 @@ describe('Pedidos recibidos: textos', () => {
     expect(etiquetaEstadoPedido('ENVIADO')).toBe('Enviado');
   });
 
-  it('se puede filtrar por todos los estados salvo PENDIENTE, que la aplicación no usa', () => {
-    expect(ESTADOS_FILTRO).toContain('PAGADO');
-    expect(ESTADOS_FILTRO).toContain('CANCELADO');
-    expect(ESTADOS_FILTRO).not.toContain('PENDIENTE');
+  it('se puede filtrar por todos los estados salvo PENDIENTE, en el orden del envío', () => {
+    expect(ESTADOS_FILTRO).toEqual([
+      'PAGADO',
+      'EN_PREPARACION',
+      'ENVIADO',
+      'EN_REPARTO',
+      'ENTREGADO',
+      'FINALIZADO',
+      'CANCELADO',
+    ]);
+  });
+
+  it('los estados nuevos del envío tienen su etiqueta', () => {
+    expect(etiquetaEstadoPedido('EN_PREPARACION')).toBe('En preparación');
+    expect(etiquetaEstadoPedido('EN_REPARTO')).toBe('En reparto');
+  });
+
+  it('antes de cambiar el estado avisa de que no se puede volver atrás', () => {
+    const mensaje = mensajeConfirmarCambioEstado(PEDIDO, 'ENVIADO');
+    expect(mensaje).toContain('#00000101');
+    expect(mensaje).toContain('de «Pagado» a «Enviado»');
+    expect(mensaje).toContain('no podrá volver a un estado anterior');
+  });
+
+  it('al cambiar el estado confirma el estado nuevo', () => {
+    expect(mensajeEstadoActualizado('EN_REPARTO')).toBe(
+      'Estado actualizado: el pedido está ahora «En reparto».',
+    );
+  });
+
+  it('con 409 muestra el mensaje del backend', () => {
+    const error = new HttpErrorResponse({
+      status: 409,
+      error: { mensaje: 'El envío solo puede avanzar: elige un estado posterior al actual' },
+    });
+    expect(mensajeErrorPedidosRecibidos(error)).toContain('solo puede avanzar');
   });
 
   it('solo acepta como filtro un estado conocido de la dirección de la página', () => {

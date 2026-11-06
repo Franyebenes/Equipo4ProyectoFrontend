@@ -25,8 +25,12 @@ export interface LineaPedidoRecibido {
   subtotal: number;
 }
 
-// Detalle de un pedido recibido (PedidoRecibidoDetalleDTO): lo del listado más la dirección de envío y las líneas
+// Detalle de un pedido recibido (PedidoRecibidoDetalleDTO): lo del listado más la dirección de envío y las líneas.
+// fechaActualizacion es el último cambio del pedido y estadosSiguientes, los estados a los que el vendedor lo puede
+// llevar ahora (vacío si ya está entregado, finalizado o cancelado). El backend decide cuáles son.
 export interface PedidoRecibidoDetalle extends PedidoRecibido {
+  fechaActualizacion: string;
+  estadosSiguientes: EstadoPedido[];
   direccionEnvio: DireccionEnvio | null;
   lineas: LineaPedidoRecibido[];
 }
@@ -56,6 +60,18 @@ export function etiquetaEstadoPedido(estado: EstadoPedido): string {
   return ETIQUETA_ESTADO_PEDIDO[estado] ?? estado;
 }
 
+// Procesar estado del pedido: lo que se pregunta antes de cambiarlo y el aviso al terminar
+export function mensajeConfirmarCambioEstado(pedido: PedidoRecibido, nuevo: EstadoPedido): string {
+  return (
+    `El pedido ${referenciaPedido(pedido.id)} pasará de «${etiquetaEstadoPedido(pedido.estado)}» ` +
+    `a «${etiquetaEstadoPedido(nuevo)}». Después no podrá volver a un estado anterior.`
+  );
+}
+
+export function mensajeEstadoActualizado(estado: EstadoPedido): string {
+  return `Estado actualizado: el pedido está ahora «${etiquetaEstadoPedido(estado)}».`;
+}
+
 // Texto de las unidades: «1 unidad», «3 unidades»
 export function textoUnidades(unidades: number): string {
   return unidades === 1 ? '1 unidad' : `${unidades} unidades`;
@@ -76,7 +92,7 @@ export function mensajeErrorPedidosRecibidos(e: HttpErrorResponse): string {
 }
 
 // Pedidos recibidos por el vendedor de la sesión. El backend solo devuelve los de sus productos.
-// La cookie de sesión la añade apiInterceptor.
+// La cookie de sesión y el token CSRF (en el PATCH) los añade apiInterceptor.
 @Injectable({ providedIn: 'root' })
 export class PedidoVendedorService {
   private readonly http = inject(HttpClient);
@@ -90,5 +106,13 @@ export class PedidoVendedorService {
   // 404 si el pedido no existe o es de otro vendedor
   obtener(id: string): Observable<PedidoRecibidoDetalle> {
     return this.http.get<PedidoRecibidoDetalle>(`${this.url}/${encodeURIComponent(id)}`);
+  }
+
+  // Procesar estado del pedido: lo hace avanzar y devuelve el detalle actualizado.
+  // 409 si el cambio no se permite (hacia atrás o en un pedido terminado), con el mensaje del backend.
+  cambiarEstado(id: string, estado: EstadoPedido): Observable<PedidoRecibidoDetalle> {
+    return this.http.patch<PedidoRecibidoDetalle>(`${this.url}/${encodeURIComponent(id)}/estado`, {
+      estado,
+    });
   }
 }

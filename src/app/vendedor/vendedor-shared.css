@@ -54,7 +54,13 @@
   color: var(--ok, #3f6f48);
 }
 
+.estado-pedido.en_preparacion {
+  background: #fdf3d7;
+  color: #8a5a00;
+}
+
 .estado-pedido.enviado,
+.estado-pedido.en_reparto,
 .estado-pedido.entregado {
   background: #e4ecf7;
   color: #2c5282;

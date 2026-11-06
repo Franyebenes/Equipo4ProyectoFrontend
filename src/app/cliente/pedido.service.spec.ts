@@ -78,6 +78,7 @@ describe('PedidoService', () => {
 describe('reglas de los pedidos', () => {
   it('solo se puede cancelar un pedido pagado', () => {
     expect(sePuedeCancelar(pedido('PAGADO'))).toBe(true);
+    expect(sePuedeCancelar(pedido('EN_PREPARACION'))).toBe(false);
     expect(sePuedeCancelar(pedido('ENVIADO'))).toBe(false);
     expect(sePuedeCancelar(pedido('FINALIZADO'))).toBe(false);
     expect(sePuedeCancelar(pedido('CANCELADO'))).toBe(false);
@@ -85,7 +86,9 @@ describe('reglas de los pedidos', () => {
 
   it('se puede confirmar la recepción mientras el pedido sigue en curso', () => {
     expect(sePuedeConfirmarRecepcion(pedido('PAGADO'))).toBe(true);
+    expect(sePuedeConfirmarRecepcion(pedido('EN_PREPARACION'))).toBe(true);
     expect(sePuedeConfirmarRecepcion(pedido('ENVIADO'))).toBe(true);
+    expect(sePuedeConfirmarRecepcion(pedido('EN_REPARTO'))).toBe(true);
     expect(sePuedeConfirmarRecepcion(pedido('ENTREGADO'))).toBe(true);
     expect(sePuedeConfirmarRecepcion(pedido('FINALIZADO'))).toBe(false);
     expect(sePuedeConfirmarRecepcion(pedido('CANCELADO'))).toBe(false);

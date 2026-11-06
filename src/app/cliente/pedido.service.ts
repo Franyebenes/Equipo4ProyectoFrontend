@@ -4,8 +4,26 @@ import { Observable } from 'rxjs';
 
 import { API_URL } from '../core/api';
 
-// Mismos valores que el enum EstadoPedido del backend. El pago es simulado: el pedido nace PAGADO.
-export type EstadoPedido = 'PENDIENTE' | 'PAGADO' | 'ENVIADO' | 'ENTREGADO' | 'FINALIZADO' | 'CANCELADO';
+// Mismos valores que el enum EstadoPedido del backend. El pago es simulado: el pedido nace PAGADO. El vendedor
+// hace avanzar el envío (en preparación, enviado, en reparto, entregado) y el cliente lo finaliza o lo cancela.
+export type EstadoPedido =
+  | 'PENDIENTE'
+  | 'PAGADO'
+  | 'EN_PREPARACION'
+  | 'ENVIADO'
+  | 'EN_REPARTO'
+  | 'ENTREGADO'
+  | 'FINALIZADO'
+  | 'CANCELADO';
+
+// Pasos del envío, en orden (el mismo recorrido que el backend)
+export const ESTADOS_ENVIO: readonly EstadoPedido[] = [
+  'PAGADO',
+  'EN_PREPARACION',
+  'ENVIADO',
+  'EN_REPARTO',
+  'ENTREGADO',
+];
 
 export interface DireccionEnvio {
   calle: string;
@@ -40,7 +58,9 @@ export interface HistorialPedidos {
 export const ETIQUETA_ESTADO_PEDIDO: Record<EstadoPedido, string> = {
   PENDIENTE: 'Pendiente',
   PAGADO: 'Pagado',
+  EN_PREPARACION: 'En preparación',
   ENVIADO: 'Enviado',
+  EN_REPARTO: 'En reparto',
   ENTREGADO: 'Entregado',
   FINALIZADO: 'Finalizado',
   CANCELADO: 'Cancelado',
@@ -51,9 +71,9 @@ export function sePuedeCancelar(pedido: Pedido): boolean {
   return pedido.estado === 'PAGADO';
 }
 
-// HU-30: el cliente confirma la recepción mientras el pedido sigue en curso
+// HU-30: el cliente confirma la recepción mientras el pedido sigue en curso (en cualquier paso del envío)
 export function sePuedeConfirmarRecepcion(pedido: Pedido): boolean {
-  return pedido.estado === 'PAGADO' || pedido.estado === 'ENVIADO' || pedido.estado === 'ENTREGADO';
+  return ESTADOS_ENVIO.includes(pedido.estado);
 }
 
 // Comprueba la dirección antes de enviarla (mismas reglas que el backend). Devuelve el error o '' si es válida.
