@@ -12,6 +12,7 @@
       }
       @if (auth.usuario()?.rol === 'VENDEDOR') {
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mi catálogo</a>
+        <a routerLink="/vendedor/pedidos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Pedidos recibidos</a>
       }
       @if (esCliente()) {
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page">Catálogo</a>
@@ -73,6 +74,7 @@
       }
       @if (auth.usuario()?.rol === 'VENDEDOR') {
         <a routerLink="/vendedor/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mi catálogo</a>
+        <a routerLink="/vendedor/pedidos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Pedidos recibidos</a>
       }
       @if (esCliente()) {
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Catálogo</a>

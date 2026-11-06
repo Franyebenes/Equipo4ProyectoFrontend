@@ -1,0 +1,82 @@
+<section class="admin-page">
+  <div class="bar">
+    <a routerLink="/vendedor/pedidos" [queryParams]="filtroListado" class="volver">← Volver a pedidos recibidos</a>
+
+    @if (cargando()) {
+      <div class="card ficha"><p class="muted">Cargando pedido…</p></div>
+    } @else if (error()) {
+      <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+    } @else {
+      @if (pedido(); as p) {
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">Pedidos recibidos</p>
+            <h1>Pedido {{ referencia(p.id) }}</h1>
+            <p class="sub">Realizado el {{ formatearFecha(p.fecha) }}</p>
+          </div>
+          <span class="estado-pedido estado-grande" [class]="p.estado.toLowerCase()">
+            {{ etiquetaEstado(p.estado) }}
+          </span>
+        </header>
+
+        <div class="card ficha">
+          <dl class="datos datos-pedido">
+            <div>
+              <dt>Cliente</dt>
+              <dd>{{ p.cliente }}</dd>
+            </div>
+            <div>
+              <dt>Unidades</dt>
+              <dd>{{ textoUnidades(p.unidades) }}</dd>
+            </div>
+            <div>
+              <dt>Importe</dt>
+              <dd>{{ formatearPrecio(p.importe) }}</dd>
+            </div>
+            <div>
+              <dt>Envío a</dt>
+              <dd>
+                @if (p.direccionEnvio; as d) {
+                  {{ d.calle }}<br>{{ d.codigoPostal }} {{ d.ciudad }}
+                } @else {
+                  <span class="muted">Sin dirección de envío</span>
+                }
+              </dd>
+            </div>
+          </dl>
+
+          <h2 class="seccion">Productos</h2>
+          <div class="tabla-scroll">
+            <table class="lineas">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th class="derecha">Cantidad</th>
+                  <th class="derecha">Precio unidad</th>
+                  <th class="derecha">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (l of p.lineas; track l.idProducto) {
+                  <tr>
+                    <td>{{ l.nombre }}</td>
+                    <td class="derecha">{{ l.cantidad }}</td>
+                    <td class="derecha">{{ formatearPrecio(l.precioUnitario) }}</td>
+                    <td class="derecha">{{ formatearPrecio(l.subtotal) }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" class="derecha">Total</td>
+                  <td class="derecha">{{ formatearPrecio(p.importe) }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <p class="nota muted">Los precios son los que pagó el cliente, con los descuentos que tenía al comprar.</p>
+        </div>
+      }
+    }
+  </div>
+</section>

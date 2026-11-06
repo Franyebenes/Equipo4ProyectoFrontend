@@ -1,0 +1,67 @@
+/* La ficha usa los estilos del detalle de producto (detalle-producto.css); aquí solo lo propio del pedido */
+
+/* Cuatro datos en una fila; en pantallas estrechas, de dos en dos */
+.datos-pedido {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 1000px) {
+  .datos-pedido {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .datos-pedido {
+    grid-template-columns: 1fr;
+  }
+}
+
+.estado-grande {
+  align-self: center;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+.tabla-scroll {
+  overflow-x: auto;
+}
+
+.lineas {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lineas th,
+.lineas td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.lineas th {
+  color: var(--muted, #6b6e67);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line, #e6e1d8);
+}
+
+.lineas tbody tr + tr td {
+  border-top: 1px solid var(--line, #e6e1d8);
+}
+
+.lineas tfoot td {
+  border-top: 2px solid var(--line, #e6e1d8);
+  font-weight: 800;
+}
+
+.lineas .derecha {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.nota {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+}
