@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Observable, switchMap } from 'rxjs';
 
 import { mensajeDeError } from '../../core/mensaje-error';
 import { DatosDireccion, DireccionService } from '../direccion.service';
@@ -33,6 +34,8 @@ export class FormularioDireccion {
   protected readonly urlVuelta = this.ruta.queryParamMap.get('volver') === 'perfil' ? '/perfil' : '/direcciones';
   protected readonly error = signal<string | null>(null);
   protected readonly guardando = signal(false);
+  /** Siempre hay una predeterminada: la actual no se puede desmarcar, solo elegir otra */
+  protected readonly yaEsPredeterminada = signal(false);
 
   protected readonly formulario = this.fb.nonNullable.group({
     destinatario: ['', texto(100)],
@@ -48,7 +51,13 @@ export class FormularioDireccion {
   constructor() {
     if (this.id) {
       this.servicio.obtener(this.id).subscribe({
-        next: (d) => this.formulario.patchValue({ ...d, pisoPuerta: d.pisoPuerta ?? '' }),
+        next: (d) => {
+          this.formulario.patchValue({ ...d, pisoPuerta: d.pisoPuerta ?? '' });
+          if (d.predeterminada) {
+            this.yaEsPredeterminada.set(true);
+            this.formulario.controls.predeterminada.disable();
+          }
+        },
         error: (e) => this.error.set(mensajeDeError(e)),
       });
     }
@@ -66,7 +75,7 @@ export class FormularioDireccion {
     }
     const v = this.formulario.getRawValue();
     const datos: DatosDireccion = { ...v, pisoPuerta: v.pisoPuerta.trim() || null };
-    const peticion = this.id ? this.servicio.modificar(this.id, datos) : this.servicio.crear(datos);
+    const peticion: Observable<unknown> = this.id ? this.editar(this.id, datos) : this.servicio.crear(datos);
 
     this.guardando.set(true);
     this.error.set(null);
@@ -77,5 +86,20 @@ export class FormularioDireccion {
         this.error.set(mensajeDeError(e)); // 409 si está en un pedido en curso o se ha llegado al límite
       },
     });
+  }
+
+  /**
+   * El PUT no cambia la marca de predeterminada: va en su propia petición. Si solo se ha marcado la casilla, no se
+   * envía el PUT, porque una dirección usada en un pedido en curso no se puede modificar pero sí marcar.
+   */
+  private editar(id: string, datos: DatosDireccion): Observable<unknown> {
+    const marcar = datos.predeterminada && !this.yaEsPredeterminada();
+    const datosCambiados = Object.entries(this.formulario.controls)
+      .some(([campo, control]) => campo !== 'predeterminada' && control.dirty);
+    if (marcar && !datosCambiados) {
+      return this.servicio.marcarPredeterminada(id);
+    }
+    const modificar = this.servicio.modificar(id, datos);
+    return marcar ? modificar.pipe(switchMap(() => this.servicio.marcarPredeterminada(id))) : modificar;
   }
 }

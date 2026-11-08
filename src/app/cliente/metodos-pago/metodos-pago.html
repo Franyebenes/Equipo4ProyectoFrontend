@@ -22,7 +22,7 @@
               <span class="numero">•••• •••• •••• {{ m.ultimosDigitos }}</span>
               <span class="detalle">{{ m.titular }} · Caduca {{ m.caducidad }}</span>
             </div>
-            <button type="button" class="eliminar accion-icono accion-eliminar" (click)="eliminar(m)" [disabled]="eliminando() === m.id"
+            <button type="button" class="eliminar accion-icono accion-eliminar" (click)="metodoAEliminar.set(m)" [disabled]="eliminando() === m.id"
                     [attr.title]="eliminando() === m.id ? 'Eliminando…' : 'Eliminar'"
                     [attr.aria-label]="(eliminando() === m.id ? 'Eliminando' : 'Eliminar') + ' tarjeta terminada en ' + m.ultimosDigitos"></button>
           </li>
@@ -86,5 +86,17 @@
         </button>
       </div>
     }
+  }
+
+  @if (metodoAEliminar(); as metodo) {
+    <app-dialogo-confirmacion
+      titulo="Eliminar tarjeta"
+      [mensaje]="'¿Eliminar la tarjeta acabada en ' + metodo.ultimosDigitos + '?'"
+      textoConfirmar="Sí, eliminar"
+      textoProcesando="Eliminando…"
+      [procesando]="eliminando() !== null"
+      (confirmar)="confirmarEliminar(metodo)"
+      (cancelar)="metodoAEliminar.set(null)"
+    />
   }
 </section>

@@ -88,11 +88,12 @@
         </div>
       </div>
 
-      @if (!id) {
-        <label class="casilla">
-          <input type="checkbox" formControlName="predeterminada" />
-          Usar como dirección predeterminada
-        </label>
+      <label class="casilla">
+        <input type="checkbox" formControlName="predeterminada" />
+        Usar como dirección predeterminada
+      </label>
+      @if (yaEsPredeterminada()) {
+        <p class="opcional">Para cambiarla, marca otra dirección como predeterminada.</p>
       }
 
       <div class="acciones">
