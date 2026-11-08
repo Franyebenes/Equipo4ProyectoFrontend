@@ -85,7 +85,9 @@
               } @else {
                 @for (p of productos(); track p.id) {
                   <tr>
-                    <td class="col-nombre"><strong>{{ p.nombre }}</strong></td>
+                    <td class="col-nombre">
+                      <a [routerLink]="['/vendedor/productos', p.id]" class="enlace-detalle" title="Ver detalle"><strong>{{ p.nombre }}</strong></a>
+                    </td>
                     <td class="muted">{{ p.categorias.join(', ') }}</td>
                     <td class="derecha">{{ formatearPrecio(p.precio) }}</td>
                     <!-- Precio es el de venta sin descuento; aquí, solo el precio final con el descuento ya aplicado.
@@ -123,18 +125,12 @@
                     </td>
                     <td class="col-acciones">
                       <div class="acciones">
-                        <button type="button" class="btn btn-ghost btn-sm" (click)="alternarEstado(p)"
+                        <!-- Mismo candado que en la tabla de usuarios: cerrado para desactivar, abierto para activar -->
+                        <button type="button" class="accion-icono" [class.accion-candado-cerrado]="p.visible"
+                                [class.accion-candado-abierto]="!p.visible" (click)="alternarEstado(p)"
                                 [disabled]="cambiandoEstado() === p.id"
-                                [attr.aria-label]="(p.visible ? 'Desactivar ' : 'Activar ') + p.nombre">
-                          @if (cambiandoEstado() === p.id) {
-                            Guardando…
-                          } @else if (p.visible) {
-                            Desactivar
-                          } @else {
-                            Activar
-                          }
-                        </button>
-                        <a [routerLink]="['/vendedor/productos', p.id]" class="btn btn-ghost btn-sm">Ver detalle</a>
+                                [attr.title]="cambiandoEstado() === p.id ? 'Guardando…' : (p.visible ? 'Desactivar' : 'Activar')"
+                                [attr.aria-label]="(p.visible ? 'Desactivar ' : 'Activar ') + p.nombre"></button>
                         <a [routerLink]="['/vendedor/productos', p.id, 'editar']" class="accion-icono accion-editar" title="Editar"
                            [attr.aria-label]="'Editar ' + p.nombre"></a>
                         <button type="button" class="accion-icono accion-eliminar" (click)="pedirEliminacion(p)" title="Eliminar"

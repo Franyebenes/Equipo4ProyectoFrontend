@@ -37,16 +37,18 @@
                 <th class="derecha">Unidades</th>
                 <th class="derecha">Importe</th>
                 <th>Estado</th>
-                <th class="col-acciones derecha">Acciones</th>
               </tr>
             </thead>
             <tbody>
               @if (cargando() && pedidos().length === 0) {
-                <tr><td colspan="7" class="vacio">Cargando tus pedidos…</td></tr>
+                <tr><td colspan="6" class="vacio">Cargando tus pedidos…</td></tr>
               } @else {
                 @for (p of visibles(); track p.id) {
                   <tr>
-                    <td><strong>{{ referencia(p.id) }}</strong></td>
+                    <td>
+                      <a [routerLink]="['/vendedor/pedidos', p.id]" [queryParams]="parametrosFiltro()" class="enlace-detalle"
+                         title="Ver detalle" [attr.aria-label]="'Ver el detalle del pedido ' + referencia(p.id)"><strong>{{ referencia(p.id) }}</strong></a>
+                    </td>
                     <td class="muted">{{ formatearFecha(p.fecha) }}</td>
                     <td>{{ p.cliente }}</td>
                     <td class="derecha">{{ p.unidades }}</td>
@@ -54,17 +56,10 @@
                     <td>
                       <span class="estado-pedido" [class]="p.estado.toLowerCase()">{{ etiquetaEstado(p.estado) }}</span>
                     </td>
-                    <td class="col-acciones">
-                      <div class="acciones">
-                        <a [routerLink]="['/vendedor/pedidos', p.id]" [queryParams]="parametrosFiltro()"
-                           class="btn btn-ghost btn-sm"
-                           [attr.aria-label]="'Ver el detalle del pedido ' + referencia(p.id)">Ver detalle</a>
-                      </div>
-                    </td>
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="7" class="vacio">
+                    <td colspan="6" class="vacio">
                       @if (pedidos().length === 0) {
                         Todavía no has recibido ningún pedido. Cuando un cliente compre productos de tu catálogo,
                         aparecerá aquí.

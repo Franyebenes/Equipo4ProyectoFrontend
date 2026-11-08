@@ -18,16 +18,12 @@
           </div>
           <!-- El estado, el stock y la visibilidad se ven en los datos de la ficha: aquí solo las acciones -->
           <div class="cabecera-acciones">
+            <!-- Mismo candado que en el listado: cerrado para desactivar, abierto para activar -->
+            <button type="button" class="accion-icono" [class.accion-candado-cerrado]="p.visible"
+                    [class.accion-candado-abierto]="!p.visible" (click)="alternarEstado(p)" [disabled]="cambiandoEstado()"
+                    [attr.title]="cambiandoEstado() ? 'Guardando…' : (p.visible ? 'Desactivar producto' : 'Activar producto')"
+                    [attr.aria-label]="p.visible ? 'Desactivar producto' : 'Activar producto'"></button>
             <a [routerLink]="['/vendedor/productos', p.id, 'editar']" class="accion-icono accion-editar" title="Editar producto" aria-label="Editar producto"></a>
-            <button type="button" class="btn btn-ghost" (click)="alternarEstado(p)" [disabled]="cambiandoEstado()">
-              @if (cambiandoEstado()) {
-                Guardando…
-              } @else if (p.visible) {
-                Desactivar producto
-              } @else {
-                Activar producto
-              }
-            </button>
             <button type="button" class="accion-icono accion-eliminar" (click)="pedirEliminacion()" title="Eliminar producto" aria-label="Eliminar producto"></button>
           </div>
         </header>
