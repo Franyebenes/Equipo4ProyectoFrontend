@@ -1,5 +1,5 @@
-<section class="metodos">
-  <h1>Mis métodos de pago</h1>
+<section class="metodos" aria-labelledby="titulo-metodos">
+  <h2 id="titulo-metodos">Mis métodos de pago</h2>
 
   @if (aviso()) {
     <p class="aviso" role="status">{{ aviso() }}</p>
@@ -32,7 +32,7 @@
 
     @if (mostrarFormulario()) {
       <form class="formulario" [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
-        <h2>Nueva tarjeta</h2>
+        <h3>Nueva tarjeta</h3>
 
         <label>
           Titular
@@ -76,7 +76,15 @@
         </div>
       </form>
     } @else {
-      <button type="button" class="btn-principal anadir" (click)="abrirFormulario()">+ Añadir tarjeta</button>
+      <div class="anadir">
+        <button type="button" class="btn btn-coral btn-lg" (click)="abrirFormulario()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+          Añadir tarjeta
+        </button>
+      </div>
     }
   }
 </section>

@@ -14,7 +14,6 @@ import { Catalogo } from './cliente/catalogo/catalogo';
 import { FichaProducto } from './cliente/ficha-producto/ficha-producto';
 import { Favoritos } from './cliente/favoritos/favoritos';
 import { VerCarrito } from './cliente/ver-carrito/ver-carrito';
-import { MetodosPago } from './cliente/metodos-pago/metodos-pago';
 import { Pagar } from './cliente/pagar/pagar';
 import { MisPedidos } from './cliente/mis-pedidos/mis-pedidos';
 import { CrearProducto } from './vendedor/crear-producto/crear-producto';
@@ -56,7 +55,8 @@ export const routes: Routes = [
   // HU-31.1: lista de favoritos del cliente de la sesión
   { path: 'favoritos', component: Favoritos, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'carrito', component: VerCarrito, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
-  { path: 'metodos-pago', component: MetodosPago, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
+  // Los métodos de pago ahora están dentro de "Mi perfil"
+  { path: 'metodos-pago', redirectTo: 'perfil' },
   { path: 'pagar', component: Pagar, canActivate: [rolGuard('CLIENTE', 'PREMIUM')] },
   { path: 'perfil/premium', component: PagoPremium, canActivate: [rolGuard('CLIENTE')] },
   { path: 'perfil', component: VerPerfil, canActivate: [rolGuard('CLIENTE','PREMIUM','VENDEDOR','ADMIN')] },

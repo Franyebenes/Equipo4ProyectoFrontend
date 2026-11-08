@@ -7,11 +7,12 @@ import { DatosPerfil, PerfilService, imagenDeAvatar } from '../perfil.service';
 import { AuthService } from '../../core/auth.service';
 import { Direccion, DireccionService, lineaCalle } from '../../direcciones/direccion.service';
 import { DialogoConfirmacion } from '../../admin/dialogo-confirmacion/dialogo-confirmacion';
+import { MetodosPago } from '../../cliente/metodos-pago/metodos-pago';
 
 /** Página "Mi perfil". Muestra los datos que corresponden al rol del usuario. */
 @Component({
   selector: 'app-ver-perfil',
-  imports: [RouterLink, DatePipe, DialogoConfirmacion],
+  imports: [RouterLink, DatePipe, DialogoConfirmacion, MetodosPago],
   templateUrl: './ver-perfil.html',
   styleUrl: './ver-perfil.css',
 })

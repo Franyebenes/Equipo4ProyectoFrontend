@@ -18,7 +18,6 @@
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page">Catálogo</a>
         <a routerLink="/favoritos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Favoritos</a>
         <a routerLink="/listas" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mis listas</a>
-        <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page">Métodos de pago</a>
       }
       <!-- El carrito, siempre la última opción del cliente -->
       @if (esCliente()) {
@@ -80,7 +79,6 @@
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Catálogo</a>
         <a routerLink="/favoritos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Favoritos</a>
         <a routerLink="/listas" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mis listas</a>
-        <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Métodos de pago</a>
       }
       @if (esCliente()) {
         <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito" (click)="cerrarMenu()">
