@@ -193,14 +193,16 @@ h2 {
   margin-top: 1rem;
 }
 
+/* Dorado anaranjado con texto oscuro: destaca sobre los botones coral */
 .btn-premium {
-  background: #ea580c;
-  color: white;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  color: var(--ink);
   text-decoration: underline;
+  box-shadow: 0 4px 14px rgb(249 115 22 / 40%);
 }
 
 .btn-premium:hover {
-  background: #c2410c;
+  background: linear-gradient(135deg, #f59e0b, #ea580c);
 }
 
 .acciones-direccion,
