@@ -1,6 +1,6 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { mensajeDeError } from '../../core/mensaje-error';
@@ -27,7 +27,7 @@ type CampoPrecio = 'precioMinimo' | 'precioMaximo';
  */
 @Component({
   selector: 'app-ver-productos-admin',
-  imports: [RouterLink, RouterLinkActive, FormsModule],
+  imports: [RouterLink, FormsModule],
   templateUrl: './ver-productos-admin.html',
   styleUrls: ['../admin-shared.css', './ver-productos-admin.css'],
 })

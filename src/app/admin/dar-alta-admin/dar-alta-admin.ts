@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AdminService, DatosAltaAdmin, mensajeError } from '../admin.service';
 
 @Component({
   selector: 'app-dar-alta-admin',
-  imports: [FormsModule, NgTemplateOutlet, RouterLink, RouterLinkActive],
+  imports: [FormsModule, NgTemplateOutlet, RouterLink],
   templateUrl: './dar-alta-admin.html',
   styleUrls: ['../admin-shared.css', './dar-alta-admin.css'],
 })

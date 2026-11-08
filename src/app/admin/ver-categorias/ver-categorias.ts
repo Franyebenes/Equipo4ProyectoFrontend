@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { coincideBusqueda } from '../../core/busqueda';
 import { mensajeError } from '../admin.service';
@@ -9,7 +9,7 @@ import { DialogoConfirmacion } from '../dialogo-confirmacion/dialogo-confirmacio
 
 @Component({
   selector: 'app-ver-categorias',
-    imports: [RouterLink, RouterLinkActive, DialogoConfirmacion, FormsModule],
+    imports: [RouterLink, DialogoConfirmacion, FormsModule],
   templateUrl: './ver-categorias.html',
     styleUrls: ['../admin-shared.css', './ver-categorias.css'],
 })
