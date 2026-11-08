@@ -218,6 +218,20 @@ h2 {
   gap: 0.75rem;
 }
 
+/* Todos los botones con texto del perfil miden lo mismo */
+.tarjeta .btn {
+  box-sizing: border-box;
+  justify-content: center;
+  width: 11rem;
+  max-width: 100%;
+  padding: 0.8rem 1.25rem;
+}
+
+/* Las confirmaciones van en línea con su pregunta: mismo alto, pero el ancho de su texto */
+.tarjeta .botones-confirmacion .btn {
+  width: auto;
+}
+
 .baja-cuenta .error {
   margin-bottom: 0.75rem;
 }
