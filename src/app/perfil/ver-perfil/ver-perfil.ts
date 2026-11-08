@@ -6,11 +6,12 @@ import { mensajeDeError } from '../../core/mensaje-error';
 import { DatosPerfil, PerfilService, imagenDeAvatar } from '../perfil.service';
 import { AuthService } from '../../core/auth.service';
 import { Direccion, DireccionService, lineaCalle } from '../../direcciones/direccion.service';
+import { DialogoConfirmacion } from '../../admin/dialogo-confirmacion/dialogo-confirmacion';
 
 /** Página "Mi perfil". Muestra los datos que corresponden al rol del usuario. */
 @Component({
   selector: 'app-ver-perfil',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, DialogoConfirmacion],
   templateUrl: './ver-perfil.html',
   styleUrl: './ver-perfil.css',
 })
@@ -111,4 +112,33 @@ export class VerPerfil {
       },
   });
 }
+
+  protected readonly confirmandoBajaCuenta = signal(false);
+  protected readonly procesandoBajaCuenta = signal(false);
+  protected readonly errorBajaCuenta = signal<string | null>(null);
+  protected readonly cuentaEliminada = signal(false);
+  protected readonly mensajeBajaCuenta = computed(() =>
+    this.perfil()?.rol === 'VENDEDOR'
+      ? 'Se eliminarán tu cuenta y todos tus productos de la plataforma. Esta acción no se puede deshacer.'
+      : 'Se eliminarán tu cuenta y tus datos y Perderás el acceso a tus pedidos; Esta acción no se puede deshacer.',
+  );
+
+  protected confirmarBajaCuenta(): void {
+    this.procesandoBajaCuenta.set(true);
+    this.errorBajaCuenta.set(null);
+    this.perfilService.darseDeBaja().subscribe({
+      next: () => {
+        this.auth.cuentaEliminada();
+        this.perfil.set(null);
+        this.confirmandoBajaCuenta.set(false);
+        this.procesandoBajaCuenta.set(false);
+        this.cuentaEliminada.set(true);
+      },
+      error: (e) => {
+        this.confirmandoBajaCuenta.set(false);
+        this.procesandoBajaCuenta.set(false);
+        this.errorBajaCuenta.set(mensajeDeError(e));
+      },
+    });
+  }
 }

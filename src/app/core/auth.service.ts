@@ -158,6 +158,11 @@ export class AuthService {
     void this.router.navigateByUrl('/login');
   }
 
+  // El usuario se ha dado de baja: el servidor ya ha cerrado la sesión. La pantalla de baja se encarga de avisarle.
+  cuentaEliminada(): void {
+    this.descartarSesion();
+  }
+
   private descartarSesion(): void {
     this._usuario.set(null);
     this.csrf = null;

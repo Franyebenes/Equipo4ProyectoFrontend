@@ -235,3 +235,9 @@ h2 {
     width: 100%;
   }
 }
+
+.baja-cuenta {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgb(25 26 23 / 12%);
+}

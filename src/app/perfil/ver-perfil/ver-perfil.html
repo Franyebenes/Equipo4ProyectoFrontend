@@ -129,6 +129,32 @@
         </div>
       }
 
+      @if (p.rol !== 'ADMIN') {
+        <div class="baja-cuenta">
+          @if (errorBajaCuenta()) {
+            <p class="error" role="alert">{{ errorBajaCuenta() }}</p>
+          }
+          <button type="button" class="btn btn-ghost" (click)="confirmandoBajaCuenta.set(true)">Darme de baja</button>
+        </div>
+      }
+
+      @if (confirmandoBajaCuenta()) {
+        <app-dialogo-confirmacion
+          titulo="¿Seguro que quieres darte de baja?"
+          [mensaje]="mensajeBajaCuenta()"
+          textoConfirmar="Sí, darme de baja"
+          textoProcesando="Eliminando cuenta…"
+          [procesando]="procesandoBajaCuenta()"
+          (confirmar)="confirmarBajaCuenta()"
+          (cancelar)="confirmandoBajaCuenta.set(false)"
+        />
+      }
+
+    } @else if (cuentaEliminada()) {
+      <p class="ceja">Cuenta eliminada</p>
+      <h1 id="titulo-perfil">Te has dado de baja</h1>
+      <p>Tu cuenta se ha eliminado correctamente.</p>
+      <a routerLink="/" class="btn">Ir a la portada</a>
     } @else if (!error()) {
       <p class="cargando">Cargando tu perfil…</p>
     }
