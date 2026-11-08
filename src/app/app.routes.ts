@@ -23,6 +23,7 @@ import { PagoPremium } from './perfil/pago-premium/pago-premium';
 import { LibretaDirecciones } from './direcciones/libreta-direcciones/libreta-direcciones';
 import { FormularioDireccion } from './direcciones/formulario-direccion/formulario-direccion';
 import { VerProductosAdmin } from './admin/ver-productos-admin/ver-productos-admin';
+import { DetalleProductoAdmin } from './admin/detalle-producto-admin/detalle-producto-admin';
 import { MisListas } from './listas/mis-listas/mis-listas';
 
 
@@ -78,6 +79,7 @@ export const routes: Routes = [
       { path: 'crear-categoria', component: CrearCategoriaComponent },
       { path: 'categorias/:id/editar', component: EditarCategoria },
       { path: 'productos', component: VerProductosAdmin },
+      { path: 'productos/:id', component: DetalleProductoAdmin },
     ],
   },
   {
