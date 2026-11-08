@@ -105,7 +105,9 @@ export class VerPerfil {
             : 'Has vuelto al plan estándar.',
         );
         this.procesando.set(false);
-        void this.auth.restaurarSesion();
+        this.auth.restaurarSesion().catch(() => {
+          // El cambio de plan ya está hecho; si falla el refresco, la sesión se actualizará en la próxima carga.
+        });
       },
       error: (e) => {
         this.procesando.set(false);

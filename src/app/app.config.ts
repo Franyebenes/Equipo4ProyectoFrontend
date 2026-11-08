@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     // Al arrancar, recupera al usuario si la cookie de sesión sigue viva. No se espera a la respuesta para no
     // retrasar el arranque.
     provideAppInitializer(() => {
-      void inject(AuthService).restaurarSesion();
+      inject(AuthService).restaurarSesion();
     }),
   ],
 };

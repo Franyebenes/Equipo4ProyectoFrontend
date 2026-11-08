@@ -39,12 +39,12 @@ const ESPERA_ESCRITURA_MS = 300;
   styleUrls: ['../../admin/admin-shared.css', '../vendedor-shared.css', './mis-productos.css'],
 })
 export class MisProductos implements OnInit {
-  private productoService = inject(ProductoService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private filtrosCatalogo = inject(FiltrosCatalogo);
+  readonly productoService = inject(ProductoService);
+  readonly router = inject(Router);
+  readonly route = inject(ActivatedRoute);
+  readonly filtrosCatalogo = inject(FiltrosCatalogo);
   // La primera carga usa los filtros que ya trae la dirección: no hay que reescribirla
-  private iniciado = false;
+ private iniciado = false;
 
   readonly formatearPrecio = formatearPrecio;
   readonly formatearPrecioConDescuento = formatearPrecioConDescuento;
@@ -252,10 +252,11 @@ export class MisProductos implements OnInit {
     const parametros = filtrosAParametros(this.valoresFiltros());
     this.filtrosCatalogo.ultimos.set(parametros);
     if (this.iniciado && !mismosParametros(parametros, this.route.snapshot.queryParams)) {
-      void this.router.navigate([], {
+      this.router.navigate([], {
         relativeTo: this.route,
         queryParams: parametros,
         replaceUrl: true,
+      }).catch(() => {
       });
     }
   }

@@ -250,6 +250,9 @@ export class Catalogo implements OnInit {
       parametros.pagina = pagina + DESFASE_PAGINA_URL;
     }
     this.catalogoService.ultimosParametros.set(parametros);
-    void this.router.navigate([], { relativeTo: this.route, queryParams: parametros, replaceUrl: true });
+    this.router.navigate([], { relativeTo: this.route, queryParams: parametros, replaceUrl: true })
+    .catch(() => {
+        // Solo actualiza la URL; si la navegación falla, el catálogo ya está filtrado.
+      });
   }
 }

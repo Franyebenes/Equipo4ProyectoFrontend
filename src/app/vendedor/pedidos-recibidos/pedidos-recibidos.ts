@@ -33,9 +33,9 @@ import {
   ],
 })
 export class PedidosRecibidos implements OnInit {
-  private pedidoService = inject(PedidoVendedorService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
+  readonly pedidoService = inject(PedidoVendedorService);
+  readonly router = inject(Router);
+  readonly route = inject(ActivatedRoute);
 
   readonly estados = ESTADOS_FILTRO;
   readonly formatearPrecio = formatearPrecio;
@@ -89,10 +89,11 @@ export class PedidosRecibidos implements OnInit {
 
   cambiarEstado(estado: EstadoPedido | ''): void {
     this.estado.set(estado);
-    void this.router.navigate([], {
+    this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { estado: estado || null },
       replaceUrl: true,
+    }).catch(() => {
     });
   }
 }
