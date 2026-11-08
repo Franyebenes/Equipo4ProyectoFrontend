@@ -34,7 +34,7 @@
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
-      } @else if (!esCliente()) {
+      } @else if (!auth.usuario()) {
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('como-funciona')">Cómo funciona</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('seguridad')">Seguridad</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('ayuda')">Ayuda</button>
@@ -45,7 +45,7 @@
       @if (auth.usuario(); as usuario) {
         <span class="usuario" [attr.title]="usuario.email">
           <ng-container *ngTemplateOutlet="avatarUsuario" />
-          Hola, {{ usuario.nombre }}
+          <a class="enlace-perfil" routerLink="/perfil">Mi perfil</a>
         </span>
         <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
       } @else {
@@ -95,15 +95,15 @@
       }
       @if (esAdmin()) {
         <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
-      } @else if (!esCliente()) {
+      } @else if (!auth.usuario()) {
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('como-funciona')">Cómo funciona</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('seguridad')">Seguridad</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('ayuda')">Ayuda</button>
       }
-      @if (auth.usuario(); as usuario) {
+      @if (auth.usuario()) {
         <span class="usuario">
           <ng-container *ngTemplateOutlet="avatarUsuario" />
-          Hola, {{ usuario.nombre }}
+          <a class="enlace-perfil" routerLink="/perfil" (click)="cerrarMenu()">Mi perfil</a>
         </span>
         <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
       } @else {

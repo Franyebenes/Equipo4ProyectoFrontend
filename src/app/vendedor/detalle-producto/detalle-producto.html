@@ -18,9 +18,7 @@
           </div>
           <!-- El estado, el stock y la visibilidad se ven en los datos de la ficha: aquí solo las acciones -->
           <div class="cabecera-acciones">
-            <a [routerLink]="['/vendedor/productos', p.id, 'editar']" class="btn btn-crear">
-              Editar producto
-            </a>
+            <a [routerLink]="['/vendedor/productos', p.id, 'editar']" class="accion-icono accion-editar" title="Editar producto" aria-label="Editar producto"></a>
             <button type="button" class="btn btn-ghost" (click)="alternarEstado(p)" [disabled]="cambiandoEstado()">
               @if (cambiandoEstado()) {
                 Guardando…
@@ -30,7 +28,7 @@
                 Activar producto
               }
             </button>
-            <button type="button" class="btn btn-danger" (click)="pedirEliminacion()">Eliminar producto</button>
+            <button type="button" class="accion-icono accion-eliminar" (click)="pedirEliminacion()" title="Eliminar producto" aria-label="Eliminar producto"></button>
           </div>
         </header>
 

@@ -22,9 +22,9 @@
               <span class="numero">•••• •••• •••• {{ m.ultimosDigitos }}</span>
               <span class="detalle">{{ m.titular }} · Caduca {{ m.caducidad }}</span>
             </div>
-            <button type="button" class="eliminar" (click)="eliminar(m)" [disabled]="eliminando() === m.id">
-              {{ eliminando() === m.id ? 'Eliminando…' : 'Eliminar' }}
-            </button>
+            <button type="button" class="eliminar accion-icono accion-eliminar" (click)="eliminar(m)" [disabled]="eliminando() === m.id"
+                    [attr.title]="eliminando() === m.id ? 'Eliminando…' : 'Eliminar'"
+                    [attr.aria-label]="(eliminando() === m.id ? 'Eliminando' : 'Eliminar') + ' tarjeta terminada en ' + m.ultimosDigitos"></button>
           </li>
         }
       </ul>

@@ -129,7 +129,7 @@ dd.vacio {
   border-top: 1px solid var(--line);
 }
 
-.direcciones-cabecera {
+.seccion-cabecera {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -179,10 +179,47 @@ h2 {
   font-style: italic;
 }
 
-.acciones {
+.datos-cabecera {
+  margin-top: 1.4rem;
+}
+
+.datos-cabecera + .datos {
+  margin-top: 0;
+}
+
+.acciones-datos {
   display: flex;
   justify-content: flex-end;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
+}
+
+.btn-premium {
+  background: #ea580c;
+  color: white;
+  text-decoration: underline;
+}
+
+.btn-premium:hover {
+  background: #c2410c;
+}
+
+.acciones-direccion,
+.botones-cuenta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.acciones-direccion {
+  gap: 0.4rem;
+}
+
+.botones-cuenta {
+  gap: 0.75rem;
+}
+
+.baja-cuenta .error {
+  margin-bottom: 0.75rem;
 }
 
 .botones-confirmacion {
@@ -229,10 +266,6 @@ h2 {
   .cabecera {
     flex-direction: column;
     text-align: center;
-  }
-
-  .acciones .btn {
-    width: 100%;
   }
 }
 

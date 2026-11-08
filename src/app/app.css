@@ -66,6 +66,21 @@
   }
 }
 
+/* Separación entre «Mi perfil» y «Cerrar sesión» */
+.actions .usuario {
+  margin-right: 1rem;
+}
+
+.enlace-perfil {
+  color: inherit;
+  text-decoration: none;
+}
+
+.enlace-perfil:hover,
+.enlace-perfil:focus-visible {
+  color: var(--coral);
+}
+
 /* Avatar del usuario en la cabecera (imagen del catálogo o inicial) */
 .avatar-usuario {
   display: grid;

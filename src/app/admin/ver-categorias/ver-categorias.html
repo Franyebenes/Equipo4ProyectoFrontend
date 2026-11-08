@@ -55,8 +55,8 @@
                   <td class="col-descripcion">{{ c.descripcion }}</td>
                   <td class="col-acciones">
                     <div class="acciones">
-                      <a [routerLink]="['/admin/categorias', c.id, 'editar']" class="btn btn-ghost btn-sm">Editar</a>
-                      <button type="button" class="btn btn-danger btn-sm" (click)="pedirConfirmacion(c)">Eliminar</button>
+                      <a [routerLink]="['/admin/categorias', c.id, 'editar']" class="accion-icono accion-editar" title="Editar" [attr.aria-label]="'Editar ' + c.nombre"></a>
+                      <button type="button" class="accion-icono accion-eliminar" (click)="pedirConfirmacion(c)" title="Eliminar" [attr.aria-label]="'Eliminar ' + c.nombre"></button>
                     </div>
                   </td>
                 </tr>

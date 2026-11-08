@@ -32,8 +32,8 @@
               <button type="button" class="btn btn-peligro" (click)="eliminar(lista)">Sí, eliminar</button>
               <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(false)">Cancelar</button>
             } @else {
-              <button type="button" class="btn btn-ghost" (click)="empezarRenombrar(lista)">Renombrar</button>
-              <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(true)">Eliminar</button>
+              <button type="button" class="accion-icono accion-editar" (click)="empezarRenombrar(lista)" title="Renombrar" [attr.aria-label]="'Renombrar ' + lista.nombre"></button>
+              <button type="button" class="accion-icono accion-eliminar" (click)="confirmandoBorrado.set(true)" title="Eliminar" [attr.aria-label]="'Eliminar ' + lista.nombre"></button>
             }
           </div>
         }
