@@ -14,7 +14,7 @@
       </div>
       <form class="buscador" role="search" (ngSubmit)="buscar()">
         <input type="search" name="busqueda" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"
-               placeholder="Buscar productos por nombre" aria-label="Buscar productos por nombre"
+               placeholder="Buscar por producto o tienda" aria-label="Buscar por producto o tienda"
                maxlength="100" autocomplete="off">
         <button type="submit" class="btn-buscar">Buscar</button>
       </form>

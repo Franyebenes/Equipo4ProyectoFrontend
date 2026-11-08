@@ -19,6 +19,8 @@ const TAZA: ProductoCliente = {
   disponibilidad: 'POCO_STOCK',
   valoracionMedia: 4.25,
   numeroValoraciones: 12,
+
+  nombreTienda: 'Tienda Ana',
 };
 const RELOJ: ProductoCliente = {
   ...TAZA,
@@ -31,6 +33,8 @@ const RELOJ: ProductoCliente = {
   disponibilidad: 'AGOTADO',
   valoracionMedia: null,
   numeroValoraciones: 0,
+
+  nombreTienda: 'Tienda Ana',
 };
 
 function pagina(contenido: ProductoCliente[], numero = 0, totalPaginas = 1): Pagina<ProductoCliente> {
