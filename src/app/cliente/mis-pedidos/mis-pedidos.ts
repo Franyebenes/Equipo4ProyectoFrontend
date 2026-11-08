@@ -19,7 +19,8 @@ import { VentanaSeguimiento } from '../seguimiento-pedido/seguimiento-pedido';
 
 // HU-27 Historial de compras (solo lectura), HU-28 Cancelar pedido y HU-30 Confirmar recepción y valorar producto.
 // Siempre se lee del backend, así que muestra el estado actual de cada pedido.
-// Estado del envío: desde cada pedido se abre la ventana con su seguimiento.
+// Estado del envío: desde cada pedido en proceso se abre la ventana con su seguimiento (los históricos ya han
+// terminado, así que no lo necesitan).
 @Component({
   selector: 'app-mis-pedidos',
   imports: [RouterLink, NgTemplateOutlet, DialogoConfirmacion, VentanaSeguimiento],
