@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { mensajeError } from '../admin.service';
 import { Categoria, CategoriaService, validarCategoria } from '../categoria.service';
 
 @Component({
   selector: 'app-crear-categoria',
-  imports: [FormsModule, RouterLink, RouterLinkActive],
+  imports: [FormsModule, RouterLink],
   templateUrl: './crear-categoria.html',
   styleUrls: ['../admin-shared.css', './crear-categoria.css'],
 })

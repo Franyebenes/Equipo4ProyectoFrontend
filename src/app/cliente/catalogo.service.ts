@@ -22,6 +22,8 @@ export interface ProductoCliente {
   // Media de estrellas (de 1 a 5) o null si todavía no tiene valoraciones
   valoracionMedia: number | null;
   numeroValoraciones: number;
+  // Nombre comercial del vendedor; null si no se conoce
+  nombreTienda: string | null;
 }
 
 // HU-19 y HU-20: búsqueda y filtros del catálogo. Todos opcionales y combinables; vacíos, todo el catálogo.

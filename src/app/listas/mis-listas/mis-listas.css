@@ -16,6 +16,19 @@
   color: var(--ink);
 }
 
+.btn-nueva-lista {
+  padding: 1.0rem 1.0em;
+  font-size: 1.0rem;
+}
+
+/* «Colección» sobre el título de la lista Favoritos: más grande que su h1 (2rem) */
+.eyebrow.titulo-coleccion {
+  font-size: 2.75rem;
+  letter-spacing: normal;
+  line-height: 1.1;
+  text-transform: none;
+}
+
 .btn:disabled {
   opacity: 0.5;
   cursor: default;
@@ -137,6 +150,35 @@
 .cuenta {
   color: var(--muted);
   font-size: 0.85rem;
+}
+
+/* ✕ para eliminar la colección, arriba a la derecha de su portada */
+.tarjeta-coleccion {
+  position: relative;
+}
+
+.eliminar-coleccion {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 2px 10px rgb(25 26 23 / 18%);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.eliminar-coleccion:hover {
+  color: var(--coral);
 }
 
 /* Tarjeta para escribir el nombre de la nueva colección */

@@ -1,12 +1,5 @@
 <section class="admin-page">
   <div class="bar">
-    <nav class="admin-tabs" aria-label="Administración">
-      <a routerLink="/admin/usuarios" routerLinkActive="is-active">Usuarios</a>
-      <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active">Dar de alta administrador</a>
-      <a routerLink="/admin/categorias" routerLinkActive="is-active">Categorías</a>
-      <a routerLink="/admin/productos" routerLinkActive="is-active">Productos</a>
-    </nav>
-
     <header class="page-head">
       <div>
         <p class="eyebrow">Panel de administración</p>
@@ -105,11 +98,13 @@
                             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
                           </button>
                         }
-                        @if (u.roles.includes('ADMIN')) {
-                          <button type="button" class="btn-icono btn-icono-peligro" (click)="eliminar(u)" title="Eliminar" aria-label="Eliminar">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>
-                          </button>
-                        }
+                        <!-- Solo se puede eliminar a otros administradores: en clientes y vendedores el botón sale bloqueado -->
+                        @let eliminable = u.roles.includes('ADMIN');
+                        <button type="button" class="btn-icono btn-icono-peligro" (click)="eliminar(u)" [disabled]="!eliminable"
+                                [attr.title]="eliminable ? 'Eliminar' : 'Solo se puede eliminar a administradores'"
+                                [attr.aria-label]="eliminable ? 'Eliminar' : 'Eliminar no disponible: solo se puede eliminar a administradores'">
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>
+                        </button>
                       }
                     </div>
                   </td>

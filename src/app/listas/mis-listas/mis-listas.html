@@ -19,7 +19,7 @@
         </form>
       } @else {
         <div>
-          <p class="eyebrow">{{ lista.porDefecto ? 'Lista por defecto' : 'Colección' }}</p>
+          <p class="eyebrow" [class.titulo-coleccion]="lista.porDefecto">Colección</p>
           <h1>{{ lista.nombre }}</h1>
           <p class="sub">{{ lista.productos.length }} {{ lista.productos.length === 1 ? 'producto' : 'productos' }}</p>
         </div>
@@ -32,8 +32,8 @@
               <button type="button" class="btn btn-peligro" (click)="eliminar(lista)">Sí, eliminar</button>
               <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(false)">Cancelar</button>
             } @else {
-              <button type="button" class="btn btn-ghost" (click)="empezarRenombrar(lista)">Renombrar</button>
-              <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(true)">Eliminar</button>
+              <button type="button" class="accion-icono accion-editar" (click)="empezarRenombrar(lista)" title="Renombrar" [attr.aria-label]="'Renombrar ' + lista.nombre"></button>
+              <button type="button" class="accion-icono accion-eliminar" (click)="confirmandoBorrado.set(true)" title="Eliminar" [attr.aria-label]="'Eliminar ' + lista.nombre"></button>
             }
           </div>
         }
@@ -78,12 +78,12 @@
     <!-- Cuadrícula de colecciones -->
     <header class="cabecera">
       <div>
-        <p class="eyebrow">Guardado</p>
+        <p class="eyebrow">Colecciones</p>
         <h1>Mis listas</h1>
         <p class="sub">Solo tú puedes ver lo que has guardado.</p>
       </div>
       @if (!creando()) {
-        <button type="button" class="btn btn-coral btn-lg" (click)="creando.set(true)">+ Nueva lista</button>
+        <button type="button" class="btn btn-coral btn-lg btn-nueva-lista" (click)="creando.set(true)">+ Nueva lista</button>
       }
     </header>
 
@@ -96,7 +96,7 @@
     } @else {
       <ul class="colecciones">
         @for (lista of listas(); track lista.id) {
-          <li>
+          <li class="tarjeta-coleccion">
             <a [routerLink]="['/listas', lista.id]" class="coleccion">
               <span class="mosaico" [class.vacia]="lista.portadas.length === 0">
                 @if (lista.portadas.length === 0) {
@@ -119,6 +119,11 @@
                 {{ lista.idProductos.length }} {{ lista.idProductos.length === 1 ? 'producto' : 'productos' }}
               </span>
             </a>
+            <!-- Favoritos es la lista por defecto y no se puede eliminar -->
+            @if (!lista.porDefecto) {
+              <button type="button" class="eliminar-coleccion" (click)="listaAEliminar.set(lista)"
+                      [attr.aria-label]="'Eliminar ' + lista.nombre" title="Eliminar lista">✕</button>
+            }
           </li>
         }
 
@@ -144,5 +149,17 @@
         }
       </ul>
     }
+  }
+
+  @if (listaAEliminar(); as lista) {
+    <app-dialogo-confirmacion
+      titulo="Eliminar lista"
+      [mensaje]="'¿Estas seguro de que quieres eleminar la lista «' + lista.nombre + '»?'"
+      textoConfirmar="Sí, eliminar"
+      textoProcesando="Eliminando…"
+      [procesando]="eliminando()"
+      (confirmar)="confirmarEliminarLista(lista)"
+      (cancelar)="listaAEliminar.set(null)"
+    />
   }
 </main>

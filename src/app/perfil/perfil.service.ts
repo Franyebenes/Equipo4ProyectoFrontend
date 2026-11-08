@@ -65,6 +65,11 @@ export class PerfilService {
     return this.http.post<RespuestaPremium>(`${this.api}/api/cliente/suscripcion/premium`, { idMetodoPago });
   }
 
+  /** Elimina la cuenta del usuario de la sesión. Un 409 trae el motivo (p. ej. un vendedor con pedidos en curso). */
+  darseDeBaja(): Observable<void> {
+    return this.http.delete<void>(`${this.api}/api/perfil`);
+  }
+
   dejarPremium(): Observable<RespuestaBajaPremium> {
     return this.http.delete<RespuestaBajaPremium>(`${this.api}/api/cliente/suscripcion/premium`);
   }

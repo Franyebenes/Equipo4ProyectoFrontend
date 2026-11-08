@@ -18,6 +18,10 @@
         </div>
       </header>
 
+      <div class="seccion-cabecera datos-cabecera">
+        <h2>Mis datos</h2>
+      </div>
+
       <dl class="datos">
         <div class="dato">
           <dt>Correo</dt>
@@ -51,11 +55,20 @@
         }
       </dl>
 
+      <div class="acciones-datos">
+        <a routerLink="/perfil/editar" class="btn btn-coral btn-lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+          </svg>
+          Editar perfil
+        </a>
+      </div>
+
       @if (esCliente()) {
         <section class="direcciones" aria-labelledby="titulo-direcciones">
-          <div class="direcciones-cabecera">
+          <div class="seccion-cabecera">
             <h2 id="titulo-direcciones">Mis direcciones</h2>
-            <a routerLink="/direcciones/nueva" [queryParams]="{ volver: 'perfil' }" class="btn btn-ghost">Añadir dirección</a>
           </div>
 
           @if (errorDirecciones()) {
@@ -86,7 +99,10 @@
                       <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(null)">Cancelar</button>
                     </div>
                   } @else {
-                    <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(d.id)">Eliminar</button>
+                    <div class="acciones-direccion">
+                      <a [routerLink]="['/direcciones', d.id, 'editar']" [queryParams]="{ volver: 'perfil' }" class="accion-icono accion-editar" title="Editar" [attr.aria-label]="'Editar la dirección de ' + d.destinatario"></a>
+                      <button type="button" class="accion-icono accion-eliminar" (click)="confirmandoBorrado.set(d.id)" title="Eliminar" [attr.aria-label]="'Eliminar la dirección de ' + d.destinatario"></button>
+                    </div>
                   }
                 </li>
               } @empty {
@@ -94,25 +110,23 @@
               }
             </ul>
           }
+
+          <div class="acciones-datos">
+            <a routerLink="/direcciones/nueva" [queryParams]="{ volver: 'perfil' }" class="btn btn-coral btn-lg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <path d="M12 5v14" />
+                <path d="M5 12h14" />
+              </svg>
+              Añadir dirección
+            </a>
+          </div>
         </section>
+
+        <app-metodos-pago />
       }
 
-      <div class="acciones">
-        <a routerLink="/perfil/editar" class="btn btn-coral btn-lg">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-          </svg>
-          Editar perfil
-        </a>
-      </div>
-      
       @if (mensajeExito()) {
         <output class="exito">{{ mensajeExito() }}</output>
-      }
-
-      @if (p.rol === 'CLIENTE') {
-        <a routerLink="/perfil/premium" class="btn">Hacerme Premium</a>
       }
 
       @if (p.rol === 'PREMIUM' && !confirmandoBaja()) {
@@ -129,6 +143,37 @@
         </div>
       }
 
+      @if (p.rol !== 'ADMIN') {
+        <div class="baja-cuenta">
+          @if (errorBajaCuenta()) {
+            <p class="error" role="alert">{{ errorBajaCuenta() }}</p>
+          }
+          <div class="botones-cuenta">
+            @if (p.rol === 'CLIENTE') {
+              <a routerLink="/perfil/premium" class="btn btn-premium">Hacerme Premium</a>
+            }
+            <button type="button" class="btn btn-ghost" (click)="confirmandoBajaCuenta.set(true)">Darme de baja</button>
+          </div>
+        </div>
+      }
+
+      @if (confirmandoBajaCuenta()) {
+        <app-dialogo-confirmacion
+          titulo="¿Seguro que quieres darte de baja?"
+          [mensaje]="mensajeBajaCuenta()"
+          textoConfirmar="Sí, darme de baja"
+          textoProcesando="Eliminando cuenta…"
+          [procesando]="procesandoBajaCuenta()"
+          (confirmar)="confirmarBajaCuenta()"
+          (cancelar)="confirmandoBajaCuenta.set(false)"
+        />
+      }
+
+    } @else if (cuentaEliminada()) {
+      <p class="ceja">Cuenta eliminada</p>
+      <h1 id="titulo-perfil">Te has dado de baja</h1>
+      <p>Tu cuenta se ha eliminado correctamente.</p>
+      <a routerLink="/" class="btn">Ir a la portada</a>
     } @else if (!error()) {
       <p class="cargando">Cargando tu perfil…</p>
     }

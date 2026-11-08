@@ -18,8 +18,11 @@ import {
 import { VentanaSeguimiento } from '../seguimiento-pedido/seguimiento-pedido';
 
 // HU-27 Historial de compras (solo lectura), HU-28 Cancelar pedido y HU-30 Confirmar recepción y valorar producto.
-// Siempre se lee del backend, así que muestra el estado actual de cada pedido.
-// Estado del envío: desde cada pedido se abre la ventana con su seguimiento.
+// Siempre se lee del backend, así que muestra el estado actual de cada pedido. Tras cancelar, confirmar o valorar, los
+// botones de ese pedido siguen desactivados hasta que llega la lista nueva, para no actuar sobre un estado antiguo.
+// Cancelar y confirmar la recepción no tienen vuelta atrás, así que los dos piden confirmación antes.
+// Estado del envío: desde cada pedido en proceso se abre la ventana con su seguimiento (los históricos ya han
+// terminado, así que no lo necesitan).
 @Component({
   selector: 'app-mis-pedidos',
   imports: [RouterLink, NgTemplateOutlet, DialogoConfirmacion, VentanaSeguimiento],
@@ -41,11 +44,14 @@ export class MisPedidos implements OnInit {
   readonly exito = signal('');
   // Error al cancelar, confirmar la recepción o valorar: se muestra sin ocultar las listas
   readonly errorAccion = signal('');
-  // Pedido sobre el que hay una petición en curso (desactiva sus botones mientras tanto)
+  // Pedido sobre el que hay una petición en curso o cuya lista se está recargando (desactiva sus botones)
   readonly ocupado = signal<string | null>(null);
   // Pedido pendiente de confirmar su cancelación (abre el diálogo)
   readonly pedidoACancelar = signal<Pedido | null>(null);
   readonly cancelando = signal(false);
+  // HU-30: pedido pendiente de confirmar que se ha recibido (abre el diálogo)
+  readonly pedidoARecibir = signal<Pedido | null>(null);
+  readonly confirmandoRecepcion = signal(false);
   // Estado del envío: pedido cuyo seguimiento se está viendo (abre la ventana)
   readonly pedidoEnSeguimiento = signal<string | null>(null);
 
@@ -69,18 +75,26 @@ export class MisPedidos implements OnInit {
     this.pedidoEnSeguimiento.set(null);
   }
 
-  cargar(): void {
+  // alTerminar se llama cuando ya ha llegado la lista (o el error), por ejemplo para volver a activar los botones
+  cargar(alTerminar?: () => void): void {
     this.error.set('');
     this.pedidoService.historial().subscribe({
       next: (historial) => {
         this.historial.set(historial);
         this.cargando.set(false);
+        alTerminar?.();
       },
       error: (e: HttpErrorResponse) => {
         this.cargando.set(false);
         this.error.set(mensajeErrorPedidos(e));
+        alTerminar?.();
       },
     });
+  }
+
+  // Recarga la lista y no libera los botones del pedido hasta que llega
+  private recargarYLiberar(): void {
+    this.cargar(() => this.ocupado.set(null));
   }
 
   // HU-28: primero se pide confirmación; si se cancela el diálogo, el pedido no cambia
@@ -102,37 +116,56 @@ export class MisPedidos implements OnInit {
       return;
     }
     this.cancelando.set(true);
+    this.ocupado.set(pedido.id);
     this.pedidoService.cancelar(pedido.id).subscribe({
       next: () => {
         this.cancelando.set(false);
         this.pedidoACancelar.set(null);
         this.exito.set('Pedido cancelado. Las unidades vuelven a estar disponibles.');
-        this.cargar();
+        this.recargarYLiberar();
       },
       error: (e: HttpErrorResponse) => {
         this.cancelando.set(false);
         this.pedidoACancelar.set(null);
         this.errorAccion.set(mensajeErrorPedidos(e));
-        this.cargar();
+        this.recargarYLiberar();
       },
     });
   }
 
-  // HU-30: el pedido pasa a Finalizado y desde entonces se pueden valorar sus productos
-  confirmarRecepcion(pedido: Pedido): void {
+  // HU-30: primero se pide confirmación, porque después el pedido queda finalizado y no se puede deshacer
+  pedirConfirmacionRecepcion(pedido: Pedido): void {
     this.exito.set('');
     this.errorAccion.set('');
+    this.pedidoARecibir.set(pedido);
+  }
+
+  cerrarConfirmacionRecepcion(): void {
+    if (!this.confirmandoRecepcion()) {
+      this.pedidoARecibir.set(null);
+    }
+  }
+
+  // HU-30: el pedido pasa a Finalizado y desde entonces se pueden valorar sus productos
+  confirmarRecepcion(): void {
+    const pedido = this.pedidoARecibir();
+    if (!pedido) {
+      return;
+    }
+    this.confirmandoRecepcion.set(true);
     this.ocupado.set(pedido.id);
     this.pedidoService.confirmarRecepcion(pedido.id).subscribe({
       next: () => {
-        this.ocupado.set(null);
+        this.confirmandoRecepcion.set(false);
+        this.pedidoARecibir.set(null);
         this.exito.set('Gracias por confirmar la recepción. Ya puedes valorar los productos de este pedido.');
-        this.cargar();
+        this.recargarYLiberar();
       },
       error: (e: HttpErrorResponse) => {
-        this.ocupado.set(null);
+        this.confirmandoRecepcion.set(false);
+        this.pedidoARecibir.set(null);
         this.errorAccion.set(mensajeErrorPedidos(e));
-        this.cargar();
+        this.recargarYLiberar();
       },
     });
   }
@@ -144,14 +177,12 @@ export class MisPedidos implements OnInit {
     this.ocupado.set(pedido.id);
     this.pedidoService.valorar(pedido.id, linea.idProducto, puntos).subscribe({
       next: () => {
-        this.ocupado.set(null);
         this.exito.set(`Gracias por valorar «${linea.nombre}».`);
-        this.cargar();
+        this.recargarYLiberar();
       },
       error: (e: HttpErrorResponse) => {
-        this.ocupado.set(null);
         this.errorAccion.set(mensajeErrorPedidos(e));
-        this.cargar();
+        this.recargarYLiberar();
       },
     });
   }
@@ -168,6 +199,13 @@ export class MisPedidos implements OnInit {
     return (
       `¿Seguro que quieres cancelar el pedido del ${this.fecha(pedido)} ` +
       `por ${formatearPrecio(pedido.precioTotal)}? Las unidades volverán al stock y esta acción no se puede deshacer.`
+    );
+  }
+
+  mensajeConfirmarRecepcion(pedido: Pedido): string {
+    return (
+      `¿Confirmas que ya tienes el pedido del ${this.fecha(pedido)} por ${formatearPrecio(pedido.precioTotal)}? ` +
+      'Pasará a «Finalizado» y podrás valorar sus productos. Esta acción no se puede deshacer.'
     );
   }
 }

@@ -79,9 +79,7 @@
               </div>
               <p class="muted ayuda-estado">El envío solo avanza: no se puede volver a un estado anterior.</p>
             } @else {
-              <p class="muted sin-cambios">
-                Este pedido ya está {{ etiquetaEstado(p.estado).toLowerCase() }}: su estado no se puede cambiar.
-              </p>
+              <p class="muted sin-cambios">{{ textoSinMasCambios(p.estado) }}</p>
             }
             @if (exitoEstado()) {
               <div class="aviso aviso-ok" role="status">{{ exitoEstado() }}</div>

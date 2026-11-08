@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 
+import { DialogoConfirmacion } from '../../admin/dialogo-confirmacion/dialogo-confirmacion';
 import { MetodoPago, MetodoPagoService } from '../metodo-pago.service';
 
 // La tarjeta vale hasta el final del mes indicado: "10/26" vale todo octubre de 2026
@@ -19,7 +20,7 @@ function tarjetaNoCaducada(control: AbstractControl): ValidationErrors | null {
 // HU-24.1 Ver, HU-24.2 Añadir y HU-24.3 Eliminar métodos de pago
 @Component({
   selector: 'app-metodos-pago',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DialogoConfirmacion],
   templateUrl: './metodos-pago.html',
   styleUrl: './metodos-pago.css',
 })
@@ -34,6 +35,7 @@ export class MetodosPago implements OnInit {
   readonly mostrarFormulario = signal(false);
   readonly enviando = signal(false);
   readonly eliminando = signal<string | null>(null);
+  readonly metodoAEliminar = signal<MetodoPago | null>(null);
 
   readonly formulario = this.fb.nonNullable.group({
     titular: ['', [Validators.required, Validators.maxLength(100)]],
@@ -94,21 +96,20 @@ export class MetodosPago implements OnInit {
     });
   }
 
-  eliminar(metodo: MetodoPago): void {
-    if (!confirm(`¿Eliminar la tarjeta acabada en ${metodo.ultimosDigitos}?`)) {
-      return;
-    }
+  confirmarEliminar(metodo: MetodoPago): void {
     this.eliminando.set(metodo.id);
     this.error.set(null);
     this.aviso.set(null);
     this.servicio.eliminar(metodo.id).subscribe({
       next: () => {
         this.metodos.update((lista) => lista.filter((m) => m.id !== metodo.id));
+        this.metodoAEliminar.set(null);
         this.eliminando.set(null);
         this.aviso.set(`Tarjeta acabada en ${metodo.ultimosDigitos} eliminada.`);
       },
       error: (e) => {
         this.mostrarError(e);
+        this.metodoAEliminar.set(null);
         this.eliminando.set(null);
       },
     });

@@ -1,0 +1,189 @@
+/* Mismo aspecto que la ficha que ven los clientes (cliente/ficha-producto) */
+.volver {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.volver:hover {
+  color: var(--ink);
+}
+
+.estado-carga,
+.tenue {
+  color: var(--muted);
+}
+
+.ficha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 2.5rem;
+  padding: 2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 800px) {
+  .ficha {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.25rem;
+  }
+}
+
+.foto {
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--cream);
+}
+
+.foto img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.foto img.sin-imagen {
+  object-fit: contain;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.categorias {
+  margin: 0;
+  color: var(--coral);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+h2 {
+  margin: 0.75rem 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.resumen-valoraciones {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.estrellas {
+  color: var(--line);
+  letter-spacing: 0.05em;
+}
+
+.estrellas .llena {
+  color: #e0a800;
+}
+
+.precio {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 1.9rem;
+}
+
+.precio-original {
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.descuentos {
+  margin: -0.4rem 0 0;
+  padding: 0;
+  color: var(--coral);
+  font-size: 0.9rem;
+  font-weight: 700;
+  list-style: none;
+}
+
+.etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.estado {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.estado.activo {
+  background: #e7f4eb;
+  color: #286541;
+  box-shadow: inset 0 0 0 1px #b9dfc8;
+}
+
+.estado.premium {
+  background: var(--note);
+  color: #7a5a12;
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+dt {
+  margin-bottom: 0.2rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+dd {
+  margin: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+dd.agotado {
+  color: #b42318;
+}
+
+.descripcion {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+section p {
+  margin: 0;
+}

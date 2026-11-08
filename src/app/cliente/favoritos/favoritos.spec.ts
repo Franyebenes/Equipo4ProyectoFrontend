@@ -19,6 +19,8 @@ const producto = (id: string, nombre: string): ProductoCliente => ({
   disponibilidad: 'DISPONIBLE',
   valoracionMedia: null,
   numeroValoraciones: 0,
+
+  nombreTienda: 'Tienda Ana',
 });
 
 describe('Favoritos (HU-31.1 Ver lista de favoritos)', () => {

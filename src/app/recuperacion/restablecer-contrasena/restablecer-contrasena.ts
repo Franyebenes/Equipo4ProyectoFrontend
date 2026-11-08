@@ -67,7 +67,7 @@ export class RestablecerContrasena {
     this.error.set(null);
     this.erroresDelServidor.set([]);
     // El token sale de la barra de direcciones y del historial; se queda el resto de la URL.
-    void this.router.navigate([], { relativeTo: this.ruta, fragment: undefined, replaceUrl: true });
+    this.router.navigate([], { relativeTo: this.ruta, fragment: undefined, replaceUrl: true }).catch(()=> {});
   }
 
   // Mensajes de los errores del campo. Vacío mientras no haya que mostrarlos (campo sin tocar).

@@ -7,6 +7,9 @@
   </div>
   <div class="info">
     <h2 class="nombre">{{ p.nombre }}</h2>
+    @if (p.nombreTienda) {
+      <p class="tienda">{{ p.nombreTienda }}</p>
+    }
     @if (p.categorias.length > 0) {
       <p class="categorias">{{ p.categorias.join(' · ') }}</p>
     }

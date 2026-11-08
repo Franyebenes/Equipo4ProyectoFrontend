@@ -87,6 +87,23 @@ export function mensajeConfirmarCambioEstado(
   );
 }
 
+// Lo que ve el vendedor cuando el envío ya no puede avanzar: quién lo ha cerrado y si falta algo
+export function textoSinMasCambios(estado: EstadoPedido): string {
+  switch (estado) {
+    case 'ENTREGADO':
+      return (
+        'Este pedido ya está entregado: su estado no se puede cambiar. ' +
+        'Falta que el cliente confirme que lo ha recibido.'
+      );
+    case 'FINALIZADO':
+      return 'El cliente ha confirmado que lo ha recibido: el pedido está finalizado y ya no se puede cambiar.';
+    case 'CANCELADO':
+      return 'Este pedido ya está cancelado: el cliente lo canceló antes de que se enviara.';
+    default:
+      return `Este pedido ya está ${etiquetaEstadoPedido(estado).toLowerCase()}: su estado no se puede cambiar.`;
+  }
+}
+
 export function mensajeEstadoActualizado(estado: EstadoPedido): string {
   return `Estado actualizado: el pedido está ahora «${etiquetaEstadoPedido(estado)}».`;
 }

@@ -155,7 +155,14 @@ export class AuthService {
   // La sesión ha caducado o ya no es válida (un 401 en una petición normal): se limpia y se va al login.
   sesionCaducada(): void {
     this.descartarSesion();
-    void this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/login').catch(() => {
+      // La sesión ya se ha descartado; si la redirección falla no hay nada más que hacer.
+    });
+  }
+
+  // El usuario se ha dado de baja: el servidor ya ha cerrado la sesión. La pantalla de baja se encarga de avisarle.
+  cuentaEliminada(): void {
+    this.descartarSesion();
   }
 
   private descartarSesion(): void {

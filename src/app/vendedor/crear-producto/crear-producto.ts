@@ -186,8 +186,9 @@ export class CrearProducto implements OnInit {
     this.productoService.crear(datos).subscribe({
       // Vuelve al listado sin filtros (para que se vea el producto nuevo) y con un mensaje
       next: (producto) =>
-        void this.router.navigate(['/vendedor/productos'], {
+        this.router.navigate(['/vendedor/productos'], {
           state: { exito: mensajeProductoCreado(producto) },
+        }).catch(() => {
         }),
       error: (e: HttpErrorResponse) => this.mostrarErrorAlGuardar(e),
     });
@@ -197,8 +198,9 @@ export class CrearProducto implements OnInit {
   private guardarCambios(id: string, datos: ProductoAlta): void {
     this.productoService.modificar(id, datos, this.stockAnterior).subscribe({
       next: (producto) =>
-        void this.router.navigate(['/vendedor/productos', id], {
+        this.router.navigate(['/vendedor/productos', id], {
           state: { exito: mensajeProductoModificado(producto) },
+        }).catch(() => {
         }),
       error: (e: HttpErrorResponse) => {
         this.mostrarErrorAlGuardar(e);

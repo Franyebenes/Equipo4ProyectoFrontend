@@ -86,18 +86,22 @@ tbody tr + tr td {
   margin-left: 0.5rem;
 }
 
-/* Botones de cada fila (Activar/Desactivar, Ver detalle, Editar y Eliminar) */
+/* Botones de cada fila (Activar/Desactivar, Editar y Eliminar) */
 .acciones {
   display: flex;
   justify-content: flex-end;
   gap: 0.4rem;
 }
 
-/* Todos con el mismo ancho, para que queden alineados de una fila a otra aunque el texto cambie
-   (Activar, Desactivar o Guardando…) */
-.acciones .btn {
-  min-width: 6.25rem;
-  padding-inline: 0.5rem;
+/* El nombre del producto lleva a su detalle */
+.enlace-detalle {
+  color: var(--coral);
+  text-decoration: none;
+}
+
+.enlace-detalle:hover,
+.enlace-detalle:focus-visible {
+  text-decoration: underline;
 }
 
 /* Las filas se alinean por la primera línea del texto */

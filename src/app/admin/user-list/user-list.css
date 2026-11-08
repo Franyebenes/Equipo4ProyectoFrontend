@@ -31,7 +31,8 @@ td {
 }
 
 th {
-  color: var(--muted, #6b6e67);
+  background: #ffe4c7;
+  color: var(--ink);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -176,4 +177,11 @@ th.derecha {
 
 .btn-icono-peligro:hover {
   background: #fdecea;
+}
+
+.btn-icono:disabled,
+.btn-icono:disabled:hover {
+  background: white;
+  opacity: 0.4;
+  cursor: not-allowed;
 }

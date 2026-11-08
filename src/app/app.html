@@ -18,7 +18,6 @@
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page">Catálogo</a>
         <a routerLink="/favoritos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Favoritos</a>
         <a routerLink="/listas" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mis listas</a>
-        <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page">Métodos de pago</a>
       }
       <!-- El carrito, siempre la última opción del cliente -->
       @if (esCliente()) {
@@ -33,8 +32,11 @@
         <a routerLink="/pedidos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Mis pedidos</a>
       }
       @if (esAdmin()) {
-        <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Administración</a>
-      } @else if (!esCliente()) {
+        <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page">Usuarios</a>
+        <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active" ariaCurrentWhenActive="page">Dar de alta administrador</a>
+        <a routerLink="/admin/categorias" routerLinkActive="is-active" ariaCurrentWhenActive="page">Categorías</a>
+        <a routerLink="/admin/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page">Productos</a>
+      } @else if (!auth.usuario()) {
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('como-funciona')">Cómo funciona</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('seguridad')">Seguridad</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('ayuda')">Ayuda</button>
@@ -45,7 +47,7 @@
       @if (auth.usuario(); as usuario) {
         <span class="usuario" [attr.title]="usuario.email">
           <ng-container *ngTemplateOutlet="avatarUsuario" />
-          Hola, {{ usuario.nombre }}
+          <a class="enlace-perfil" routerLink="/perfil">Mi perfil</a>
         </span>
         <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
       } @else {
@@ -80,7 +82,6 @@
         <a routerLink="/cliente" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Catálogo</a>
         <a routerLink="/favoritos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Favoritos</a>
         <a routerLink="/listas" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mis listas</a>
-        <a routerLink="/metodos-pago" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Métodos de pago</a>
       }
       @if (esCliente()) {
         <a routerLink="/carrito" routerLinkActive="is-active" ariaCurrentWhenActive="page" class="enlace-carrito" (click)="cerrarMenu()">
@@ -94,16 +95,19 @@
         <a routerLink="/pedidos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Mis pedidos</a>
       }
       @if (esAdmin()) {
-        <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Administración</a>
-      } @else if (!esCliente()) {
+        <a routerLink="/admin/usuarios" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Usuarios</a>
+        <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Dar de alta administrador</a>
+        <a routerLink="/admin/categorias" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Categorías</a>
+        <a routerLink="/admin/productos" routerLinkActive="is-active" ariaCurrentWhenActive="page" (click)="cerrarMenu()">Productos</a>
+      } @else if (!auth.usuario()) {
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('como-funciona')">Cómo funciona</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('seguridad')">Seguridad</button>
           <button type="button" aria-haspopup="dialog" (click)="abrirVentana('ayuda')">Ayuda</button>
       }
-      @if (auth.usuario(); as usuario) {
+      @if (auth.usuario()) {
         <span class="usuario">
           <ng-container *ngTemplateOutlet="avatarUsuario" />
-          Hola, {{ usuario.nombre }}
+          <a class="enlace-perfil" routerLink="/perfil" (click)="cerrarMenu()">Mi perfil</a>
         </span>
         <button type="button" class="btn btn-ghost" (click)="cerrarSesion()">Cerrar sesión</button>
       } @else {

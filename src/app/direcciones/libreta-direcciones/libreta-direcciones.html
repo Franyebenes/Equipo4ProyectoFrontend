@@ -37,11 +37,11 @@
               </div>
             } @else {
               <div class="botones">
-                <a [routerLink]="['/direcciones', d.id, 'editar']" class="btn btn-ghost">Editar</a>
+                <a [routerLink]="['/direcciones', d.id, 'editar']" class="accion-icono accion-editar" title="Editar" [attr.aria-label]="'Editar la dirección de ' + d.destinatario"></a>
                 @if (!d.predeterminada) {
                   <button type="button" class="btn btn-ghost" (click)="hacerPredeterminada(d)">Usar como predeterminada</button>
                 }
-                <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(d.id)">Eliminar</button>
+                <button type="button" class="accion-icono accion-eliminar" (click)="confirmandoBorrado.set(d.id)" title="Eliminar" [attr.aria-label]="'Eliminar la dirección de ' + d.destinatario"></button>
               </div>
             }
           </li>

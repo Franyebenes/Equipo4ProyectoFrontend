@@ -53,8 +53,9 @@
 
               <span class="subtotal">{{ precio(l.subtotal) }}</span>
 
-              <button type="button" class="eliminar" (click)="eliminar(l)"
-                      [disabled]="ocupado() === l.idProducto">Eliminar</button>
+              <button type="button" class="eliminar accion-icono accion-eliminar" (click)="eliminar(l)"
+                      [disabled]="ocupado() === l.idProducto" title="Eliminar"
+                      [attr.aria-label]="'Eliminar ' + l.nombre"></button>
             </li>
           }
         </ul>

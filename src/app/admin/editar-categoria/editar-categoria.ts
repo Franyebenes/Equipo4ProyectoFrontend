@@ -1,13 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { mensajeError } from '../admin.service';
 import { Categoria, CategoriaService, validarCategoria } from '../categoria.service';
 
 @Component({
   selector: 'app-editar-categoria',
-  imports: [FormsModule, RouterLink, RouterLinkActive],
+  imports: [FormsModule, RouterLink],
   templateUrl: './editar-categoria.html',
   // Mismo formulario que Crear categoría: se reutilizan sus estilos para que las dos pantallas se vean iguales
   styleUrls: ['../admin-shared.css', '../crear-categoria/crear-categoria.css', './editar-categoria.css'],

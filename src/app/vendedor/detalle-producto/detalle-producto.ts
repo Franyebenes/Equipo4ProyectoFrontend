@@ -34,9 +34,9 @@ import {
   styleUrls: ['../../admin/admin-shared.css', '../vendedor-shared.css', './detalle-producto.css'],
 })
 export class DetalleProducto implements OnInit {
-  private productoService = inject(ProductoService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  readonly productoService = inject(ProductoService);
+  readonly route = inject(ActivatedRoute);
+  readonly router = inject(Router);
 
   readonly formatearPrecio = formatearPrecio;
   readonly formatearPrecioConDescuento = formatearPrecioConDescuento;
@@ -133,10 +133,10 @@ export class DetalleProducto implements OnInit {
       next: () => {
         this.eliminando.set(false);
         this.confirmandoEliminacion.set(false);
-        void this.router.navigate(['/vendedor/productos'], {
+        this.router.navigate(['/vendedor/productos'], {
           queryParams: this.filtrosCatalogo(),
           state: { exito: mensajeProductoEliminado(producto) },
-        });
+        }).catch(() => {        });
       },
       error: (e: HttpErrorResponse) => {
         this.eliminando.set(false);
