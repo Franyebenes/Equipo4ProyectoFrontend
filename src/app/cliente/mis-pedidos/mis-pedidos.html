@@ -27,7 +27,7 @@
         <p class="sin-pedidos">No tienes pedidos en curso.</p>
       }
       @for (p of h.enProceso; track p.id) {
-        <ng-container *ngTemplateOutlet="tarjetaPedido; context: { $implicit: p }" />
+        <ng-container *ngTemplateOutlet="tarjetaPedido; context: { $implicit: p, enProceso: true }" />
       }
 
       <h2>Históricos</h2>
@@ -35,13 +35,14 @@
         <p class="sin-pedidos">Aquí aparecerán tus pedidos finalizados y cancelados.</p>
       }
       @for (p of h.historicos; track p.id) {
-        <ng-container *ngTemplateOutlet="tarjetaPedido; context: { $implicit: p }" />
+        <ng-container *ngTemplateOutlet="tarjetaPedido; context: { $implicit: p, enProceso: false }" />
       }
     }
   }
 </section>
 
-<ng-template #tarjetaPedido let-p>
+<!-- enProceso: si el pedido está en la sección «En proceso». Solo esos tienen seguimiento del envío -->
+<ng-template #tarjetaPedido let-p let-enProceso="enProceso">
   <article class="pedido" [class.cancelado]="p.estado === 'CANCELADO'">
     <header class="pedido-cabecera">
       <div>
@@ -83,10 +84,12 @@
         Envío a {{ p.direccionEnvio.calle }}, {{ p.direccionEnvio.codigoPostal }} {{ p.direccionEnvio.ciudad }}
       </span>
       <div class="acciones">
-        <button type="button" class="btn-secundario" (click)="verSeguimiento(p)"
-                [attr.aria-label]="'Ver el seguimiento del pedido del ' + fecha(p)">
-          Seguimiento
-        </button>
+        @if (enProceso) {
+          <button type="button" class="btn-secundario" (click)="verSeguimiento(p)"
+                  [attr.aria-label]="'Ver el seguimiento del pedido del ' + fecha(p)">
+            Seguimiento
+          </button>
+        }
         @if (sePuedeConfirmarRecepcion(p)) {
           <button type="button" class="btn-principal" (click)="confirmarRecepcion(p)" [disabled]="ocupado() === p.id">
             He recibido el pedido
