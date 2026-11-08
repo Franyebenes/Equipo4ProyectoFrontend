@@ -4,37 +4,6 @@
   min-height: calc(100vh - 72px);
 }
 
-.admin-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  width: fit-content;
-  max-width: 100%;
-  margin-bottom: 2rem;
-  padding: 0.35rem;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-}
-
-.admin-tabs a {
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 0.88rem;
-  text-decoration: none;
-}
-
-.admin-tabs a:hover {
-  color: var(--ink);
-}
-
-.admin-tabs a.is-active {
-  background: var(--ink);
-  color: white;
-}
-
 .page-head {
   display: flex;
   flex-wrap: wrap;

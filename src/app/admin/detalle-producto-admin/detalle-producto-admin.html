@@ -1,0 +1,89 @@
+<section class="admin-page">
+  <div class="bar">
+    <a routerLink="/admin/productos" class="volver">← Volver a productos</a>
+
+    @if (cargando()) {
+      <p class="estado-carga">Cargando producto…</p>
+    } @else if (error()) {
+      <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+    } @else if (producto(); as p) {
+      <article class="ficha">
+        <div class="foto">
+          <img [src]="urlImagen(p.imagen) || imagenPorDefecto" [alt]="p.imagen ? p.nombre : 'Producto sin foto'"
+               [class.sin-imagen]="!p.imagen">
+        </div>
+
+        <div class="info">
+          @if (p.categorias.length > 0) {
+            <p class="categorias">{{ p.categorias.join(' · ') }}</p>
+          }
+          <h1>{{ p.nombre }}</h1>
+
+          @if (p.numeroValoraciones > 0 && p.valoracionMedia !== null) {
+            <p class="resumen-valoraciones">
+              <span class="estrellas" [attr.aria-label]="formatearValoracion(p.valoracionMedia) + ' de 5'">
+                @for (llena of estrellas(p.valoracionMedia); track $index) {
+                  <span [class.llena]="llena">★</span>
+                }
+              </span>
+              {{ formatearValoracion(p.valoracionMedia) }}
+              <span class="tenue">({{ p.numeroValoraciones }})</span>
+            </p>
+          }
+
+          <div class="precio">
+            @if (p.precio !== null && p.precioFinal !== null && p.precioFinal < p.precio) {
+              <s class="precio-original">{{ precio(p.precio) }}</s>
+            }
+            <strong>{{ precio(p.precioFinal) }}</strong>
+          </div>
+          @if (p.descuento || p.descuentoPremium) {
+            <ul class="descuentos">
+              @if (p.descuento) {
+                <li>−{{ p.descuento }} % para todos los clientes</li>
+              }
+              @if (p.descuentoPremium) {
+                <li>Con premium, un {{ p.descuentoPremium }} % más: {{ precio(p.precioPremium) }}</li>
+              }
+            </ul>
+          }
+
+          <div class="etiquetas">
+            <span class="estado" [class.activo]="p.visible">{{ p.visible ? 'Activo' : 'Desactivado' }}</span>
+            @if (p.soloPremium) {
+              <span class="estado premium">Solo Premium</span>
+            }
+          </div>
+
+          <dl class="datos">
+            <div>
+              <dt>Vendedor</dt>
+              <dd>{{ p.vendedor }}</dd>
+            </div>
+            <div>
+              <dt>Stock</dt>
+              <dd [class.agotado]="p.stock === 0">{{ p.stock }} {{ p.stock === 1 ? 'unidad' : 'unidades' }}</dd>
+            </div>
+          </dl>
+
+          <section>
+            <h2>Descripción</h2>
+            <p class="descripcion">{{ p.descripcion || 'Este producto no tiene descripción.' }}</p>
+          </section>
+
+          <section>
+            <h2>Valoraciones</h2>
+            @if (p.numeroValoraciones > 0 && p.valoracionMedia !== null) {
+              <p>
+                Puntuación media de {{ formatearValoracion(p.valoracionMedia) }} sobre 5, con
+                {{ p.numeroValoraciones }} {{ p.numeroValoraciones === 1 ? 'valoración' : 'valoraciones' }}.
+              </p>
+            } @else {
+              <p class="tenue">Este producto todavía no tiene valoraciones.</p>
+            }
+          </section>
+        </div>
+      </article>
+    }
+  </div>
+</section>

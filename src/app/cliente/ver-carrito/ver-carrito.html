@@ -1,0 +1,73 @@
+<section class="carrito">
+  <a routerLink="/cliente" class="volver">← Seguir comprando</a>
+  <h1>Mi carrito</h1>
+
+  @if (cargando()) {
+    <p class="estado">Cargando tu carrito…</p>
+  } @else {
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    @if (carrito(); as c) {
+      @if (c.lineas.length === 0) {
+        <!-- Para volver al catálogo está siempre «Seguir comprando», arriba -->
+        <div class="vacio">
+          <p>Tu carrito está vacío.</p>
+        </div>
+      } @else {
+        <ul class="lineas">
+          @for (l of c.lineas; track l.idProducto) {
+            <li class="linea" [class.no-disponible]="!l.disponible">
+              @if (l.imagen) {
+                <img [src]="imagenDe(l.imagen)" [alt]="l.nombre" />
+              } @else {
+                <div class="sin-imagen"></div>
+              }
+
+              <div class="info">
+                <span class="nombre">{{ l.nombre }}</span>
+                @if (!l.disponible) {
+                  <span class="aviso">Ya no está disponible</span>
+                }
+                <span class="precio">
+                  @if (tieneDescuento(l)) {
+                    <s>{{ precio(l.precioOriginal) }}</s>
+                  }
+                  {{ precio(l.precioUnitario) }}
+                </span>
+                @if (errorDe(l); as mensaje) {
+                  <span class="error-linea" role="alert">{{ mensaje }}</span>
+                }
+              </div>
+
+              <div class="cantidad">
+                <button type="button" (click)="restar(l)"
+                        [disabled]="l.cantidad <= 1 || ocupado() === l.idProducto"
+                        aria-label="Quitar una unidad">−</button>
+                <span>{{ l.cantidad }}</span>
+                <button type="button" (click)="sumar(l)"
+                        [disabled]="!l.disponible || ocupado() === l.idProducto"
+                        aria-label="Añadir una unidad">+</button>
+              </div>
+
+              <span class="subtotal">{{ precio(l.subtotal) }}</span>
+
+              <button type="button" class="eliminar accion-icono accion-eliminar" (click)="eliminar(l)"
+                      [disabled]="ocupado() === l.idProducto" title="Eliminar"
+                      [attr.aria-label]="'Eliminar ' + l.nombre"></button>
+            </li>
+          }
+        </ul>
+
+        <div class="resumen">
+          <span>Total ({{ c.numeroArticulos }} {{ c.numeroArticulos === 1 ? 'artículo' : 'artículos' }})</span>
+          <strong>{{ precio(c.total) }}</strong>
+        </div>
+
+        <!-- HU-23: se activará cuando esté el pago -->
+        <a routerLink="/pagar" class="pagar">Tramitar pedido</a>
+      }
+    }
+  }
+</section>

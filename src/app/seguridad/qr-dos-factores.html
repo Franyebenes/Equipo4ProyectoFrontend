@@ -1,0 +1,9 @@
+<div class="qr-bloque">
+  @if (imagen(); as src) {
+    <img class="qr" [src]="src" width="224" height="224" alt="Código QR para tu aplicación autenticadora" />
+  }
+  <div class="clave">
+    <p class="pista">¿No puedes escanearlo? Escribe esta clave en tu aplicación:</p>
+    <code class="secreto">{{ secretoAgrupado() }}</code>
+  </div>
+</div>

@@ -1,0 +1,165 @@
+<main class="pagina">
+  @if (idAbierta()) {
+    <!-- Una colección abierta -->
+    <a routerLink="/listas" class="volver">← Mis listas</a>
+
+    @if (seleccionada(); as lista) {
+
+    <header class="cabecera">
+      @if (renombrando()) {
+        <form class="campo-con-boton renombrar" (submit)="$event.preventDefault(); guardarNombre(lista)">
+          <input
+            [value]="nombreEditado()"
+            (input)="nombreEditado.set($any($event.target).value)"
+            maxlength="40"
+            aria-label="Nuevo nombre"
+          />
+          <button type="submit" class="btn btn-coral">Guardar</button>
+          <button type="button" class="btn btn-ghost" (click)="renombrando.set(false)">Cancelar</button>
+        </form>
+      } @else {
+        <div>
+          <p class="eyebrow" [class.titulo-coleccion]="lista.porDefecto">Colección</p>
+          <h1>{{ lista.nombre }}</h1>
+          <p class="sub">{{ lista.productos.length }} {{ lista.productos.length === 1 ? 'producto' : 'productos' }}</p>
+        </div>
+        @if (!lista.porDefecto) {
+          <div class="acciones">
+            @if (confirmandoBorrado()) {
+              <span class="confirmar" role="alertdialog" aria-label="Confirmar borrado">
+                ¿Eliminar «{{ lista.nombre }}»? Los productos no se borran de la tienda.
+              </span>
+              <button type="button" class="btn btn-peligro" (click)="eliminar(lista)">Sí, eliminar</button>
+              <button type="button" class="btn btn-ghost" (click)="confirmandoBorrado.set(false)">Cancelar</button>
+            } @else {
+              <button type="button" class="accion-icono accion-editar" (click)="empezarRenombrar(lista)" title="Renombrar" [attr.aria-label]="'Renombrar ' + lista.nombre"></button>
+              <button type="button" class="accion-icono accion-eliminar" (click)="confirmandoBorrado.set(true)" title="Eliminar" [attr.aria-label]="'Eliminar ' + lista.nombre"></button>
+            }
+          </div>
+        }
+      }
+    </header>
+
+    @if (error()) {
+      <div class="aviso-error" role="alert">{{ error() }}</div>
+    }
+
+    <ul class="productos">
+      @for (producto of lista.productos; track producto.id) {
+        <li class="producto" [class.no-disponible]="!producto.disponible">
+          <a [routerLink]="['/cliente/productos', producto.id]" class="enlace-producto">
+            <span class="foto">
+              <img [src]="urlImagen(producto.imagen) || imagenPorDefecto" [alt]="producto.nombre"
+                   [class.sin-imagen]="!producto.imagen" loading="lazy" />
+              @if (!producto.disponible) {
+                <span class="ovalo">No disponible</span>
+              }
+            </span>
+            <span class="nombre">{{ producto.nombre }}</span>
+            <span class="precio">{{ precio(producto.precio) }}</span>
+          </a>
+          <button type="button" class="quitar" (click)="quitar(lista, producto)"
+                  [attr.aria-label]="'Quitar ' + producto.nombre + ' de ' + lista.nombre" title="Quitar de la lista">✕</button>
+        </li>
+      } @empty {
+        <li class="vacio">
+          <p>Esta lista está vacía.</p>
+          <p class="pista">Pulsa ⋯ en cualquier producto del catálogo para guardarlo aquí.</p>
+          <a routerLink="/cliente" class="btn-secundario">Ir al catálogo</a>
+        </li>
+      }
+    </ul>
+    } @else if (error()) {
+      <div class="aviso-error" role="alert">{{ error() }}</div>
+    } @else {
+      <p class="estado">Cargando la lista…</p>
+    }
+  } @else {
+    <!-- Cuadrícula de colecciones -->
+    <header class="cabecera">
+      <div>
+        <p class="eyebrow">Colecciones</p>
+        <h1>Mis listas</h1>
+        <p class="sub">Solo tú puedes ver lo que has guardado.</p>
+      </div>
+      @if (!creando()) {
+        <button type="button" class="btn btn-coral btn-lg btn-nueva-lista" (click)="creando.set(true)">+ Nueva lista</button>
+      }
+    </header>
+
+    @if (error()) {
+      <div class="aviso-error" role="alert">{{ error() }}</div>
+    }
+
+    @if (cargando()) {
+      <p class="estado">Cargando tus listas…</p>
+    } @else {
+      <ul class="colecciones">
+        @for (lista of listas(); track lista.id) {
+          <li class="tarjeta-coleccion">
+            <a [routerLink]="['/listas', lista.id]" class="coleccion">
+              <span class="mosaico" [class.vacia]="lista.portadas.length === 0">
+                @if (lista.portadas.length === 0) {
+                  <span class="icono-vacia" aria-hidden="true">{{ lista.porDefecto ? '♥' : '☰' }}</span>
+                } @else if (lista.portadas.length < 4) {
+                  <img [src]="urlImagen(lista.portadas[0])" alt="" class="unica" />
+                } @else {
+                  @for (portada of mosaico(lista); track $index) {
+                    <img [src]="portada" alt="" />
+                  }
+                }
+              </span>
+              <span class="nombre-coleccion">
+                @if (lista.porDefecto) {
+                  <span class="corazon" aria-hidden="true">♥</span>
+                }
+                {{ lista.nombre }}
+              </span>
+              <span class="cuenta">
+                {{ lista.idProductos.length }} {{ lista.idProductos.length === 1 ? 'producto' : 'productos' }}
+              </span>
+            </a>
+            <!-- Favoritos es la lista por defecto y no se puede eliminar -->
+            @if (!lista.porDefecto) {
+              <button type="button" class="eliminar-coleccion" (click)="listaAEliminar.set(lista)"
+                      [attr.aria-label]="'Eliminar ' + lista.nombre" title="Eliminar lista">✕</button>
+            }
+          </li>
+        }
+
+        @if (creando()) {
+          <!-- La nueva colección se escribe en su propia tarjeta, al final de la cuadrícula -->
+          <li>
+            <form class="coleccion nueva" (submit)="$event.preventDefault(); crear()">
+              <span class="mosaico vacia"><span class="icono-vacia" aria-hidden="true">+</span></span>
+              <input
+                [value]="nombreNueva()"
+                (input)="nombreNueva.set($any($event.target).value)"
+                maxlength="40"
+                placeholder="Nombre de la lista"
+                aria-label="Nombre de la nueva lista"
+                autofocus
+              />
+              <span class="botones">
+                <button type="submit" class="btn btn-coral" [disabled]="!nombreNueva().trim()">Crear</button>
+                <button type="button" class="btn btn-ghost" (click)="cancelarCrear()">Cancelar</button>
+              </span>
+            </form>
+          </li>
+        }
+      </ul>
+    }
+  }
+
+  @if (listaAEliminar(); as lista) {
+    <app-dialogo-confirmacion
+      titulo="Eliminar lista"
+      [mensaje]="'¿Estas seguro de que quieres eleminar la lista «' + lista.nombre + '»?'"
+      textoConfirmar="Sí, eliminar"
+      textoProcesando="Eliminando…"
+      [procesando]="eliminando()"
+      (confirmar)="confirmarEliminarLista(lista)"
+      (cancelar)="listaAEliminar.set(null)"
+    />
+  }
+</main>
