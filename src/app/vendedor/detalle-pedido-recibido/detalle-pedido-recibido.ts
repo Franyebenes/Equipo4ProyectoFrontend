@@ -19,6 +19,7 @@ import {
   mensajeErrorPedidosRecibidos,
   mensajeEstadoActualizado,
   referenciaPedido,
+  textoSinMasCambios,
   textoUnidades,
 } from '../pedido-vendedor.service';
 
@@ -48,6 +49,7 @@ export class DetallePedidoRecibido implements OnInit {
   readonly etiquetaEstado = etiquetaEstadoPedido;
   readonly referencia = referenciaPedido;
   readonly textoUnidades = textoUnidades;
+  readonly textoSinMasCambios = textoSinMasCambios;
   readonly formatearDia = formatearDia;
   readonly hoy = diaDeHoy();
 

@@ -91,7 +91,8 @@
           </button>
         }
         @if (sePuedeConfirmarRecepcion(p)) {
-          <button type="button" class="btn-principal" (click)="confirmarRecepcion(p)" [disabled]="ocupado() === p.id">
+          <button type="button" class="btn-principal" (click)="pedirConfirmacionRecepcion(p)"
+                  [disabled]="ocupado() === p.id">
             He recibido el pedido
           </button>
         }
@@ -107,6 +108,18 @@
 
 @if (pedidoEnSeguimiento(); as idPedido) {
   <app-seguimiento-pedido [idPedido]="idPedido" (cerrar)="cerrarSeguimiento()" />
+}
+
+@if (pedidoARecibir(); as pedido) {
+  <app-dialogo-confirmacion
+    titulo="Confirmar recepción"
+    [mensaje]="mensajeConfirmarRecepcion(pedido)"
+    textoConfirmar="Sí, lo he recibido"
+    textoProcesando="Confirmando…"
+    [procesando]="confirmandoRecepcion()"
+    (confirmar)="confirmarRecepcion()"
+    (cancelar)="cerrarConfirmacionRecepcion()"
+  />
 }
 
 @if (pedidoACancelar(); as pedido) {

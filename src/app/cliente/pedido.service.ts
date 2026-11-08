@@ -16,15 +16,6 @@ export type EstadoPedido =
   | 'FINALIZADO'
   | 'CANCELADO';
 
-// Pasos del envío, en orden (el mismo recorrido que el backend)
-export const ESTADOS_ENVIO: readonly EstadoPedido[] = [
-  'PAGADO',
-  'EN_PREPARACION',
-  'ENVIADO',
-  'EN_REPARTO',
-  'ENTREGADO',
-];
-
 export interface DireccionEnvio {
   calle: string;
   ciudad: string;
@@ -72,9 +63,10 @@ export function sePuedeCancelar(pedido: Pedido): boolean {
   return pedido.estado === 'PAGADO' || pedido.estado === 'EN_PREPARACION';
 }
 
-// HU-30: el cliente confirma la recepción mientras el pedido sigue en curso (en cualquier paso del envío)
+// HU-30: el cliente solo confirma la recepción cuando el vendedor lo ha marcado como entregado. Así nunca coincide
+// con cancelar, que solo se puede antes del envío (misma regla que el backend)
 export function sePuedeConfirmarRecepcion(pedido: Pedido): boolean {
-  return ESTADOS_ENVIO.includes(pedido.estado);
+  return pedido.estado === 'ENTREGADO';
 }
 
 // Comprueba la dirección antes de enviarla (mismas reglas que el backend). Devuelve el error o '' si es válida.
