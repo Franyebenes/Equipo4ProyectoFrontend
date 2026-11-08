@@ -2,6 +2,7 @@ import { Component, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
+import { DialogoConfirmacion } from '../../admin/dialogo-confirmacion/dialogo-confirmacion';
 import { mensajeDeError } from '../../core/mensaje-error';
 import { IMAGEN_POR_DEFECTO, urlImagen } from '../../vendedor/producto.service';
 import { ListaDetalle, ListaResumen, ListasService, ProductoEnLista, nombreDeListaValido } from '../listas.service';
@@ -14,7 +15,7 @@ const NOMBRE_NO_VALIDO = 'El nombre solo puede tener letras, números y espacios
  */
 @Component({
   selector: 'app-mis-listas',
-  imports: [RouterLink],
+  imports: [RouterLink, DialogoConfirmacion],
   templateUrl: './mis-listas.html',
   styleUrls: ['../../cliente/catalogo/catalogo.css', './mis-listas.css'],
 })
@@ -32,6 +33,8 @@ export class MisListas {
   protected readonly renombrando = signal(false);
   protected readonly nombreEditado = signal('');
   protected readonly confirmandoBorrado = signal(false);
+  protected readonly listaAEliminar = signal<ListaResumen | null>(null);
+  protected readonly eliminando = signal(false);
   protected readonly formatoPrecio = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
   protected readonly urlImagen = urlImagen;
   protected readonly imagenPorDefecto = IMAGEN_POR_DEFECTO;
@@ -134,6 +137,24 @@ export class MisListas {
     this.servicio.eliminar(lista.id).subscribe({
       next: () => this.router.navigate(['/listas']),
       error: (e) => this.error.set(mensajeDeError(e)),
+    });
+  }
+
+  /** Elimina una colección desde la ✕ de su tarjeta, tras confirmarlo en el diálogo. */
+  protected confirmarEliminarLista(lista: ListaResumen): void {
+    this.error.set(null);
+    this.eliminando.set(true);
+    this.servicio.eliminar(lista.id).subscribe({
+      next: () => {
+        this.listas.update((listas) => listas.filter((l) => l.id !== lista.id));
+        this.listaAEliminar.set(null);
+        this.eliminando.set(false);
+      },
+      error: (e) => {
+        this.error.set(mensajeDeError(e));
+        this.listaAEliminar.set(null);
+        this.eliminando.set(false);
+      },
     });
   }
 
