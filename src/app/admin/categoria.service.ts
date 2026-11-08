@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, switchMap } from 'rxjs';
+import { errorCaracteresNoPermitidos } from '../core/caracteres-permitidos';
 
 export interface Categoria {
   id: string;
@@ -25,7 +26,7 @@ export function validarCategoria(datos: Omit<Categoria, 'id'>): string {
   if (datos.descripcion.length > 200) {
     return 'La descripción no puede superar los 200 caracteres.';
   }
-  return '';
+    return errorCaracteresNoPermitidos(datos.nombre, datos.descripcion);
 }
 
 @Injectable({ providedIn: 'root' })

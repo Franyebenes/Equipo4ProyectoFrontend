@@ -1,0 +1,72 @@
+<section class="acceso">
+  <div class="tarjeta">
+    <p class="ceja">Recuperar acceso</p>
+    <h2>¿Has olvidado tu contraseña?</h2>
+    <p class="intro">
+      Escribe el correo de tu cuenta y te enviaremos un enlace para elegir una contraseña nueva.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+      <div class="campo-grupo">
+        <label class="campo">
+          Correo electrónico
+          <span class="entrada">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M3 6.5 10 11l7-4.5M4 15h12V5H4v10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            </svg>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              placeholder="lucia@email.es"
+              [attr.aria-invalid]="mensajesEmail().length > 0 ? 'true' : null"
+              [attr.aria-describedby]="mensajesEmail().length > 0 ? 'error-email' : null"
+            />
+          </span>
+        </label>
+        @if (mensajesEmail().length > 0) {
+          <div id="error-email">
+            @for (mensaje of mensajesEmail(); track mensaje) {
+              <p class="error-campo">{{ mensaje }}</p>
+            }
+          </div>
+        }
+      </div>
+
+      @if (error(); as mensajeError) {
+        <p class="error" role="alert">{{ mensajeError }}</p>
+      }
+
+      @if (confirmacion(); as textoConfirmacion) {
+        <p class="exito" role="status">
+          {{ textoConfirmacion }}.
+          Si no lo ves, revisa la carpeta de spam. El enlace caduca en 15 minutos.
+        </p>
+      }
+
+      <button type="submit" class="btn btn-coral btn-ancho" [disabled]="enviando() || segundosRestantes() > 0">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M2.5 8h11M9.5 4.5 13.5 8l-4 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        @if (enviando()) {
+          Enviando...
+        } @else if (segundosRestantes() > 0) {
+          Podrás pedir otro en {{ segundosRestantes() }} s
+        } @else {
+          Enviar enlace de recuperación
+        }
+      </button>
+    </form>
+
+    <p class="cambio-via">
+      ¿Ya la recuerdas?
+      <a routerLink="/login">Volver al inicio de sesión</a>
+    </p>
+
+    <p class="aviso">
+      <span class="punto" aria-hidden="true"></span>
+      Por seguridad, el mensaje es el mismo exista o no una cuenta con ese correo.
+    </p>
+  </div>
+</section>

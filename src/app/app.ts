@@ -1,13 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AuthService } from './core/auth.service';
+import { CarritoService } from './cliente/carrito.service';
 import { VentanaInfo } from './compartido/ventana-info/ventana-info';
 import { Ventana, VentanaInfoService } from './compartido/ventana-info/ventana-info.service';
-
-// Solo los avatares del catálogo (avatar-01, avatar-02...) tienen imagen en public/avatares.
-const AVATAR_DEL_CATALOGO = /^avatar-\d+$/;
+import { imagenDeAvatar } from './perfil/perfil.service';
 
 // Cáscara de la app: cabecera compartida (con el usuario y el cierre de sesión) y salida de rutas.
 @Component({
@@ -19,6 +18,7 @@ const AVATAR_DEL_CATALOGO = /^avatar-\d+$/;
 export class App {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  readonly carrito = inject(CarritoService);
 
   menuAbierto = signal(false);
   // Compartida con las páginas: el pie de la Home también abre la ventana de Ayuda.
@@ -32,6 +32,16 @@ export class App {
     const rol = this.auth.usuario()?.rol;
     return rol === 'CLIENTE' || rol === 'PREMIUM';
   });
+
+  // Al entrar un cliente se carga su carrito para mostrar el número de artículos en la cabecera
+  private readonly cargarContadorCarrito = effect(() => {
+    if (this.esCliente()) {
+      this.carrito.obtener().subscribe({ error: () => this.carrito.numeroArticulos.set(0) });
+    } else {
+      this.carrito.numeroArticulos.set(0);
+    }
+  });
+
   // La portada es solo para visitantes: con sesión, el logo lleva a la página de cada rol.
   readonly rutaLogo = computed(() => {
     if (this.esAdmin()) {
@@ -43,18 +53,11 @@ export class App {
     return this.esCliente() ? '/cliente' : '/';
   });
 
-  // Imagen del avatar del usuario, o null si no tiene uno del catálogo (se muestra su inicial).
-  // Los vendedores tienen su propia carpeta de avatares; los demás usan la de clientes, como el alta de admin.
+  // Imagen del avatar del usuario; si no eligió uno del catálogo, la imagen por defecto.
   readonly imagenAvatar = computed(() => {
     const usuario = this.auth.usuario();
-    if (!usuario?.avatar || !AVATAR_DEL_CATALOGO.test(usuario.avatar)) {
-      return null;
-    }
-    const carpeta = usuario.rol === 'VENDEDOR' ? 'vendedores' : 'clientes';
-    return `/avatares/${carpeta}/${usuario.avatar}.png`;
+    return imagenDeAvatar(usuario?.avatar, usuario?.rol);
   });
-
-  readonly inicial = computed(() => (this.auth.usuario()?.nombre?.[0] ?? '?').toUpperCase());
 
   async cerrarSesion(): Promise<void> {
     this.cerrarMenu();
@@ -74,7 +77,7 @@ export class App {
     this.menuAbierto.set(false);
   }
 
-    abrirVentana(ventana: Ventana): void {
+  abrirVentana(ventana: Ventana): void {
     this.cerrarMenu();
     this.ventanaAbierta.set(ventana);
   }

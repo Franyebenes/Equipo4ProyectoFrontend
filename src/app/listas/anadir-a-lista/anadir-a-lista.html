@@ -1,0 +1,67 @@
+@if (compacto()) {
+  <button type="button" class="puntos" (click)="alternar()" [attr.aria-expanded]="abierto()" aria-haspopup="menu"
+          [attr.aria-label]="'Guardar ' + nombreProducto() + ' en una lista'" title="Guardar en una lista">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="5" cy="12" r="2" />
+      <circle cx="12" cy="12" r="2" />
+      <circle cx="19" cy="12" r="2" />
+    </svg>
+  </button>
+} @else {
+  <button type="button" class="btn btn-ghost abrir" (click)="alternar()" [attr.aria-expanded]="abierto()" aria-haspopup="menu">
+    <span aria-hidden="true">☰</span> Añadir a lista
+    <span class="flecha" aria-hidden="true">{{ abierto() ? '▴' : '▾' }}</span>
+  </button>
+}
+
+@if (abierto()) {
+  <div class="menu" role="menu" aria-label="Guardar en una lista">
+    <p class="titulo">Guardar en…</p>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    @if (cargando()) {
+      <p class="estado">Cargando tus listas…</p>
+    } @else {
+      <ul>
+        @for (lista of listas(); track lista.id) {
+          <li>
+            <button type="button" class="opcion" role="menuitemcheckbox" [attr.aria-checked]="contiene(lista)"
+                    [class.guardado]="contiene(lista)" (click)="cambiar(lista)">
+              <span class="miniatura" aria-hidden="true">
+                @if (lista.portadas[0]; as portada) {
+                  <img [src]="urlImagen(portada)" alt="" />
+                } @else {
+                  {{ lista.porDefecto ? '♥' : lista.nombre.charAt(0).toUpperCase() }}
+                }
+              </span>
+              <span class="nombre">{{ lista.nombre }}</span>
+              <span class="marca" aria-hidden="true">{{ contiene(lista) ? '✓' : '+' }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (creando()) {
+      <form class="nueva" (submit)="$event.preventDefault(); crearYAnadir()">
+        <input
+          [value]="nombreNueva()"
+          (input)="nombreNueva.set($any($event.target).value)"
+          maxlength="40"
+          placeholder="Nombre de la lista"
+          aria-label="Nombre de la nueva lista"
+          autofocus
+        />
+        <button type="submit" class="btn btn-coral" [disabled]="!nombreNueva().trim()">Crear</button>
+      </form>
+    } @else {
+      <button type="button" class="opcion nueva-lista" role="menuitem" (click)="creando.set(true)">
+        <span class="miniatura mas" aria-hidden="true">+</span>
+        <span class="nombre">Nueva lista</span>
+      </button>
+    }
+  </div>
+}

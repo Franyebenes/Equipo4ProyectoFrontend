@@ -1,0 +1,79 @@
+# CI del frontend (Angular 21).
+#
+# Cuando se lanza:
+#   - PR hacia main (obligatoria: la rama main debe exigir que este pipeline este en verde)
+#   - push a release
+#
+# Etapas: Compilar -> SonarQube.
+#
+# Todo corre en el agente propio (agente-equipo4, Windows), que necesita estar en marcha, con Node y la VPN de la universidad
+# para Sonar. El token de Sonar esta en sonar-project.properties.
+
+trigger:
+  branches:
+    include:
+      - release
+      - release/*
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  name: Default
+  demands:
+    - agent.name -equals agente-equipo4
+
+stages:
+  - stage: Compilar
+    displayName: '1. Compilar'
+    jobs:
+      - job: Compilacion
+        displayName: 'Compilar con Angular'
+        steps:
+          - script: echo "Compilando el frontend (rama $(Build.SourceBranchName), commit $(Build.SourceVersion))"
+            displayName: 'Inicio de la compilacion'
+
+          - task: UseNode@1
+            displayName: 'Instalar Node.js 22'
+            inputs:
+              version: '22.x'
+
+          # npm ci instala exactamente lo que fija package-lock.json
+          - script: npm ci
+            displayName: 'Instalar dependencias (npm ci)'
+
+          - script: npm run build
+            displayName: 'Compilar (ng build)'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publicar artefacto del frontend'
+            inputs:
+              targetPath: 'dist'
+              artifact: 'frontend'
+
+          - script: echo "Compilacion correcta y artefacto publicado"
+            displayName: 'Fin de la compilacion'
+
+  - stage: Sonar
+    displayName: '2. SonarQube'
+    dependsOn: Compilar
+    jobs:
+      - job: AnalisisSonar
+        displayName: 'Analisis con SonarQube'
+        steps:
+          - checkout: self
+            fetchDepth: 0
+            displayName: 'Descargar el codigo'
+
+          - script: echo "Analizando el frontend con SonarQube"
+            displayName: 'Inicio del analisis'
+
+          # El servidor, la clave del proyecto, el token y las rutas estan en sonar-project.properties
+          - script: sonar-scanner
+            displayName: 'sonar-scanner'
+            # Para que la etapa falle si no se supera el Quality Gate, anadir: -Dsonar.qualitygate.wait=true
+
+          - script: echo "Analisis de SonarQube terminado"
+            displayName: 'Fin del analisis'

@@ -1,0 +1,216 @@
+<section class="acceso">
+  <div class="tarjeta">
+    <p class="ceja">Seguridad de la cuenta</p>
+    <h2>Verificación en dos pasos</h2>
+
+    @switch (vista()) {
+      @case ('cargando') {
+        <p class="intro" role="status">Comprobando el estado de tu cuenta...</p>
+      }
+
+      @case ('error') {
+        <p class="error" role="alert">{{ error() }}</p>
+        <button type="button" class="btn btn-coral btn-ancho" (click)="reintentar()">Reintentar</button>
+      }
+
+      @case ('inactivo') {
+        <p class="intro">
+          Añade una segunda comprobación al iniciar sesión: además de tu contraseña, te pediremos un código de 6 dígitos
+          que genera una aplicación autenticadora en tu móvil, como Google Authenticator. Así, aunque alguien conozca tu
+          contraseña, no podrá entrar.
+        </p>
+        @if (error(); as mensajeError) {
+          <p class="error" role="alert">{{ mensajeError }}</p>
+        }
+        <p class="aviso">
+          <span class="punto" aria-hidden="true"></span>
+          Una vez activada, la verificación en dos pasos no se puede desactivar ni cambiar. Guarda bien tus códigos de recuperación.
+        </p>
+        <button type="button" class="btn btn-coral btn-ancho separado" (click)="empezarActivacion()">
+          Activar la verificación en dos pasos
+        </button>
+      }
+
+      @case ('contrasena') {
+        <p class="intro">Por seguridad, escribe tu contraseña para empezar.</p>
+        <form (submit)="pedirQr($event)">
+          <div class="campo-grupo">
+            <label class="campo">
+              Contraseña
+              <span class="entrada con-ojo">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                </svg>
+                <input
+                  type="password"
+                  [attr.type]="verContrasena() ? 'text' : 'password'"
+                  name="contrasena"
+                  autocomplete="current-password"
+                  required
+                  placeholder="Tu contraseña actual"
+                  [(ngModel)]="contrasena"
+                />
+                <button
+                  type="button"
+                  class="ver-contrasena"
+                  (click)="verContrasena.set(!verContrasena())"
+                  [attr.aria-label]="verContrasena() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                >
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M2 10C4 6.5 6.8 4.5 10 4.5S16 6.5 18 10C16 13.5 13.2 15.5 10 15.5S4 13.5 2 10Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                    <circle cx="10" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                  </svg>
+                </button>
+              </span>
+            </label>
+            @for (mensaje of mensajesCampo('contrasena'); track mensaje) {
+              <p class="error-campo">{{ mensaje }}</p>
+            }
+          </div>
+          @if (error(); as mensajeError) {
+            <p class="error" role="alert">{{ mensajeError }}</p>
+          }
+          <button type="submit" class="btn btn-coral btn-ancho" [disabled]="enviando()">
+            {{ enviando() ? 'Comprobando...' : 'Continuar' }}
+          </button>
+          <button type="button" class="btn btn-ghost btn-ancho" (click)="cancelar()">Cancelar</button>
+        </form>
+      }
+
+      @case ('escanear') {
+        <ol class="pasos">
+          <li>Abre tu aplicación autenticadora (Google Authenticator, Microsoft Authenticator, Authy...).</li>
+          <li>Añade una cuenta nueva y escanea este código QR.</li>
+          <li>Escribe aquí el código de 6 dígitos que te muestre.</li>
+        </ol>
+
+        @if (activacion(); as a) {
+          <app-qr-dos-factores [uri]="a.uri" [secreto]="a.secreto" />
+        }
+
+        <form (submit)="confirmar($event)">
+          <div class="campo-grupo">
+            <label class="campo">
+              Código de verificación
+              <span class="entrada">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                </svg>
+                <input
+                  type="text"
+                  name="codigo"
+                  required
+                  autocomplete="one-time-code"
+                  inputmode="numeric"
+                  maxlength="7"
+                  spellcheck="false"
+                  placeholder="123 456"
+                  [(ngModel)]="codigo"
+                />
+              </span>
+            </label>
+            @for (mensaje of mensajesCampo('codigo'); track mensaje) {
+              <p class="error-campo">{{ mensaje }}</p>
+            }
+          </div>
+          @if (error(); as mensajeError) {
+            <p class="error" role="alert">{{ mensajeError }}</p>
+          }
+          <button type="submit" class="btn btn-coral btn-ancho" [disabled]="enviando()">
+            {{ enviando() ? 'Comprobando...' : 'Activar' }}
+          </button>
+          <button type="button" class="btn btn-ghost btn-ancho" (click)="cancelar()">Cancelar</button>
+        </form>
+      }
+
+      @case ('codigos') {
+        <p class="exito" role="status">Listo. Guarda ahora tus códigos de recuperación.</p>
+        <p class="intro">
+          Si pierdes el acceso a tu aplicación autenticadora, cada uno de estos códigos te deja entrar una vez. Es la única
+          vez que los verás: guárdalos en un sitio seguro.
+        </p>
+        <app-codigos-recuperacion [codigos]="codigosRecuperacion()" (guardados)="codigosGuardados.set($event)" />
+        <button type="button" class="btn btn-coral btn-ancho" [disabled]="!codigosGuardados()" (click)="terminar()">
+          Continuar
+        </button>
+      }
+
+      @case ('activo') {
+        <p class="exito" role="status">La verificación en dos pasos está activada.</p>
+        @if (estado(); as e) {
+          <p class="intro">
+            Te quedan <strong>{{ e.codigosRecuperacionDisponibles }}</strong>
+            {{ e.codigosRecuperacionDisponibles === 1 ? 'código de recuperación' : 'códigos de recuperación' }}.
+          </p>
+          @if (e.codigosRecuperacionDisponibles <= 3) {
+            <p class="aviso">
+              <span class="punto" aria-hidden="true"></span>
+              Te quedan pocos códigos. Genera otros nuevos antes de quedarte sin ellos.
+            </p>
+          }
+        }
+        <p class="pista separado">Por seguridad, la verificación en dos pasos no se puede desactivar ni cambiar.</p>
+        <button type="button" class="btn btn-ghost btn-ancho separado" (click)="empezarRegeneracion()">
+          Generar códigos de recuperación nuevos
+        </button>
+      }
+
+      @case ('regenerar') {
+        <p class="intro">
+          Los códigos anteriores dejarán de funcionar. Escribe tu contraseña y un código de tu aplicación autenticadora (o
+          uno de recuperación).
+        </p>
+        <form (submit)="regenerar($event)">
+          <div class="campo-grupo">
+            <label class="campo">
+              Contraseña
+              <span class="entrada">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                </svg>
+                <input type="password" name="contrasena" autocomplete="current-password" required placeholder="Tu contraseña actual" [(ngModel)]="contrasena" />
+              </span>
+            </label>
+            @for (mensaje of mensajesCampo('contrasena'); track mensaje) {
+              <p class="error-campo">{{ mensaje }}</p>
+            }
+          </div>
+          <div class="campo-grupo">
+            <label class="campo">
+              Código de verificación
+              <span class="entrada">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M6 9V7a4 4 0 0 1 8 0v2M5 9h10v8H5V9Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                </svg>
+                <input
+                  type="text"
+                  name="codigo"
+                  required
+                  autocomplete="one-time-code"
+                  maxlength="24"
+                  spellcheck="false"
+                  placeholder="123 456"
+                  [(ngModel)]="codigo"
+                />
+              </span>
+            </label>
+            @for (mensaje of mensajesCampo('codigo'); track mensaje) {
+              <p class="error-campo">{{ mensaje }}</p>
+            }
+          </div>
+          @if (error(); as mensajeError) {
+            <p class="error" role="alert">{{ mensajeError }}</p>
+          }
+          <button type="submit" class="btn btn-coral btn-ancho" [disabled]="enviando()">
+            {{ enviando() ? 'Comprobando...' : 'Generar códigos nuevos' }}
+          </button>
+          <button type="button" class="btn btn-ghost btn-ancho" (click)="cancelar()">Cancelar</button>
+        </form>
+      }
+    }
+
+    <p class="cambio-via">
+      <a routerLink="/">Volver al inicio</a>
+    </p>
+  </div>
+</section>

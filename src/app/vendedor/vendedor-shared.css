@@ -30,3 +30,48 @@
 .btn-crear:hover {
   filter: brightness(0.93);
 }
+
+/* Sin stock: el producto no está disponible para la venta */
+.estado.agotado {
+  background: var(--coral-soft, #fde8e1);
+  color: #9a3412;
+}
+
+/* Estado de un pedido recibido (los mismos colores que «Mis pedidos» del cliente) */
+.estado-pedido {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: #f2f2f2;
+  color: #444;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.estado-pedido.pagado {
+  background: #e3eedf;
+  color: var(--ok, #3f6f48);
+}
+
+.estado-pedido.en_preparacion {
+  background: #fdf3d7;
+  color: #8a5a00;
+}
+
+.estado-pedido.enviado,
+.estado-pedido.en_reparto,
+.estado-pedido.entregado {
+  background: #e4ecf7;
+  color: #2c5282;
+}
+
+.estado-pedido.finalizado {
+  background: var(--cream, #f4f0e9);
+  color: var(--muted, #6b6e67);
+}
+
+.estado-pedido.cancelado {
+  background: #fdecea;
+  color: #b3261e;
+}

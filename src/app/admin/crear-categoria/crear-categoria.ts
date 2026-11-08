@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { mensajeError } from '../admin.service';
-import { Categoria, CategoriaService } from '../categoria.service';
+import { Categoria, CategoriaService, validarCategoria } from '../categoria.service';
 
 @Component({
   selector: 'app-crear-categoria',
@@ -26,16 +26,10 @@ export class CrearCategoriaComponent {
     const nombre = this.datos.nombre.trim();
     const descripcion = this.datos.descripcion.trim();
 
-    if (!nombre || !descripcion) {
-      this.error.set('Rellena todos los campos obligatorios (*).');
-      return;
-    }
-    if (nombre.length > 50) {
-      this.error.set('El nombre no puede superar los 50 caracteres.');
-      return;
-    }
-    if (descripcion.length > 200) {
-      this.error.set('La descripción no puede superar los 200 caracteres.');
+    // Mismas comprobaciones que al editar: obligatorios, longitud y sin caracteres especiales
+    const fallo = validarCategoria({ nombre, descripcion });
+    if (fallo) {
+      this.error.set(fallo);
       return;
     }
 

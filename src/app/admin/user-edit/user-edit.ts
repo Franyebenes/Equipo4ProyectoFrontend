@@ -84,8 +84,11 @@ export class UserEdit {
     this.cancelar.emit();
   }
 
-  // Solo cierra si el clic cae en el fondo, no dentro del modal
-  onClickFondo(event: MouseEvent): void {
-    if (event.target === event.currentTarget) this.onCancelar();
+  // Escape cierra el modal sin guardar. Se corta la propagación para que el overlay y el modal no cancelen dos veces.
+  onTecla(evento: KeyboardEvent): void {
+    if (evento.key === 'Escape') {
+      evento.stopPropagation();
+      this.onCancelar();
+    }
   }
 }

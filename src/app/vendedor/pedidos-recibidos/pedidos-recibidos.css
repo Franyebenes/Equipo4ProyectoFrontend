@@ -1,0 +1,21 @@
+/* La tabla usa los estilos de Mi catálogo (mis-productos.css); aquí solo lo propio de esta pantalla */
+
+/* Filtro compacto: la etiqueta y el desplegable en la misma línea */
+.filtro-estado {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.filtro-estado .campo {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.filtro-estado select {
+  width: 11rem;
+  height: 2.25rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.6rem;
+  font-size: 0.88rem;
+}

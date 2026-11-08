@@ -9,14 +9,18 @@ import { Injector, inject } from '@angular/core';
 import { Observable, catchError, from, switchMap, throwError } from 'rxjs';
 
 import { API_URL } from './api';
-import { AuthService, esCuentaPendiente } from './auth.service';
+import { AuthService } from './auth.service';
 
 // Rutas de autenticación: su 401 es una respuesta normal (credenciales incorrectas, sin sesión...), no una sesión
 // caducada, y la gestiona quien las llama. Login y logout además envían su propio token CSRF desde AuthService.
-const RUTAS_DE_AUTENTICACION = ['/api/auth/login', '/api/auth/me', '/api/auth/logout', '/api/auth/csrf'];
-
-// El registro está exento de CSRF en el backend: no necesita token.
-const RUTA_REGISTRO = '/api/auth/registro';
+// El segundo paso del login (/api/auth/2fa/verificar) es una ruta de autenticación más: su 401 significa que el desafío caducó.
+const RUTAS_DE_AUTENTICACION = [
+  '/api/auth/login',
+  '/api/auth/2fa/verificar',
+  '/api/auth/me',
+  '/api/auth/logout',
+  '/api/auth/csrf',
+];
 
 // Métodos que no modifican datos: el backend no exige token CSRF en ellos.
 const METODOS_SIN_CSRF = ['GET', 'HEAD', 'OPTIONS'];
@@ -35,10 +39,8 @@ export const apiInterceptor: HttpInterceptorFn = (peticion, siguiente) => {
   const esDeAutenticacion = RUTAS_DE_AUTENTICACION.some((ruta) => peticion.url.startsWith(api + ruta));
   const conCredenciales = peticion.clone({ withCredentials: true });
 
-  const necesitaCsrf =
-    !METODOS_SIN_CSRF.includes(peticion.method) &&
-    !esDeAutenticacion &&
-    !peticion.url.startsWith(api + RUTA_REGISTRO);
+  // El registro también lleva token: guarda estado en la sesión (el secreto del 2FA pendiente) y el backend lo exige.
+  const necesitaCsrf = !METODOS_SIN_CSRF.includes(peticion.method) && !esDeAutenticacion;
 
   const envio = necesitaCsrf
     ? enviarConCsrf(conCredenciales, siguiente, injector.get(AuthService))
@@ -55,7 +57,7 @@ export const apiInterceptor: HttpInterceptorFn = (peticion, siguiente) => {
 };
 
 // Envía la petición con la cabecera CSRF. Si el servidor responde 403 (token caducado o de otra sesión) pide un token
-// nuevo y reintenta UNA sola vez. El 403 de "cuenta pendiente de activación" no es un fallo de CSRF y no se reintenta.
+// nuevo y reintenta UNA sola vez.
 function enviarConCsrf(
   peticion: HttpRequest<unknown>,
   siguiente: HttpHandlerFn,
@@ -68,7 +70,7 @@ function enviarConCsrf(
 
   return enviar().pipe(
     catchError((error: unknown) => {
-      if (error instanceof HttpErrorResponse && error.status === 403 && !esCuentaPendiente(error)) {
+      if (error instanceof HttpErrorResponse && error.status === 403) {
         auth.olvidarCsrf();
         return enviar(); // si este segundo intento también falla, el error sale tal cual (no hay más reintentos)
       }

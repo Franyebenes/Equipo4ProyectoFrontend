@@ -79,6 +79,15 @@
   background: var(--coral-soft);
   color: var(--coral);
   font-weight: 800;
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.avatar-usuario:hover,
+.avatar-usuario:focus-visible,
+.avatar-usuario[aria-current='page'] {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 2px var(--coral-soft);
 }
 
 .avatar-usuario img {
@@ -207,4 +216,10 @@
 .info-contacto a {
   color: var(--coral, #e7552c);
   font-weight: 700;
+}
+.enlace-carrito { display: inline-flex; align-items: center; gap: .4rem; }
+.contador-carrito {
+  min-width: 1.4rem; padding: 0 .4rem; border-radius: 999px;
+  background: #ff6b4a; color: #fff; font-size: .8rem; font-weight: 700;
+  line-height: 1.4rem; text-align: center;
 }

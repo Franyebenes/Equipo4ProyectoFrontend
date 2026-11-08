@@ -4,6 +4,7 @@
       <a routerLink="/admin/usuarios" routerLinkActive="is-active">Usuarios</a>
       <a routerLink="/admin/administradores/nuevo" routerLinkActive="is-active">Dar de alta administrador</a>
       <a routerLink="/admin/categorias" routerLinkActive="is-active">Categorías</a>
+      <a routerLink="/admin/productos" routerLinkActive="is-active">Productos</a>
     </nav>
 
     <header class="page-head">
@@ -60,7 +61,7 @@
         <label class="campo">
           Contraseña *
           <span class="campo-pass">
-            <input [type]="verContrasena() ? 'text' : 'password'" name="contrasena" [(ngModel)]="datos.contrasena" autocomplete="new-password" placeholder="Mínimo 12 caracteres">
+            <input type="password" [attr.type]="verContrasena() ? 'text' : 'password'" name="contrasena" [(ngModel)]="datos.contrasena" autocomplete="new-password" placeholder="Mínimo 12 caracteres">
             <button type="button" class="ojo" (click)="verContrasena.set(!verContrasena())"
                     [attr.aria-label]="verContrasena() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
                     [attr.aria-pressed]="verContrasena()">
@@ -71,7 +72,7 @@
         <label class="campo">
           Repetir contraseña *
           <span class="campo-pass">
-            <input [type]="verRepetir() ? 'text' : 'password'" name="repetirContrasena" [(ngModel)]="datos.repetirContrasena" autocomplete="new-password" placeholder="Vuelve a escribirla">
+            <input type="password" [attr.type]="verRepetir() ? 'text' : 'password'" name="repetirContrasena" [(ngModel)]="datos.repetirContrasena" autocomplete="new-password" placeholder="Vuelve a escribirla">
             <button type="button" class="ojo" (click)="verRepetir.set(!verRepetir())"
                     [attr.aria-label]="verRepetir() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
                     [attr.aria-pressed]="verRepetir()">
@@ -80,7 +81,8 @@
           </span>
         </label>
         <p class="pista campo-completo">
-          Usa al menos 12 caracteres. Una frase de varias palabras es fácil de recordar y segura.
+          Usa al menos 12 caracteres, con mayúsculas, minúsculas, un número y un carácter especial (como - _ . ! @ #).
+          Una frase de varias palabras es fácil de recordar y segura.
         </p>
       </div>
 

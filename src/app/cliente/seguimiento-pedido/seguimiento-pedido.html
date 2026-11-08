@@ -1,0 +1,45 @@
+<app-ventana-info titulo="Seguimiento del pedido" (cerrar)="cerrar.emit()">
+  @if (error()) {
+    <p class="aviso aviso-error" role="alert">{{ error() }}</p>
+  } @else if (seguimiento(); as s) {
+    <div class="resumen">
+      <span class="chip" [class]="s.estado.toLowerCase()">{{ etiquetaEstado(s.estado) }}</span>
+      <span class="muted">Última actualización: {{ formatearMomento(s.fechaActualizacion) }}</span>
+    </div>
+
+    @if (!s.disponible) {
+      <p class="aviso aviso-info" role="status">{{ textoSinSeguimiento(s) }}</p>
+    } @else {
+      @if (s.fechaEntrega) {
+        <p class="entrega">Entregado el <strong>{{ formatearMomento(s.fechaEntrega) }}</strong></p>
+      } @else if (s.fechaEntregaEstimada) {
+        <p class="entrega">Entrega estimada: <strong>{{ formatearDia(s.fechaEntregaEstimada) }}</strong></p>
+      }
+
+      <ol class="pasos" aria-label="Pasos del envío">
+        @for (paso of s.pasos; track paso.estado) {
+          <li class="paso" [class.completado]="paso.completado" [class.actual]="paso.actual"
+              [attr.aria-current]="paso.actual ? 'step' : null">
+            <span class="marca" aria-hidden="true">{{ paso.completado ? '✓' : '' }}</span>
+            <span class="texto">
+              <strong>{{ etiquetaEstado(paso.estado) }}</strong>
+              @if (paso.fecha) {
+                <span class="muted">{{ formatearMomento(paso.fecha) }}</span>
+              } @else if (!paso.completado) {
+                <span class="muted">Pendiente</span>
+              }
+            </span>
+          </li>
+        }
+      </ol>
+    }
+  } @else {
+    <p class="muted">Cargando el seguimiento…</p>
+  }
+
+  <div class="pie">
+    <button type="button" class="btn-secundario" (click)="cargar()" [disabled]="cargando()">
+      {{ cargando() ? 'Actualizando…' : 'Actualizar' }}
+    </button>
+  </div>
+</app-ventana-info>

@@ -24,10 +24,19 @@ const MENSAJES: Record<string, string> = {
   CONDICIONES_NO_ACEPTADAS: 'Debes aceptar las condiciones para crear la cuenta.',
   CONTRASENA_CORTA: `La contraseña debe tener al menos ${CONTRASENA_LONGITUD_MINIMA} caracteres.`,
   CONTRASENA_LARGA: `La contraseña no puede superar los ${CONTRASENA_LONGITUD_MAXIMA} caracteres.`,
+  CONTRASENA_SIN_NUMERO: 'La contraseña debe incluir al menos un número.',
+  CONTRASENA_SIN_CARACTER_ESPECIAL:
+    'La contraseña debe incluir al menos un carácter especial, como - _ . ! @ #.',
+  CONTRASENA_SIN_MAYUSCULA: 'La contraseña debe incluir al menos una letra mayúscula.',
+  CONTRASENA_SIN_MINUSCULA: 'La contraseña debe incluir al menos una letra minúscula.',
   CONTRASENA_COMUN: 'Es una contraseña muy común. Elige otra menos predecible.',
   CONTRASENA_FILTRADA: 'Esta contraseña aparece en filtraciones públicas de datos. Elige otra.',
   CONTRASENA_CON_DATOS_PERSONALES:
     'No uses tu nombre, apellidos, correo, nombre comercial ni «esibuy» en la contraseña.',
+  CODIGO_INCORRECTO:
+    'El código no es correcto. Comprueba que has escrito el último que muestra tu aplicación.',
+  ACTIVACION_NO_VIGENTE: 'El código QR ha caducado. Vuelve atrás para obtener uno nuevo.',
+  ENLACE_INVALIDO: 'El enlace no es válido o ha caducado. Solicita uno nuevo.',
 };
 
 const SIN_CARACTERES_PELIGROSOS = 'No uses los caracteres < > { } $.';

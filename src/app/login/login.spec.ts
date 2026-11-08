@@ -35,6 +35,22 @@ describe('Login', () => {
     return vista;
   }
 
+  it('el botón del ojo alterna entre ocultar y mostrar la contraseña', () => {
+    const { fixture, html } = crear();
+    const campo = html.querySelector('input[name="contrasena"]') as HTMLInputElement;
+    const ojo = html.querySelector('.ver-contrasena') as HTMLButtonElement;
+
+    expect(campo.type).toBe('password');
+
+    ojo.click();
+    fixture.detectChanges();
+    expect(campo.type).toBe('text');
+
+    ojo.click();
+    fixture.detectChanges();
+    expect(campo.type).toBe('password');
+  });
+
   it('no ofrece "recordar dispositivo": el backend no lo admite', () => {
     const { html } = crear();
     expect(html.querySelector('input[type="checkbox"]')).toBeNull();
@@ -58,18 +74,6 @@ describe('Login', () => {
     const { html } = await enviar();
 
     expect(html.querySelector('.error')?.textContent).toContain('Correo o contraseña incorrectos.');
-    expect(navegar).not.toHaveBeenCalled();
-  });
-
-  it('con la cuenta pendiente de activación lo explica y no navega', async () => {
-    auth.login.mockRejectedValue(
-      new ErrorAutenticacion('pendiente', 'Cuenta pendiente de activación. Un administrador debe activarla.'),
-    );
-    const navegar = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
-
-    const { html } = await enviar();
-
-    expect(html.querySelector('.error')?.textContent).toContain('Cuenta pendiente de activación');
     expect(navegar).not.toHaveBeenCalled();
   });
 

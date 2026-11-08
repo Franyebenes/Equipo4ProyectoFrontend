@@ -17,10 +17,8 @@ export interface Usuario {
   avatar?: string | null;
 }
 
-export type TipoError = 'credenciales' | 'pendiente' | 'validacion' | 'bloqueado' | 'servidor' | 'red';
-
-// Código con el que el backend avisa de que las credenciales son correctas pero la cuenta aún no está activada.
-const CUENTA_PENDIENTE = 'CUENTA_PENDIENTE_DE_ACTIVACION';
+// 'desafio': el segundo paso del login ya no es válido (caducó o se agotaron los intentos): hay que volver a escribir la contraseña.
+export type TipoError = 'credenciales' | 'validacion' | 'bloqueado' | 'servidor' | 'red' | 'desafio';
 
 // Error de autenticación ya traducido a algo que la pantalla puede mostrar.
 export class ErrorAutenticacion extends Error {
@@ -39,17 +37,19 @@ export class ErrorAutenticacion extends Error {
   }
 }
 
-// necesario para el interceptor: si el backend responde 403 con este código, no es un fallo de CSRF y no se reintenta.
-export function esCuentaPendiente(error: HttpErrorResponse): boolean {
-  return error.error?.codigo === CUENTA_PENDIENTE;
-}
-
 interface TokenCsrf {
   token: string;
   headerName: string;
 }
 
 interface RespuestaLogin extends Usuario {
+  mensaje: string;
+}
+
+// Respuesta del primer paso cuando la cuenta tiene la verificación en dos pasos: la contraseña era correcta, pero todavía
+// no hay sesión; falta el código. No lleva ningún dato del usuario.
+interface RespuestaSegundoFactorRequerido {
+  requiereSegundoFactor: true;
   mensaje: string;
 }
 
@@ -75,29 +75,63 @@ export class AuthService {
       this._usuario.set(usuario);
     } catch {
       this._usuario.set(null);
+      // Sin sesión, el token CSRF que se tuviera guardado era de una sesión que ya no existe (caducada, cerrada o
+      // invalidada por un cambio de contraseña): el backend lo rechazaría con un 401 que parecería "credenciales
+      // incorrectas" al iniciar sesión. Se descarta para pedir uno nuevo.
+      this.csrf = null;
     }
   }
 
-  async login(email: string, contrasena: string): Promise<Usuario> {
+  // Devuelve el usuario si ha entrado, o null si la cuenta tiene la verificación en dos pasos: en ese caso todavía no hay
+  // sesión y hay que pedir el código y llamar a verificarSegundoFactor.
+  async login(email: string, contrasena: string): Promise<Usuario | null> {
     try {
       // El backend rechaza con 400 cualquier campo que no sea email y contrasena.
       const respuesta = await this.enviarConCsrf((cabeceras) =>
-        this.http.post<RespuestaLogin>(`${this.api}/api/auth/login`, { email, contrasena }, { headers: cabeceras }),
+        this.http.post<RespuestaLogin | RespuestaSegundoFactorRequerido>(
+          `${this.api}/api/auth/login`,
+          { email, contrasena },
+          { headers: cabeceras },
+        ),
       );
       // El login rota la sesión: el token CSRF anterior ya no vale y se pedirá otro en la próxima petición.
       this.csrf = null;
-      const usuario: Usuario = {
-        id: respuesta.id,
-        email: respuesta.email,
-        nombre: respuesta.nombre,
-        rol: respuesta.rol,
-        avatar: respuesta.avatar,
-      };
-      this._usuario.set(usuario);
-      return usuario;
+      if ('requiereSegundoFactor' in respuesta) {
+        return null;
+      }
+      return this.iniciarSesionLocal(respuesta);
     } catch (error) {
       throw this.traducirError(error);
     }
+  }
+
+  // Segundo paso del login: el código de la aplicación autenticadora (o uno de recuperación). Crea la sesión definitiva.
+  async verificarSegundoFactor(codigo: string): Promise<Usuario> {
+    try {
+      const respuesta = await this.enviarConCsrf((cabeceras) =>
+        this.http.post<RespuestaLogin>(`${this.api}/api/auth/2fa/verificar`, { codigo }, { headers: cabeceras }),
+      );
+      this.csrf = null; // la sesión definitiva es otra: el token anterior ya no vale
+      return this.iniciarSesionLocal(respuesta);
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 401) {
+        // Aquí un 401 no es "credenciales incorrectas": el desafío caducó o se agotó
+        throw new ErrorAutenticacion('desafio', 'La verificación ha caducado. Vuelve a iniciar sesión.');
+      }
+      throw this.traducirError(error);
+    }
+  }
+
+  private iniciarSesionLocal(respuesta: RespuestaLogin): Usuario {
+    const usuario: Usuario = {
+      id: respuesta.id,
+      email: respuesta.email,
+      nombre: respuesta.nombre,
+      rol: respuesta.rol,
+      avatar: respuesta.avatar,
+    };
+    this._usuario.set(usuario);
+    return usuario;
   }
 
   // Cierra la sesión en el servidor. El estado local se descarta siempre, aunque el servidor no responda.
@@ -142,15 +176,14 @@ export class AuthService {
   }
 
   // Envía una petición que modifica datos con el token CSRF. Si el servidor responde 403 (token caducado o de otra
-  // sesión) pide uno nuevo y reintenta una sola vez. El 403 de "cuenta pendiente de activación" no es un fallo de
-  // CSRF y no se reintenta.
+  // sesión) pide uno nuevo y reintenta una sola vez.
   private async enviarConCsrf<T>(peticion: (cabeceras: HttpHeaders) => Observable<T>): Promise<T> {
     for (let intento = 0; ; intento++) {
       const csrf = await this.tokenCsrf();
       try {
         return await firstValueFrom(peticion(new HttpHeaders({ [csrf.headerName]: csrf.token })));
       } catch (error) {
-        if (error instanceof HttpErrorResponse && error.status === 403 && !esCuentaPendiente(error) && intento === 0) {
+        if (error instanceof HttpErrorResponse && error.status === 403 && intento === 0) {
           this.csrf = null;
           continue;
         }
@@ -182,12 +215,6 @@ export class AuthService {
           reintentarEnSegundos: Number(error.headers.get('Retry-After')) || 0,
         });
       case 403:
-        if (esCuentaPendiente(error)) {
-          return new ErrorAutenticacion(
-            'pendiente',
-            'Cuenta pendiente de activación. Un administrador debe activarla antes de que puedas entrar.',
-          );
-        }
         return new ErrorAutenticacion(
           'servidor',
           'No se ha podido verificar la petición. Recarga la página e inténtalo de nuevo.',
