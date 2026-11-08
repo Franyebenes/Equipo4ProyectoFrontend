@@ -13,6 +13,7 @@ import {
   mensajeErrorPedidosRecibidos,
   mensajeEstadoActualizado,
   referenciaPedido,
+  textoSinMasCambios,
   textoUnidades,
 } from './pedido-vendedor.service';
 
@@ -143,6 +144,12 @@ describe('Pedidos recibidos: textos', () => {
 
   it('hoy se escribe como AAAA-MM-DD', () => {
     expect(diaDeHoy(new Date(2026, 10, 6, 23, 59))).toBe('2026-11-06');
+  });
+
+  it('cuando el envío ya no avanza, explica quién ha cerrado el pedido', () => {
+    expect(textoSinMasCambios('ENTREGADO')).toContain('Falta que el cliente confirme que lo ha recibido');
+    expect(textoSinMasCambios('FINALIZADO')).toContain('El cliente ha confirmado que lo ha recibido');
+    expect(textoSinMasCambios('CANCELADO')).toContain('el cliente lo canceló antes de que se enviara');
   });
 
   it('al cambiar el estado confirma el estado nuevo', () => {

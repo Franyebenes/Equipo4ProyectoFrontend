@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import {
+  ETIQUETA_ESTADO_PEDIDO,
   Pedido,
   PedidoService,
   sePuedeCancelar,
@@ -85,14 +86,20 @@ describe('reglas de los pedidos', () => {
     expect(sePuedeCancelar(pedido('CANCELADO'))).toBe(false);
   });
 
-  it('se puede confirmar la recepción mientras el pedido sigue en curso', () => {
-    expect(sePuedeConfirmarRecepcion(pedido('PAGADO'))).toBe(true);
-    expect(sePuedeConfirmarRecepcion(pedido('EN_PREPARACION'))).toBe(true);
-    expect(sePuedeConfirmarRecepcion(pedido('ENVIADO'))).toBe(true);
-    expect(sePuedeConfirmarRecepcion(pedido('EN_REPARTO'))).toBe(true);
+  it('solo se puede confirmar la recepción cuando el vendedor lo ha marcado como entregado', () => {
+    expect(sePuedeConfirmarRecepcion(pedido('PAGADO'))).toBe(false);
+    expect(sePuedeConfirmarRecepcion(pedido('EN_PREPARACION'))).toBe(false);
+    expect(sePuedeConfirmarRecepcion(pedido('ENVIADO'))).toBe(false);
+    expect(sePuedeConfirmarRecepcion(pedido('EN_REPARTO'))).toBe(false);
     expect(sePuedeConfirmarRecepcion(pedido('ENTREGADO'))).toBe(true);
     expect(sePuedeConfirmarRecepcion(pedido('FINALIZADO'))).toBe(false);
     expect(sePuedeConfirmarRecepcion(pedido('CANCELADO'))).toBe(false);
+  });
+
+  it('nunca se ofrece a la vez cancelar y confirmar la recepción', () => {
+    for (const estado of Object.keys(ETIQUETA_ESTADO_PEDIDO) as Pedido['estado'][]) {
+      expect(sePuedeCancelar(pedido(estado)) && sePuedeConfirmarRecepcion(pedido(estado))).toBe(false);
+    }
   });
 });
 
