@@ -1,3 +1,9 @@
+/* Edge añade su propio botón de mostrar contraseña: se oculta para que solo quede el nuestro */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
 :root {
   /* Colores de Home, login y registro */
   --paper: #fffdf9;
