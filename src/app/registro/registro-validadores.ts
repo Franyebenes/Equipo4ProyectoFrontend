@@ -16,6 +16,14 @@ const CARACTERES_PROHIBIDOS = /[<>{}$]/;
 const FORMATO_EMAIL = /^[a-z0-9._%+-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}$/i;
 const FORMATO_TELEFONO = /^[0-9]{9}$/;
 
+// Composición de la contraseña, igual que el backend: un dígito 0-9, una mayúscula y una minúscula (Unicode, con
+// acentos y la ñ) y un carácter especial, que es cualquier signo de puntuación o símbolo (un emoji cuenta; los
+// espacios no).
+const HAY_NUMERO = /[0-9]/;
+const HAY_MAYUSCULA = /\p{Lu}/u;
+const HAY_MINUSCULA = /\p{Ll}/u;
+const HAY_ESPECIAL = /[\p{P}\p{S}]/u;
+
 const vacio = (valor: unknown): boolean => typeof valor !== 'string' || valor.trim() === '';
 
 // Longitud en caracteres reales: un emoji cuenta como 1, igual que en el backend.
@@ -61,18 +69,35 @@ export function telefonoOpcional(): ValidatorFn {
   };
 }
 
-// La contraseña no se recorta: los espacios forman parte de ella y se permiten.
+// La contraseña no se recorta: los espacios forman parte de ella y se permiten. Como en el backend, se devuelven
+// todos los incumplimientos a la vez (longitud y composición) y se valida sobre el texto normalizado a NFC.
 export function contrasenaValida(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const valor = control.value;
     if (typeof valor !== 'string' || valor === '') {
       return { OBLIGATORIO: true };
     }
-    const largo = longitud(valor);
+    const contrasena = valor.normalize('NFC');
+    const errores: ValidationErrors = {};
+    const largo = longitud(contrasena);
     if (largo < CONTRASENA_LONGITUD_MINIMA) {
-      return { CONTRASENA_CORTA: true };
+      errores['CONTRASENA_CORTA'] = true;
+    } else if (largo > CONTRASENA_LONGITUD_MAXIMA) {
+      errores['CONTRASENA_LARGA'] = true;
     }
-    return largo > CONTRASENA_LONGITUD_MAXIMA ? { CONTRASENA_LARGA: true } : null;
+    if (!HAY_NUMERO.test(contrasena)) {
+      errores['CONTRASENA_SIN_NUMERO'] = true;
+    }
+    if (!HAY_ESPECIAL.test(contrasena)) {
+      errores['CONTRASENA_SIN_CARACTER_ESPECIAL'] = true;
+    }
+    if (!HAY_MAYUSCULA.test(contrasena)) {
+      errores['CONTRASENA_SIN_MAYUSCULA'] = true;
+    }
+    if (!HAY_MINUSCULA.test(contrasena)) {
+      errores['CONTRASENA_SIN_MINUSCULA'] = true;
+    }
+    return Object.keys(errores).length > 0 ? errores : null;
   };
 }
 

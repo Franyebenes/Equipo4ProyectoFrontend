@@ -1,3 +1,67 @@
+/* Botones de solo icono para editar (lápiz) y eliminar (X). Llevan siempre title y aria-label. */
+.accion-icono {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: white;
+  box-shadow: inset 0 0 0 1px #ddd6cc;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.accion-icono::before {
+  content: '';
+  width: 1.1rem;
+  height: 1.1rem;
+  background: currentColor;
+  -webkit-mask: var(--icono) center / contain no-repeat;
+  mask: var(--icono) center / contain no-repeat;
+}
+
+.accion-icono.accion-editar:hover,
+.accion-icono.accion-candado-cerrado:hover,
+.accion-icono.accion-candado-abierto:hover {
+  background: var(--cream);
+}
+
+.accion-candado-cerrado {
+  --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E");
+}
+
+.accion-candado-abierto {
+  --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 7.5-2'/%3E%3C/svg%3E");
+}
+
+.accion-icono:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.accion-editar {
+  --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E");
+}
+
+.accion-eliminar {
+  --icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12'/%3E%3Cpath d='M18 6L6 18'/%3E%3C/svg%3E");
+  box-shadow: inset 0 0 0 1px #f3c4bd;
+  color: #b42318;
+}
+
+.accion-icono.accion-eliminar:hover {
+  background: #fdecea;
+}
+
+/* Edge añade su propio botón de mostrar contraseña: se oculta para que solo quede el nuestro */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
 :root {
   /* Colores de Home, login y registro */
   --paper: #fffdf9;

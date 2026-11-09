@@ -1,4 +1,4 @@
-// Contrato con el backend: POST /api/auth/registro. El campo tipoCuenta decide qué datos se leen:
+// Contrato con el backend: primero POST /api/auth/registro/2fa (QR) y después POST /api/auth/registro. El campo tipoCuenta decide qué datos se leen:
 // CLIENTE y PREMIUM llevan fechaNacimiento; VENDEDOR lleva nombreComercial y categoriaPrincipalId.
 // Cualquier campo que no sea de su tipo se rechaza con 400, así que cada solicitud lleva solo los suyos.
 export type TipoCuenta = 'CLIENTE' | 'PREMIUM' | 'VENDEDOR';
@@ -13,6 +13,8 @@ interface DatosComunes {
   avatar?: string | null;
   contrasena: string;
   repetirContrasena: string;
+  // Primer código de la aplicación autenticadora: prueba que el 2FA está configurado. Es obligatorio.
+  codigoDosFactores: string;
 }
 
 export interface SolicitudRegistroCliente extends DatosComunes {
@@ -33,6 +35,14 @@ export interface RespuestaRegistro {
   email: string;
   nombre: string;
   mensaje: string;
+  // Se muestran una sola vez: en el servidor solo queda su hash.
+  codigosRecuperacion: string[];
+}
+
+// POST /api/auth/registro/2fa: lo necesario para dar de alta la cuenta en la aplicación autenticadora.
+export interface ActivacionRegistro {
+  uri: string; // otpauth://..., para el QR
+  secreto: string; // el mismo secreto en Base32, para escribirlo a mano
 }
 
 export interface Categoria {

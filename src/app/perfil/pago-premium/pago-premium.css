@@ -1,0 +1,340 @@
+/* Pago Premium: misma tarjeta que "Mi perfil" y mismos campos que "Editar perfil". */
+:host {
+  display: block;
+  min-height: calc(100vh - 4.5rem);
+  background: var(--cream);
+  --error: #b3261e;
+  --error-suave: #fdecea;
+}
+
+.pagina {
+  width: min(720px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 2.5rem;
+}
+
+.tarjeta {
+  background: var(--paper);
+  border-radius: 1.6rem;
+  padding: 1.7rem 1.5rem 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.ceja {
+  margin: 0 0 0.35rem;
+  color: var(--coral);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Cabecera con la cuota */
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.1rem;
+  padding-bottom: 1.4rem;
+  margin-bottom: 1.4rem;
+  border-bottom: 1px solid var(--line);
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.55rem;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  margin: 1.6rem 0 0.8rem;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.intro {
+  display: block;
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.cuota {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0.7rem 1.1rem;
+  border-radius: 1rem;
+  background: var(--coral-soft);
+  text-align: center;
+}
+
+.cuota-importe {
+  display: block;
+  color: var(--coral);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.cuota-texto {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Ventajas */
+.ventajas {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ventajas li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.92rem;
+}
+
+.ventajas svg {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  background: var(--sage);
+  color: var(--ok);
+}
+
+/* Tarjetas guardadas */
+.tarjetas {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.opcion-tarjeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.opcion-tarjeta:hover {
+  border-color: #f0b9a8;
+}
+
+.opcion-tarjeta.elegida {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px var(--coral-soft);
+}
+
+.opcion-tarjeta input {
+  accent-color: var(--coral);
+  margin: 0;
+}
+
+.tarjeta-numero {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.tarjeta-detalle {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Formulario de tarjeta nueva */
+.nueva-tarjeta {
+  display: grid;
+  gap: 0.95rem;
+  padding: 1.2rem;
+  border-radius: 1.2rem;
+  background: var(--cream);
+}
+
+.dos-campos {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.campo-grupo {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.campo {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.entrada {
+  display: block;
+}
+
+.entrada input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.78rem 1rem;
+  background: white;
+  color: var(--ink);
+}
+
+.entrada input:focus {
+  outline: 2px solid var(--coral-soft);
+  border-color: #f0b9a8;
+}
+
+.entrada input[aria-invalid='true'] {
+  border-color: var(--error);
+}
+
+.entrada input[aria-invalid='true']:focus {
+  outline-color: var(--error-suave);
+}
+
+.error-campo {
+  margin: 0;
+  color: var(--error);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.error {
+  margin: 1.2rem 0 0;
+  padding: 0.75rem 0.95rem;
+  background: var(--error-suave);
+  border-radius: 0.85rem;
+  color: var(--error);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.acciones-tarjeta {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.anadir {
+  margin-top: 0.2rem;
+}
+
+/* Botones */
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cargando {
+  margin: 1.2rem 0 0;
+  color: var(--muted);
+}
+
+/* Pantalla de pago realizado */
+.exito {
+  text-align: center;
+  padding-bottom: 1.4rem;
+  margin-bottom: 1.4rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.icono-exito {
+  display: inline-grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: 0.8rem;
+  border-radius: 999px;
+  background: var(--sage);
+  color: var(--ok);
+}
+
+.icono-exito svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.datos {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.dato {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: 0.9rem;
+  background: var(--cream);
+}
+
+.dato dt {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.dato dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+@media (min-width: 720px) {
+  .pagina {
+    padding: 2.6rem 0 3.2rem;
+  }
+
+  .tarjeta {
+    padding: 2.2rem 2.1rem 1.9rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  .dos-campos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 479px) {
+  .cabecera {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .acciones,
+  .acciones-tarjeta {
+    flex-direction: column-reverse;
+  }
+
+  .acciones .btn,
+  .acciones-tarjeta .btn {
+    width: 100%;
+  }
+}

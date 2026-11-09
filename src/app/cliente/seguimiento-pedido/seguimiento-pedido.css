@@ -1,0 +1,133 @@
+/* Ventana de seguimiento del envío. El marco de la ventana es el de app-ventana-info */
+
+.muted {
+  color: var(--muted, #6b6e67);
+  font-size: 0.88rem;
+}
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+/* Mismos colores que los estados de «Mis pedidos» */
+.chip {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: #f2f2f2;
+  color: #444;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.chip.pagado { background: #e3eedf; color: #3f6f48; }
+.chip.en_preparacion { background: #fdf3d7; color: #8a5a00; }
+.chip.enviado, .chip.en_reparto, .chip.entregado { background: #e4ecf7; color: #2c5282; }
+.chip.finalizado { background: #f4f0e9; color: #6b6e67; }
+.chip.cancelado { background: #fdecea; color: #b3261e; }
+
+.entrega {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.75rem;
+  background: var(--cream, #f4f0e9);
+}
+
+.aviso {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.aviso-error { background: #fdecea; color: #b3261e; }
+.aviso-info { background: #f2f2f2; color: #444; }
+
+/* Pasos del envío: una línea vertical con un círculo por paso */
+.pasos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.paso {
+  position: relative;
+  display: flex;
+  gap: 0.8rem;
+  padding-bottom: 1.1rem;
+}
+
+.paso:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 1.6rem;
+  bottom: 0.1rem;
+  left: 0.75rem;
+  width: 2px;
+  background: var(--line, #e6e1d8);
+}
+
+/* El tramo hasta el siguiente paso solo se pinta si ese paso ya se ha alcanzado */
+.paso.completado:has(+ .paso.completado)::before {
+  background: #3f6f48;
+}
+
+.marca {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid var(--line, #e6e1d8);
+  border-radius: 999px;
+  background: #fff;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.paso.completado .marca {
+  border-color: #3f6f48;
+  background: #3f6f48;
+}
+
+.paso.actual .marca {
+  box-shadow: 0 0 0 4px #e3eedf;
+}
+
+.texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding-top: 0.15rem;
+}
+
+.paso:not(.completado) .texto strong {
+  color: var(--muted, #6b6e67);
+  font-weight: 600;
+}
+
+.pie {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.btn-secundario {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  background: #fff;
+  color: #222;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-secundario:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

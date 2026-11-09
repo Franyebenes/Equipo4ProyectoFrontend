@@ -1,0 +1,137 @@
+<section class="admin-page">
+  <div class="bar">
+    <a routerLink="/vendedor/pedidos" [queryParams]="filtroListado" class="volver">← Volver a pedidos recibidos</a>
+
+    @if (cargando()) {
+      <div class="card ficha"><p class="muted">Cargando pedido…</p></div>
+    } @else if (error()) {
+      <div class="aviso aviso-error" role="alert">{{ error() }}</div>
+    } @else {
+      @if (pedido(); as p) {
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">Pedidos recibidos</p>
+            <h1>Pedido {{ referencia(p.id) }}</h1>
+            <p class="sub">Realizado el {{ formatearFecha(p.fecha) }}</p>
+          </div>
+        </header>
+
+        <div class="card ficha">
+          <dl class="datos datos-pedido">
+            <div>
+              <dt>Cliente</dt>
+              <dd>{{ p.cliente }}</dd>
+            </div>
+            <div>
+              <dt>Unidades</dt>
+              <dd>{{ textoUnidades(p.unidades) }}</dd>
+            </div>
+            <div>
+              <dt>Importe</dt>
+              <dd>{{ formatearPrecio(p.importe) }}</dd>
+            </div>
+            <div>
+              <dt>Envío a</dt>
+              <dd>
+                @if (p.direccionEnvio; as d) {
+                  {{ d.calle }}<br>{{ d.codigoPostal }} {{ d.ciudad }}
+                } @else {
+                  <span class="muted">Sin dirección de envío</span>
+                }
+              </dd>
+            </div>
+          </dl>
+
+          <!-- Procesar estado del pedido: el vendedor hace avanzar el envío -->
+          <section class="gestion-estado" aria-labelledby="titulo-estado">
+            <div class="titulo-estado">
+              <h2 id="titulo-estado" class="seccion">Estado del pedido</h2>
+              <span class="estado-pedido estado-actual" [class]="p.estado.toLowerCase()">
+                {{ etiquetaEstado(p.estado) }}
+              </span>
+            </div>
+            <p class="muted ayuda-estado">
+              Última actualización: {{ formatearFecha(p.fechaActualizacion) }}
+              @if (p.fechaEntregaEstimada) {
+                · Entrega estimada para el cliente: {{ formatearDia(p.fechaEntregaEstimada) }}
+              }
+            </p>
+            @if (p.estadosSiguientes.length > 0) {
+              <div class="estado-controles">
+                <label class="campo">
+                  Nuevo estado
+                  <select [ngModel]="nuevoEstado()" (ngModelChange)="nuevoEstado.set($event)"
+                          [disabled]="guardandoEstado()">
+                    @for (e of p.estadosSiguientes; track e) {
+                      <option [value]="e">{{ etiquetaEstado(e) }}</option>
+                    }
+                  </select>
+                </label>
+                @if (pideFechaEntrega()) {
+                  <label class="campo">
+                    Entrega estimada (opcional)
+                    <input type="date" [min]="hoy" [ngModel]="fechaEntrega()"
+                           (ngModelChange)="fechaEntrega.set($event)" [disabled]="guardandoEstado()">
+                  </label>
+                }
+                <button type="button" class="btn btn-crear" (click)="pedirConfirmacion()"
+                        [disabled]="guardandoEstado() || !nuevoEstado()">Actualizar estado</button>
+              </div>
+              <p class="muted ayuda-estado">El envío solo avanza: no se puede volver a un estado anterior.</p>
+            } @else {
+              <p class="muted sin-cambios">{{ textoSinMasCambios(p.estado) }}</p>
+            }
+            @if (exitoEstado()) {
+              <div class="aviso aviso-ok" role="status">{{ exitoEstado() }}</div>
+            }
+            @if (errorEstado()) {
+              <div class="aviso aviso-error" role="alert">{{ errorEstado() }}</div>
+            }
+          </section>
+
+          <h2 class="seccion">Productos</h2>
+          <div class="tabla-scroll">
+            <table class="lineas">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th class="derecha">Cantidad</th>
+                  <th class="derecha">Precio unidad</th>
+                  <th class="derecha">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (l of p.lineas; track l.idProducto) {
+                  <tr>
+                    <td>{{ l.nombre }}</td>
+                    <td class="derecha">{{ l.cantidad }}</td>
+                    <td class="derecha">{{ formatearPrecio(l.precioUnitario) }}</td>
+                    <td class="derecha">{{ formatearPrecio(l.subtotal) }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" class="derecha">Total</td>
+                  <td class="derecha">{{ formatearPrecio(p.importe) }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <p class="nota muted">Los precios son los que pagó el cliente, con los descuentos que tenía al comprar.</p>
+        </div>
+
+        @if (confirmandoCambio()) {
+          <app-dialogo-confirmacion
+            titulo="Actualizar estado del pedido"
+            [mensaje]="mensajeConfirmacion(p)"
+            textoConfirmar="Actualizar"
+            textoProcesando="Actualizando…"
+            [procesando]="guardandoEstado()"
+            (cancelar)="cancelarCambio()"
+            (confirmar)="confirmarCambio(p)" />
+        }
+      }
+    }
+  </div>
+</section>

@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/auth.service';
 import { UserEdit } from '../user-edit/user-edit';
@@ -12,7 +11,7 @@ import {
 
 @Component({
   selector: 'app-user-list',
-  imports: [FormsModule, RouterLink, RouterLinkActive, UserEdit, DialogoConfirmacion],
+  imports: [FormsModule, UserEdit, DialogoConfirmacion],
   templateUrl: './user-list.html',
   styleUrls: ['../admin-shared.css', './user-list.css'],
 })
